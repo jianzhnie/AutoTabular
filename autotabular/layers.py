@@ -294,18 +294,36 @@ class InnerProductLayer(nn.Module):
 
 
 class OutterProductLayer(nn.Module):
-    """OutterProduct Layer used in PNN.This implemention is
-    adapted from code that the author of the paper published on https://github.com/Atomu2014/product-nets.
-      Input shape
-            - A list of N 3D tensor with shape: ``(batch_size,1,embedding_size)``.
-      Output shape
-            - 2D tensor with shape:``(batch_size,N*(N-1)/2 )``.
-      Arguments
-            - **filed_size** : Positive integer, number of feature groups.
-            - **kernel_type**: str. The kernel weight matrix type to use,can be mat,vec or num
-            - **seed**: A Python integer to use as random seed.
-      References
-            - [Qu Y, Cai H, Ren K, et al. Product-based neural networks for user response prediction[C]//Data Mining (ICDM), 2016 IEEE 16th International Conference on. IEEE, 2016: 1149-1154.](https://arxiv.org/pdf/1611.00144.pdf)
+    """Outer-Product layer
+
+    Arguments:
+        filed_size: Positive integer, number of feature groups.
+        embedding_size: embedding_size
+        kernel_type: str, (default='mat')
+            the type of outer product kernel
+            - mat
+            - vec
+            - num
+
+    Call arguments:
+        x: A list of 3D tensor.
+
+    Input shape
+    -----------
+        - A list of 3D tensor with shape (batch_size, 1, embedding_size)
+
+    Output shape
+    ------------
+        - 2D tensor with shape:
+         `(batch_size, num_fields*(num_fields-1)/2)`
+
+    References
+    ----------
+    .. [1] `Qu Y, Cai H, Ren K, et al. Product-based neural networks for user response prediction[C]//2016
+    IEEE 16th International Conference on Data Mining (ICDM). IEEE, 2016: 1149-1154.`
+    .. [2] `Qu Y, Fang B, Zhang W, et al. Product-based neural networks for user response prediction over
+    multi-field categorical datasets[J]. ACM Transactions on Information Systems (TOIS), 2018, 37(1): 1-35.`
+    .. [3] https://github.com/Atomu2014/product-nets
     """
 
     def __init__(self, field_size, embedding_size, kernel_type='mat', seed=1024, device='cpu'):
