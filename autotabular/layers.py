@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import itertools
 
 
@@ -102,6 +103,38 @@ class SENETLayer(nn.Module):
         V = torch.mul(inputs, torch.unsqueeze(A, dim=2))
 
         return V
+
+
+class BilinearInteractionPooling(nn.Module):
+    """Bi-Interaction Layer used in Neural FM,compress the
+     pairwise element-wise product of features into one single vector.
+
+      Input shape
+        - A 3D tensor with shape:``(batch_size,field_size,embedding_size)``.
+
+      Output shape
+        - 3D tensor with shape: ``(batch_size,1,embedding_size)``.
+
+      References
+        - [He X, Chua T S. Neural factorization machines for sparse predictive analytics[C]//Proceedings of the 40th International ACM SIGIR conference on Research and Development in Information Retrieval. ACM, 2017: 355-364.](http://arxiv.org/abs/1708.05027)
+    """
+
+    def __init__(self):
+        super(BilinearInteractionPooling, self).__init__()
+
+    def forward(self, inputs):
+        if len(inputs.shape) != 3:
+            raise ValueError(
+                "Unexpected inputs dimensions %d, expect to be 3 dimensions" % (len(inputs.shape)))
+
+        concated_embeds_value = inputs
+        square_of_sum = torch.pow(
+            torch.sum(concated_embeds_value, dim=1, keepdim=True), 2)
+        sum_of_square = torch.sum(
+            concated_embeds_value * concated_embeds_value, dim=1, keepdim=True)
+        cross_term = 0.5 * (square_of_sum - sum_of_square)
+
+        return cross_term
 
 
 class BilinearInteraction(nn.Module):
@@ -234,6 +267,128 @@ class CrossNet(nn.Module):
                 raise ValueError("parameterization should be 'vector' or 'matrix'")
         x_l = torch.squeeze(x_l, dim=2)
         return x_l
+
+
+class AFMLayer(nn.Module):
+    """Attentonal Factorization Machine models pairwise (order-2) feature
+    interactions without linear term and bias.
+      Input shape
+        - A list of 3D tensor with shape: ``(batch_size,1,embedding_size)``.
+      Output shape
+        - 2D tensor with shape: ``(batch_size, 1)``.
+      Arguments
+        - **in_features** : Positive integer, dimensionality of input features.
+        - **attention_factor** : Positive integer, dimensionality of the
+         attention network output space.
+        - **l2_reg_w** : float between 0 and 1. L2 regularizer strength
+         applied to attention network.
+        - **dropout_rate** : float between in [0,1). Fraction of the attention net output units to dropout.
+        - **seed** : A Python integer to use as random seed.
+      References
+        - [Attentional Factorization Machines : Learning the Weight of Feature
+        Interactions via Attention Networks](https://arxiv.org/pdf/1708.04617.pdf)
+    """
+    def __init___(self, in_features, attention_factor=4, l2_reg_w=0, dropout_rate=0, seed=1024, device='cpu'):
+        super(AFMLayer, self).__init__()
+
+        self.attention_factor = attention_factor
+        self.l2_reg_w = l2_reg_w
+        self.dropout_rate = dropout_rate
+        self.seed = seed
+        embedding_size = in_features
+
+        self.attention_W = nn.Parameter(torch.Tensor(
+            embedding_size, self.attention_factor))
+
+        self.attention_b = nn.Parameter(torch.Tensor(self.attention_factor))
+
+        self.projection_h = nn.Parameter(
+            torch.Tensor(self.attention_factor, 1))
+
+        self.projection_p = nn.Parameter(torch.Tensor(embedding_size, 1))
+
+        for tensor in [self.attention_W, self.projection_h, self.projection_p]:
+            nn.init.xavier_normal_(tensor, )
+
+        for tensor in [self.attention_b]:
+            nn.init.zeros_(tensor, )
+
+        self.dropout = nn.Dropout(dropout_rate)
+
+        self.to(device)
+
+    def forward(self, inputs):
+        embeds_vec_list = inputs
+        row = []
+        col = []
+
+        for r, c in itertools.combinations(embeds_vec_list, 2):
+            row.append(r)
+            col.append(c)
+        
+        p = torch.cat(row, dim=1)
+        q = torch.cat(col, dim=1)
+
+        inner_product = p * q
+        bi_interaction = inner_product
+        
+        attention_temp = F.relu(torch.tensordot(
+            bi_interaction, self.attention_W, dims=([-1], [0])) + self.attention_b
+        )
+        self.normalized_att_score = F.softmax(torch.tensordot(
+            attention_temp, self.projection_h, dims=([-1], [0])), dim=1
+        )
+        attention_output = torch.sum(
+            self.normalized_att_score * bi_interaction, dim=1)
+        
+        attention_output = self.dropout(attention_output)  # training
+        
+        afm_out = torch.tensordot(
+            attention_output, self.projection_p, dims=([-1], [0]))
+        return afm_out
+
+
+class AFM(nn.Module):
+    """Attentional Factorization Machine (AFM), which learns the importance of each feature interaction
+    from datasets via a neural attention network.
+
+    Arguments:
+        hidden_factor: int, (default=16)
+        activation_function : str, (default='relu')
+        kernel_regularizer : str or object, (default=None)
+        dropout_rate: float, (default=0)
+
+    Call arguments:
+        x: A list of 3D tensor.
+
+    Input shape
+    -----------
+        - A list of 3D tensor with shape: (batch_size, 1, embedding_size)
+
+    Output shape
+    ------------
+        - 2D tensor with shape:
+         `(batch_size, 1)`
+
+    References
+    ----------
+    .. [1] `Xiao J, Ye H, He X, et al. Attentional factorization machines: Learning the weight of feature
+    interactions via attention networks[J]. arXiv preprint arXiv:1708.04617, 2017.`
+    .. [2] https://github.com/hexiangnan/attentional_factorization_machine
+    """
+
+    def __init__(self, params, **kwargs):
+        self.params = params
+        self.hidden_factor = params.get('hidden_factor', 16)
+        self.dropout_rate = params.get('dropout_rate', 0)
+        self.activation_function = params.get('activation', 'relu')
+        self.kernel_regularizer = params.get('kernel_regularizer', None)
+        super(AFM, self).__init__(**kwargs)
+
+        self.dense_attention = nn.Linear(self.in_features, self.attentopn_factor)
+
+
+
 
 
 class InnerProductLayer(nn.Module):
