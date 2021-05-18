@@ -1,6 +1,6 @@
 import torch
 
-from torchfm.layer import FeaturesLinear, FieldAwareFactorizationMachine
+from autotabular.model.layer import FeaturesLinear, FieldAwareFactorizationMachine
 
 
 class FieldAwareFactorizationMachineModel(torch.nn.Module):

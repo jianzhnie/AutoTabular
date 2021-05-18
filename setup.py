@@ -1,5 +1,4 @@
 from pathlib import Path
-
 from setuptools import setup, find_packages
 
 
@@ -9,7 +8,7 @@ if __name__ == '__main__':
         long_description = f.read()
 
     setup(
-        name="AutoTabulartorchfm",
+        name="AutoTabular",
         version="0.1.0",
         description="PyTorch implementation of autogluon for tabulardata",
         long_description=long_description,

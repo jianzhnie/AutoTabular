@@ -1,5 +1,5 @@
 import torch
-from torchfm.layer import FeaturesEmbedding, MultiLayerPerceptron
+from autotabular.model.layer import FeaturesEmbedding, MultiLayerPerceptron
 
 
 class NeuralCollaborativeFiltering(torch.nn.Module):

@@ -2,7 +2,7 @@ import math
 import torch
 import torch.nn.functional as F
 
-from torchfm.layer import FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
+from autotabular.model.layer import FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
 
 class LNN(torch.nn.Module):
     """

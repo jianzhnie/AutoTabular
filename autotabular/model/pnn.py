@@ -1,6 +1,6 @@
 import torch
 
-from torchfm.layer import FeaturesEmbedding, FeaturesLinear, InnerProductNetwork, \
+from autotabular.model.layer import FeaturesEmbedding, FeaturesLinear, InnerProductNetwork, \
     OuterProductNetwork, MultiLayerPerceptron
 
 

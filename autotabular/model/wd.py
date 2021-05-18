@@ -1,6 +1,6 @@
 import torch
 
-from torchfm.layer import FeaturesLinear, MultiLayerPerceptron, FeaturesEmbedding
+from autotabular.model.layer import FeaturesLinear, MultiLayerPerceptron, FeaturesEmbedding
 
 
 class WideAndDeepModel(torch.nn.Module):

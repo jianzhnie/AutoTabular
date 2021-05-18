@@ -1,6 +1,6 @@
 import torch
 
-from torchfm.layer import FactorizationMachine, FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
+from autotabular.model.layer import FactorizationMachine, FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
 
 
 class DeepFactorizationMachineModel(torch.nn.Module):

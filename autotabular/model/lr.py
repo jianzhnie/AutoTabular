@@ -1,6 +1,6 @@
 import torch
 
-from torchfm.layer import FeaturesLinear
+from autotabular.model.layer import FeaturesLinear
 
 
 class LogisticRegressionModel(torch.nn.Module):

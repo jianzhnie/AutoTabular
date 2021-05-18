@@ -34,9 +34,9 @@ class FM(nn.Module):
 
         if len(inputs.shape) != 3:
             raise ValueError(f'Wrong dimensions of inputs, expected 3 but input {len(inputs.shape)}.')
-        fm_input = inputs
-        square_of_sum = torch.pow(torch.sum(fm_input, dim=1, keepdim=True), 2)
-        sum_of_square = torch.sum(fm_input * fm_input, dim=1, keepdim=True)
+
+        square_of_sum = torch.pow(torch.sum(inputs, dim=1, keepdim=True), 2)
+        sum_of_square = torch.sum(inputs * inputs, dim=1, keepdim=True)
         cross_term = square_of_sum - sum_of_square
         cross_term = 0.5 * torch.sum(cross_term, dim=2, keepdim=False)
 
@@ -377,18 +377,35 @@ class AFM(nn.Module):
     .. [2] https://github.com/hexiangnan/attentional_factorization_machine
     """
 
-    def __init__(self, params, **kwargs):
-        self.params = params
-        self.hidden_factor = params.get('hidden_factor', 16)
-        self.dropout_rate = params.get('dropout_rate', 0)
-        self.activation_function = params.get('activation', 'relu')
-        self.kernel_regularizer = params.get('kernel_regularizer', None)
+    def __init__(self, in_features, attention_factor, dropout_rate, activation, kernel_regularizer, **kwargs):
+        self.embedding_size = in_features
+        self.attention_factor = attention_factor
+        self.dropout_rate = dropout_rate
+        self.activation_function = activation
+        self.kernel_regularizer = kernel_regularizer
         super(AFM, self).__init__(**kwargs)
 
-        self.dense_attention = nn.Linear(self.in_features, self.attentopn_factor)
+        self.dense_attention = nn.Linear(self.embedding_size, self.attention_factor)
+        self.projection = nn.Linear(self.attention_factor, 1)
+        self.fc = nn.Linear(self.embedding_size, 1, bias=False)
+        self.dropout = nn.Dropout(self.dropout_rate)
 
+    def forward(self, inputs):
+        row, col = list(), list()
+        for r, c in itertools.combinations(inputs, 2):
+            row.append(r)
+            col.append(c)
+        p = torch.cat(row, dim=1)
+        q = torch.cat(col, dim=1)
+        inner_product = p * q
+        
+        attention_score = nn.ReLU(self.dense_attention(inner_product))
+        attention_score = nn.Softmax(self.projection(attention_score), dim=1)
 
-
+        attention_out = torch.sum(attention_score * inner_product, dim=1)
+        attention_out = self.dropout(attention_out)
+        afm_out = self.fc(attention_out)
+        return afm_out
 
 
 class InnerProductLayer(nn.Module):

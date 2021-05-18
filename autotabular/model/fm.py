@@ -1,6 +1,6 @@
 import torch
 
-from torchfm.layer import FactorizationMachine, FeaturesEmbedding, FeaturesLinear
+from autotabular.model.layer import FactorizationMachine, FeaturesEmbedding, FeaturesLinear
 
 
 class FactorizationMachineModel(torch.nn.Module):

@@ -1,6 +1,6 @@
 import torch
 
-from torchfm.layer import FeaturesEmbedding, FeaturesLinear, AttentionalFactorizationMachine
+from autotabular.model.layer import FeaturesEmbedding, FeaturesLinear, AttentionalFactorizationMachine
 
 
 class AttentionalFactorizationMachineModel(torch.nn.Module):
