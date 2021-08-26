@@ -5,30 +5,21 @@
 [![Conference](http://img.shields.io/badge/ICLR-2019-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)
 [![Conference](http://img.shields.io/badge/AnyConference-year-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)  
 
- 
+
 AutoTabular automates machine learning tasks enabling you to easily achieve strong predictive performance in your applications.  With just a few lines of code, you can train and deploy high-accuracy machine learning and deep learning models tabular data.
 
-## Example
 
-First, install dependencies   
-```bash
-# clone project   
-git clone https://apulis-gitlab.apulis.cn/apulis/AutoTabular/autotabular.git
 
-# install project   
-cd autotabular
-pip install -e .   
-pip install -r requirements.txt
- ```   
- Next, navigate to any file and run it.   
- ```bash
-# module folder
-cd example
+## What's good in it? 
 
-# run module (example: mnist as your main contribution)   
-python demo.py    
-```
-
+- The RAPIDS suite of open source software libraries and APIs gives you the ability to execute end-to-end data science and analytics pipelines entirely on GPUs.
+- It is using many Deep Learning models for tabular data: `Wide&Deep`,  `DCN(Deep & Cross Network)`, `FM`, `DeepFM`, `PNN` ...
+- It is using many algorithms: `Baseline`, `Linear`, `Random Forest`, `Extra Trees`, `LightGBM`, `Xgboost`, `CatBoost`, and `Nearest Neighbors`.
+- It can compute Ensemble based on greedy algorithm from [Caruana paper](http://www.cs.cornell.edu/~alexn/papers/shotgun.icml04.revised.rev2.pdf).
+- It can stack models to build level 2 ensemble (available in `Compete` mode or after setting `stack_models` parameter).
+- It can do features preprocessing, like: missing values imputation and converting categoricals. What is more, it can also handle target values preprocessing.
+- It can do advanced features engineering, like: [Golden Features](https://supervised.mljar.com/features/golden_features/), [Features Selection](https://supervised.mljar.com/features/features_selection/), Text and Time Transformations.
+- It can tune hyper-parameters with `not-so-random-search` algorithm (random-search over defined set of values) and hill climbing to fine-tune final models.
 
 ### Citation  
 If you use AutoTabular in a scientific publication, please cite the following paper:
@@ -46,6 +37,26 @@ BibTeX entry:
 }
 ```
 
+## Example
+
+First, install dependencies   
+```bash
+# clone project   
+git clone https://apulis-gitlab.apulis.cn/apulis/AutoTabular/autotabular.git
+
+# install project   
+cd autotabular
+pip install -e .   
+pip install -r requirements.txt
+```
+ Next, navigate to any file and run it.   
+ ```bash
+# module folder
+cd example
+
+# run module (example: mnist as your main contribution)   
+python demo.py    
+ ```
 ## License
 
 This library is licensed under the Apache 2.0 License.
