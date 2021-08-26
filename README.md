@@ -30,19 +30,10 @@ python demo.py
 ```
 
 
-### Citation   
-```
-@article{YourName,
-  title={Your Title},
-  author={Your team},
-  journal={Location},
-  year={Year}
-}
-```   
-
+### Citation  
 If you use AutoTabular in a scientific publication, please cite the following paper:
 
-Robin, et al. ["AutoTabular: Robust and Accurate AutoML for Structured Data."](https://arxiv.org/abs/2003.06505) arXiv preprint arXiv:2003.06505 (2020).
+Robin, et al. ["AutoTabular: Robust and Accurate AutoML for Structured Data."](https://arxiv.org/abs/2003.06505) arXiv preprint arXiv:2003.06505 (2021).
 
 BibTeX entry:
 
