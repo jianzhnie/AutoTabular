@@ -21,21 +21,6 @@ AutoTabular automates machine learning tasks enabling you to easily achieve stro
 - It can do advanced features engineering, like: [Golden Features](https://supervised.mljar.com/features/golden_features/), [Features Selection](https://supervised.mljar.com/features/features_selection/), Text and Time Transformations.
 - It can tune hyper-parameters with `not-so-random-search` algorithm (random-search over defined set of values) and hill climbing to fine-tune final models.
 
-### Citation  
-If you use AutoTabular in a scientific publication, please cite the following paper:
-
-Robin, et al. ["AutoTabular: Robust and Accurate AutoML for Structured Data."](https://arxiv.org/abs/2003.06505) arXiv preprint arXiv:2003.06505 (2021).
-
-BibTeX entry:
-
-```bibtex
-@article{agtabular,
-  title={AutoTabular: Robust and Accurate AutoML for Structured Data},
-  author={JianZheng, WenQi},
-  journal={arXiv preprint arXiv:2003.06505},
-  year={2021}
-}
-```
 
 ## Example
 
@@ -57,6 +42,23 @@ cd example
 # run module (example: mnist as your main contribution)   
 python demo.py    
  ```
+
+### Citation  
+If you use AutoTabular in a scientific publication, please cite the following paper:
+
+Robin, et al. ["AutoTabular: Robust and Accurate AutoML for Structured Data."](https://arxiv.org/abs/2003.06505) arXiv preprint arXiv:2003.06505 (2021).
+
+BibTeX entry:
+
+```bibtex
+@article{agtabular,
+  title={AutoTabular: Robust and Accurate AutoML for Structured Data},
+  author={JianZheng, WenQi},
+  journal={arXiv preprint arXiv:2003.06505},
+  year={2021}
+}
+```
+
 ## License
 
 This library is licensed under the Apache 2.0 License.
