@@ -134,11 +134,9 @@ class task_generator(object):
             x_train, x_test = sampled_set_x.iloc[train_index], sampled_set_x.iloc[test_index]
             y_train, y_test = sampled_set_y.iloc[train_index], sampled_set_y.iloc[test_index]
             print(f"x_train shape: {x_train.shape}, x_test shape: {x_test.shape}, y_train shape: {y_train.shape}, y_test shape: {y_test.shape}")
-        meta_train = pd.concat([x_train, y_train], axis = 1)
-        meta_test = pd.concat([x_test, y_test], axis = 1)
-        print(meta_train)
-        print(meta_test)
-        return  meta_train, meta_test
+        support_set = pd.concat([x_train, y_train], axis = 1)
+        query_set = pd.concat([x_test, y_test], axis = 1)
+        return  support_set, query_set
 
 
 
