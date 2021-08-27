@@ -12,14 +12,7 @@ AutoTabular automates machine learning tasks enabling you to easily achieve stro
   <img src="https://apulis-gitlab.apulis.cn/apulis/AutoTabular/autotabular/-/blob/master/docs/autotabular.png" width="100%" />
 </p>
 
-
-
-
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/mljar/mljar-examples/master/media/AutoML_overview_mljar_v3.svg" width="100%" />
-</p>
-
+![autotabular](./docs/autotabular.png)
 
 ## What's good in it? 
 
