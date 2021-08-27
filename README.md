@@ -12,9 +12,11 @@ AutoTabular automates machine learning tasks enabling you to easily achieve stro
 
 ## What's good in it? 
 
-- The RAPIDS suite of open source software libraries and APIs gives you the ability to execute end-to-end data science and analytics pipelines entirely on GPUs.
+- It is using the RAPIDS as back-end support, gives you the ability to execute end-to-end data science and analytics pipelines entirely on GPUs. 
+- It Supports many anomaly detection models: , 
+- It using meta learning to accelerate  model selection and parameter tuning.
 - It is using many Deep Learning models for tabular data: `Wide&Deep`,  `DCN(Deep & Cross Network)`, `FM`, `DeepFM`, `PNN` ...
-- It is using many algorithms: `Baseline`, `Linear`, `Random Forest`, `Extra Trees`, `LightGBM`, `Xgboost`, `CatBoost`, and `Nearest Neighbors`.
+- It is using many machine learning algorithms: `Baseline`, `Linear`, `Random Forest`, `Extra Trees`, `LightGBM`, `Xgboost`, `CatBoost`, and `Nearest Neighbors`.
 - It can compute Ensemble based on greedy algorithm from [Caruana paper](http://www.cs.cornell.edu/~alexn/papers/shotgun.icml04.revised.rev2.pdf).
 - It can stack models to build level 2 ensemble (available in `Compete` mode or after setting `stack_models` parameter).
 - It can do features preprocessing, like: missing values imputation and converting categoricals. What is more, it can also handle target values preprocessing.
