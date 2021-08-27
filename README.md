@@ -8,6 +8,9 @@
 
 AutoTabular automates machine learning tasks enabling you to easily achieve strong predictive performance in your applications.  With just a few lines of code, you can train and deploy high-accuracy machine learning and deep learning models tabular data.
 
+<p align="center">
+  <img src="docs/autotablar.png" width="100%" />
+</p>
 
 
 ## What's good in it? 
