@@ -9,8 +9,10 @@
 AutoTabular automates machine learning tasks enabling you to easily achieve strong predictive performance in your applications.  With just a few lines of code, you can train and deploy high-accuracy machine learning and deep learning models tabular data.
 
 <p align="center">
-  <img src="https://apulis-gitlab.apulis.cn/apulis/AutoTabular/autotabular/docs/autotabular.png" width="100%" />
+  <img src="https://apulis-gitlab.apulis.cn/apulis/AutoTabular/autotabular/master/docs/autotabular.png" width="100%" />
 </p>
+
+
 
 
 <p align="center">
