@@ -86,7 +86,6 @@ class SklearnDataset(Dataset):
 
     Example:
         >>> from sklearn.datasets import load_diabetes
-        >>> from pl_bolts.datamodules import SklearnDataset
         ...
         >>> X, y = load_diabetes(return_X_y=True)
         >>> dataset = SklearnDataset(X, y)
@@ -184,7 +183,6 @@ class SklearnDataModule(LightningDataModule):
     Example:
 
         >>> from sklearn.datasets import load_diabetes
-        >>> from pl_bolts.datamodules import SklearnDataModule
         ...
         >>> X, y = load_diabetes(return_X_y=True)
         >>> loaders = SklearnDataModule(X, y, batch_size=32)
