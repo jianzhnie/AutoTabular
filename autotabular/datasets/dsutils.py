@@ -20,6 +20,12 @@ def load_heart_disease_uci():
     return data
 
 
+def load_titanic():
+    import pandas as pd
+    data = pd.read_csv(f'{basedir}/data/Titanic.csv')
+    return data
+
+
 def load_bank():
     import pandas as pd
     data = pd.read_csv(f'{basedir}/data/bank-uci.csv.gz')
