@@ -1,0 +1,38 @@
+from ConfigSpace.configuration_space import ConfigurationSpace
+
+from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
+from autotabular.pipeline.constants import SPARSE, DENSE, UNSIGNED_DATA, INPUT
+
+
+class NoPreprocessing(AutotabularPreprocessingAlgorithm):
+
+    def __init__(self, random_state):
+        """ This preprocessors does not change the data """
+
+    def fit(self, X, Y=None):
+        self.preprocessor = 'passthrough'
+        self.fitted_ = True
+        return self
+
+    def transform(self, X):
+        if self.preprocessor is None:
+            raise NotImplementedError()
+        return X
+
+    @staticmethod
+    def get_properties(dataset_properties=None):
+        return {'shortname': 'no',
+                'name': 'NoPreprocessing',
+                'handles_regression': True,
+                'handles_classification': True,
+                'handles_multiclass': True,
+                'handles_multilabel': True,
+                'handles_multioutput': True,
+                'is_deterministic': True,
+                'input': (SPARSE, DENSE, UNSIGNED_DATA),
+                'output': (INPUT,)}
+
+    @staticmethod
+    def get_hyperparameter_search_space(dataset_properties=None):
+        cs = ConfigurationSpace()
+        return cs
