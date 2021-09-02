@@ -105,7 +105,7 @@ class PreprocessingUtils(object):
 
     @staticmethod
     def is_na(x):
-        return np.sum(pd.isnull(x) == True) > 0
+        return np.sum(pd.isnull(x)) > 0
 
     @staticmethod
     def get_most_frequent(x):

@@ -74,7 +74,6 @@ class ExcludeRowsMissingTarget(object):
         y_missing = pd.isnull(y)
         if np.sum(np.array(y_missing)) == 0:
             return X, y, sample_weight
-        logger.debug('Exclude rows with missing target values')
         if warn:
             warnings.warn(
                 'There are samples with missing target values in the data which will be excluded for further analysis'
