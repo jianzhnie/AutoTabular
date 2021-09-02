@@ -1,12 +1,9 @@
 import torch
-
 from torchfm.layer import FeaturesLinear
 
 
 class LogisticRegressionModel(torch.nn.Module):
-    """
-    A pytorch implementation of Logistic Regression.
-    """
+    """A pytorch implementation of Logistic Regression."""
 
     def __init__(self, field_dims):
         super().__init__()

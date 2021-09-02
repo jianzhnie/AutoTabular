@@ -4,8 +4,10 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 
 class MinorityCoalescer(BaseEstimator, TransformerMixin):
-    """ Group together categories which occurence is less than a specified
-    minimum fraction. Coalesced categories get index of one.
+    """Group together categories which occurence is less than a specified
+    minimum fraction.
+
+    Coalesced categories get index of one.
     """
 
     def __init__(self, minimum_fraction=None):
@@ -14,7 +16,8 @@ class MinorityCoalescer(BaseEstimator, TransformerMixin):
     def check_X(self, X):
         X_data = X.data if sparse.issparse(X) else X
         if np.nanmin(X_data) < 2:
-            raise ValueError("X needs to contain only integers greater than two.")
+            raise ValueError(
+                'X needs to contain only integers greater than two.')
 
     def fit(self, X, y=None):
         self.check_X(X)
@@ -61,11 +64,14 @@ class MinorityCoalescer(BaseEstimator, TransformerMixin):
                         indptr_start = X.indptr[column]
                         indptr_end = X.indptr[column + 1]
                         X.data[indptr_start:indptr_end][
-                            X.data[indptr_start:indptr_end] == unique_value] = 1
+                            X.data[indptr_start:indptr_end] ==
+                            unique_value] = 1
             else:
                 unique = np.unique(X[:, column])
-                unique_values = [unique_value for unique_value in unique
-                                 if unique_value not in self.do_not_coalesce_[column]]
+                unique_values = [
+                    unique_value for unique_value in unique
+                    if unique_value not in self.do_not_coalesce_[column]
+                ]
                 mask = np.isin(X[:, column], unique_values)
                 X[mask, column] = 1
         return X

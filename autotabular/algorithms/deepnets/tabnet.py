@@ -1,11 +1,12 @@
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Type, Union
+
 import torch
-from torch.nn import functional as F
-from torchmetrics import Metric
 from flash.core.classification import ClassificationTask, Probabilities
 from flash.core.data.data_source import DefaultDataKeys
 from flash.core.data.process import Serializer
 from pytorch_tabnet.tab_network import TabNet
+from torch.nn import functional as F
+from torchmetrics import Metric
 
 
 class TabularClassifier(ClassificationTask):
@@ -29,7 +30,7 @@ class TabularClassifier(ClassificationTask):
             `pytorch_tabnet <https://dreamquark-ai.github.io/tabnet/_modules/pytorch_tabnet/tab_network.html#TabNet>`_.
     """
 
-    required_extras: str = "tabular"
+    required_extras: str = 'tabular'
 
     def __init__(
         self,
@@ -101,7 +102,7 @@ class TabularClassifier(ClassificationTask):
         return self(batch)
 
     @classmethod
-    def from_data(cls, datamodule, **kwargs) -> "TabularClassifier":
+    def from_data(cls, datamodule, **kwargs) -> 'TabularClassifier':
         model = cls(datamodule.num_features, datamodule.num_classes,
                     datamodule.embedding_sizes, **kwargs)
         return model

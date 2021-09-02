@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Rotation-based Outlier Detector (ROD)
-"""
+"""Rotation-based Outlier Detector (ROD)"""
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
-from __future__ import division
-from __future__ import print_function
-
+from __future__ import division, print_function
+import multiprocessing
 from itertools import combinations as com
 from multiprocessing import Pool
-import multiprocessing
+
 import numba
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, RobustScaler
@@ -19,9 +16,8 @@ from .base import BaseDetector
 
 @numba.njit
 def mad(costs, median=None):
-    """Apply the robust median absolute deviation (MAD)
-    to measure the inconsistency/variability of the
-    rotation costs.
+    """Apply the robust median absolute deviation (MAD) to measure the
+    inconsistency/variability of the rotation costs.
 
     Parameters
     ----------
@@ -51,14 +47,13 @@ def angle(v1, v2):
     -------
     angle : float, the angle
     """
-    return np.arccos(np.dot(v1, v2) /
-                     (np.linalg.norm(v1) * np.linalg.norm(v2)))
+    return np.arccos(
+        np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
 
 
 def geometric_median(x, eps=1e-5):
-    """
-    Find the multivariate geometric L1-median by applying
-    Vardi and Zhang algorithm.
+    """Find the multivariate geometric L1-median by applying Vardi and Zhang
+    algorithm.
 
     Parameters
     ----------
@@ -96,8 +91,8 @@ def geometric_median(x, eps=1e-5):
 
 
 def scale_angles(gammas, scaler1=None, scaler2=None):
-    """
-    Scale all angles in which angles <= 90
+    """Scale all angles in which angles <= 90.
+
     degree will be scaled within [0 - 54.7] and
     angles > 90 will be scaled within [90 - 126]
 
@@ -126,25 +121,29 @@ def scale_angles(gammas, scaler1=None, scaler2=None):
         scaler1 = MinMaxScaler(feature_range=(min_f, max_f))
         # min_f and max_f are required to be fit by scaler for consistency between train and test sets
         scaler1.fit(np.array(first + [min_f, max_f]).reshape(-1, 1))
-        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(-1) if first else []
+        first = scaler1.transform(np.array(first).reshape(
+            -1, 1)).reshape(-1) if first else []
     else:
-        first = scaler1.transform(np.array(first).reshape(-1, 1)).reshape(-1) if first else []
+        first = scaler1.transform(np.array(first).reshape(
+            -1, 1)).reshape(-1) if first else []
     if scaler2 is None:  # this indicates the `fit()`
         min_s, max_s = q1 + 0.001, 2.186
         scaler2 = MinMaxScaler(feature_range=(min_s, max_s))
         # min_s and max_s are required to be fit by scaler for consistency between train and test sets
         scaler2.fit(np.array(second + [min_s, max_s]).reshape(-1, 1))
-        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(-1) if second else []
+        second = scaler2.transform(np.array(second).reshape(
+            -1, 1)).reshape(-1) if second else []
     else:
-        second = scaler2.transform(np.array(second).reshape(-1, 1)).reshape(-1) if second else []
+        second = scaler2.transform(np.array(second).reshape(
+            -1, 1)).reshape(-1) if second else []
     # restore original order
-    return np.concatenate([first, second])[np.argsort(first_ind + second_ind)], scaler1, scaler2
+    return np.concatenate(
+        [first, second])[np.argsort(first_ind + second_ind)], scaler1, scaler2
 
 
 def euclidean(v1, v2, c=False):
-    """
-    Find the euclidean distance between two vectors
-    or between a vector and a collection of vectors.
+    """Find the euclidean distance between two vectors or between a vector and
+    a collection of vectors.
 
     Parameters
     ----------
@@ -160,20 +159,19 @@ def euclidean(v1, v2, c=False):
     if c:
         res = []
         for _v in v1:
-            res.append([np.sqrt((_v[0] - v2[0]) ** 2 +
-                                (_v[1] - v2[1]) ** 2 +
-                                (_v[2] - v2[2]) ** 2)])
+            res.append([
+                np.sqrt((_v[0] - v2[0])**2 + (_v[1] - v2[1])**2 +
+                        (_v[2] - v2[2])**2)
+            ])
         return np.array(res, copy=False)
-    return np.sqrt((v1[0] - v2[0]) ** 2 +
-                   (v1[1] - v2[1]) ** 2 +
-                   (v1[2] - v2[2]) ** 2)
+    return np.sqrt((v1[0] - v2[0])**2 + (v1[1] - v2[1])**2 +
+                   (v1[2] - v2[2])**2)
 
 
 def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
-    """
-    Find ROD scores for 3D Data.
-    note that gm, scaler1 and scaler2 will be returned "as they are"
-    and without being changed if the model has been fit already
+    """Find ROD scores for 3D Data. note that gm, scaler1 and scaler2 will be
+    returned "as they are" and without being changed if the model has been fit
+    already.
 
     Parameters
     ----------
@@ -194,8 +192,10 @@ def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
     _x = x - gm
     # calculate the scaled angles between the geometric median and each data point vector
     v_norm = np.linalg.norm(_x, axis=1)
-    gammas, scaler1, scaler2 = scale_angles(np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)),
-                                            scaler1=scaler1, scaler2=scaler2)
+    gammas, scaler1, scaler2 = scale_angles(
+        np.arccos(np.clip(np.dot(_x, gm) / (v_norm * norm_), -1, 1)),
+        scaler1=scaler1,
+        scaler2=scaler2)
     # apply the ROD main equation to find the rotation costs
     costs = np.power(v_norm, 3) * np.cos(gammas) * np.square(np.sin(gammas))
     # apply MAD to calculate the decision scores
@@ -205,8 +205,7 @@ def rod_3D(x, gm=None, median=None, scaler1=None, scaler2=None):
 
 @numba.njit
 def sigmoid(x):
-    """
-    Implementation of Sigmoid function
+    """Implementation of Sigmoid function.
 
     Parameters
     ----------
@@ -220,9 +219,8 @@ def sigmoid(x):
 
 
 def process_sub(subspace, gm, median, scaler1, scaler2):
-    """
-    Apply ROD on a 3D subSpace then process it with sigmoid
-    to compare apples to apples
+    """Apply ROD on a 3D subSpace then process it with sigmoid to compare
+    apples to apples.
 
     Parameters
     ----------
@@ -236,16 +234,21 @@ def process_sub(subspace, gm, median, scaler1, scaler2):
     -------
     ROD decision scores with sigmoid applied, gm, scaler1, scaler2
     """
-    mad_subspace, gm, median, scaler1, scaler2 = rod_3D(subspace, gm=gm,
-                                                        median=median,
-                                                        scaler1=scaler1,
-                                                        scaler2=scaler2)
-    return sigmoid(np.nan_to_num(np.array(mad_subspace))), gm, median, scaler1, scaler2
+    mad_subspace, gm, median, scaler1, scaler2 = rod_3D(
+        subspace, gm=gm, median=median, scaler1=scaler1, scaler2=scaler2)
+    return sigmoid(np.nan_to_num(
+        np.array(mad_subspace))), gm, median, scaler1, scaler2
 
 
-def rod_nD(X, parallel, gm=None, median=None, data_scaler=None, angles_scalers1=None, angles_scalers2=None):
-    """
-    Find ROD overall scores when Data is higher than 3D:
+def rod_nD(X,
+           parallel,
+           gm=None,
+           median=None,
+           data_scaler=None,
+           angles_scalers1=None,
+           angles_scalers2=None):
+    """Find ROD overall scores when Data is higher than 3D:
+
       # scale dataset using Robust Scaler
       # decompose the full space into a combinations of 3D subspaces,
       # Apply ROD on each combination,
@@ -279,12 +282,16 @@ def rod_nD(X, parallel, gm=None, median=None, data_scaler=None, angles_scalers1=
     all_subspaces = [X[:, _com] for _com in com(range(dim), 3)]
     all_gms = [None] * len(all_subspaces) if gm is None else gm
     all_meds = [None] * len(all_subspaces) if median is None else median
-    all_angles_scalers1 = [None] * len(all_subspaces) if angles_scalers1 is None else angles_scalers1
-    all_angles_scalers2 = [None] * len(all_subspaces) if angles_scalers2 is None else angles_scalers2
+    all_angles_scalers1 = [None] * len(
+        all_subspaces) if angles_scalers1 is None else angles_scalers1
+    all_angles_scalers2 = [None] * len(
+        all_subspaces) if angles_scalers2 is None else angles_scalers2
     if parallel:
         p = Pool(multiprocessing.cpu_count())
-        args = [[a, b, c, d, e] for a, b, c, d, e in zip(all_subspaces, all_gms, all_meds,
-                                                         all_angles_scalers1, all_angles_scalers2)]
+        args = [[
+            a, b, c, d, e
+        ] for a, b, c, d, e in zip(all_subspaces, all_gms, all_meds,
+                                   all_angles_scalers1, all_angles_scalers2)]
         results = p.starmap(process_sub, args)
         subspaces_scores, gm, median, angles_scalers1, angles_scalers2 = [], [], [], [], []
         for res in results:
@@ -298,10 +305,16 @@ def rod_nD(X, parallel, gm=None, median=None, data_scaler=None, angles_scalers1=
         p.join()
         return scores, gm, median, data_scaler, angles_scalers1, angles_scalers2
     subspaces_scores, gm, median, angles_scalers1, angles_scalers2 = [], [], [], [], []
-    for subspace, _gm, med, ang_s1, ang_s2 in zip(all_subspaces, all_gms, all_meds, all_angles_scalers1,
+    for subspace, _gm, med, ang_s1, ang_s2 in zip(all_subspaces, all_gms,
+                                                  all_meds,
+                                                  all_angles_scalers1,
                                                   all_angles_scalers2):
-        scores_, gm_, med_, ang_s1_, ang_s2_ = process_sub(subspace=subspace, gm=_gm, median=med,
-                                                           scaler1=ang_s1, scaler2=ang_s2)
+        scores_, gm_, med_, ang_s1_, ang_s2_ = process_sub(
+            subspace=subspace,
+            gm=_gm,
+            median=med,
+            scaler1=ang_s1,
+            scaler2=ang_s2)
         subspaces_scores.append(scores_)
         gm.append(gm_)
         median.append(med_)
@@ -313,17 +326,16 @@ def rod_nD(X, parallel, gm=None, median=None, data_scaler=None, angles_scalers1=
 
 class ROD(BaseDetector):
     """Rotation-based Outlier Detection (ROD), is a robust and parameter-free
-    algorithm that requires no statistical distribution assumptions and
-    works intuitively in three-dimensional space, where the 3D-vectors,
-    representing the data points, are rotated about the geometric median
-    two times counterclockwise using Rodrigues rotation formula.
-    The results of the rotation are parallelepipeds where their volumes are
-    mathematically analyzed as cost functions and used to calculate the
-    Median Absolute Deviations to obtain the outlying score.
-    For high dimensions > 3, the overall score is calculated by taking the
-    average of the overall 3D-subspaces scores, that were resulted from
-    decomposing the original data space.
-    See :cite:`almardeny2020novel` for details.
+    algorithm that requires no statistical distribution assumptions and works
+    intuitively in three-dimensional space, where the 3D-vectors, representing
+    the data points, are rotated about the geometric median two times
+    counterclockwise using Rodrigues rotation formula. The results of the
+    rotation are parallelepipeds where their volumes are mathematically
+    analyzed as cost functions and used to calculate the Median Absolute
+    Deviations to obtain the outlying score. For high dimensions > 3, the
+    overall score is calculated by taking the average of the overall
+    3D-subspaces scores, that were resulted from decomposing the original data
+    space. See :cite:`almardeny2020novel` for details.
 
     Parameters
     ----------
@@ -361,8 +373,8 @@ class ROD(BaseDetector):
     def __init__(self, contamination=0.1, parallel_execution=False):
         super(ROD, self).__init__(contamination=contamination)
         if not isinstance(parallel_execution, bool):
-            raise TypeError("parallel_execution should be bool. "
-                            "Got {}".format(type(parallel_execution)))
+            raise TypeError('parallel_execution should be bool. '
+                            'Got {}'.format(type(parallel_execution)))
         self.parallel = parallel_execution
         self.gm = None  # geometric median(s)
         self.median = None  # MAD median(s)
@@ -422,10 +434,12 @@ class ROD(BaseDetector):
             X = np.hstack((X, np.zeros(shape=(X.shape[0], 3 - X.shape[1]))))
 
         if X.shape[1] == 3:
-            scores, self.gm, self.median, self.angles_scaler1, self.angles_scaler2 = rod_3D(x=X, gm=self.gm,
-                                                                                            median=self.median,
-                                                                                            scaler1=self.angles_scaler1,
-                                                                                            scaler2=self.angles_scaler2)
+            scores, self.gm, self.median, self.angles_scaler1, self.angles_scaler2 = rod_3D(
+                x=X,
+                gm=self.gm,
+                median=self.median,
+                scaler1=self.angles_scaler1,
+                scaler2=self.angles_scaler2)
             return scores
 
         scores, self.gm, self.median, self.data_scaler, \

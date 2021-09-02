@@ -4,8 +4,7 @@ class SelectPercentileBase(object):
         import sklearn.feature_selection
 
         self.preprocessor = sklearn.feature_selection.SelectPercentile(
-            score_func=self.score_func,
-            percentile=self.percentile)
+            score_func=self.score_func, percentile=self.percentile)
 
         self.preprocessor.fit(X, y)
         return self
@@ -15,5 +14,6 @@ class SelectPercentileBase(object):
             raise NotImplementedError()
         Xt = self.preprocessor.transform(X)
         if Xt.shape[1] == 0:
-            raise ValueError("%s removed all features." % self.__class__.__name__)
+            raise ValueError('%s removed all features.' %
+                             self.__class__.__name__)
         return Xt

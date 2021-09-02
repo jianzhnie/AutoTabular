@@ -7,6 +7,7 @@ from autotabluar.algorithms.ctr.layer import AnovaKernel
 
 
 class TestAnovaKernel(unittest.TestCase):
+
     def test_forward_order_2(self):
         batch_size, num_fields, embed_dim = 32, 16, 16
         kernel = AnovaKernel(order=2, reduce_sum=True).eval()

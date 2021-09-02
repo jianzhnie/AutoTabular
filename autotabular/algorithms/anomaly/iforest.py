@@ -1,21 +1,19 @@
-# -*- coding: utf-8 -*-
-"""IsolationForest Outlier Detector. Implemented on scikit-learn library.
+"""IsolationForest Outlier Detector.
+
+Implemented on scikit-learn library.
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 from sklearn.ensemble import IsolationForest
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 
-from .base import BaseDetector
-from ..utils.utility import invert_order
 # noinspection PyProtectedMember
-from ..utils.utility import _get_sklearn_version
-
+from ..utils.utility import _get_sklearn_version, invert_order
+from .base import BaseDetector
 
 # TODO: behavior of Isolation Forest will change in sklearn 0.22. See below.
 # in 0.22, scikit learn will start adjust decision_function values by
@@ -162,8 +160,9 @@ class IForest(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, n_estimators=100,
-                 max_samples="auto",
+    def __init__(self,
+                 n_estimators=100,
+                 max_samples='auto',
                  contamination=0.1,
                  max_features=1.,
                  bootstrap=False,
@@ -206,26 +205,28 @@ class IForest(BaseDetector):
         # noinspection PyProtectedMember
         sklearn_version = _get_sklearn_version()
         if sklearn_version == 21:
-            self.detector_ = IsolationForest(n_estimators=self.n_estimators,
-                                             max_samples=self.max_samples,
-                                             contamination=self.contamination,
-                                             max_features=self.max_features,
-                                             bootstrap=self.bootstrap,
-                                             n_jobs=self.n_jobs,
-                                             behaviour=self.behaviour,
-                                             random_state=self.random_state,
-                                             verbose=self.verbose)
+            self.detector_ = IsolationForest(
+                n_estimators=self.n_estimators,
+                max_samples=self.max_samples,
+                contamination=self.contamination,
+                max_features=self.max_features,
+                bootstrap=self.bootstrap,
+                n_jobs=self.n_jobs,
+                behaviour=self.behaviour,
+                random_state=self.random_state,
+                verbose=self.verbose)
 
         # Do not pass behaviour argument when sklearn version is < 0.20 or >0.21
         else:  # pragma: no cover
-            self.detector_ = IsolationForest(n_estimators=self.n_estimators,
-                                             max_samples=self.max_samples,
-                                             contamination=self.contamination,
-                                             max_features=self.max_features,
-                                             bootstrap=self.bootstrap,
-                                             n_jobs=self.n_jobs,
-                                             random_state=self.random_state,
-                                             verbose=self.verbose)
+            self.detector_ = IsolationForest(
+                n_estimators=self.n_estimators,
+                max_samples=self.max_samples,
+                contamination=self.contamination,
+                max_features=self.max_features,
+                bootstrap=self.bootstrap,
+                n_jobs=self.n_jobs,
+                random_state=self.random_state,
+                verbose=self.verbose)
 
         self.detector_.fit(X=X, y=None, sample_weight=None)
 
@@ -260,14 +261,16 @@ class IForest(BaseDetector):
     @property
     def estimators_(self):
         """The collection of fitted sub-estimators.
+
         Decorator for scikit-learn Isolation Forest attributes.
         """
         return self.detector_.estimators_
 
     @property
     def estimators_samples_(self):
-        """The subset of drawn samples (i.e., the in-bag samples) for
-        each base estimator.
+        """The subset of drawn samples (i.e., the in-bag samples) for each base
+        estimator.
+
         Decorator for scikit-learn Isolation Forest attributes.
         """
         return self.detector_.estimators_samples_
@@ -275,6 +278,7 @@ class IForest(BaseDetector):
     @property
     def max_samples_(self):
         """The actual number of samples.
+
         Decorator for scikit-learn Isolation Forest attributes.
         """
         return self.detector_.max_samples_

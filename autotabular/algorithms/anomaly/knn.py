@@ -1,33 +1,27 @@
-# -*- coding: utf-8 -*-
-"""k-Nearest Neighbors Detector (kNN)
-"""
+"""k-Nearest Neighbors Detector (kNN)"""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
-from __future__ import division
-from __future__ import print_function
-
+from __future__ import division, print_function
 from warnings import warn
 
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
-from sklearn.neighbors import BallTree
+from sklearn.neighbors import BallTree, NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
-
 # TODO: algorithm parameter is deprecated and will be removed in 0.7.6.
 # Warning has been turned on.
 # TODO: since Ball_tree is used by default, may introduce its parameters.
 
+
 class KNN(BaseDetector):
     # noinspection PyPep8
-    """kNN class for outlier detection.
-    For an observation, its distance to its kth nearest neighbor could be
-    viewed as the outlying score. It could be viewed as a way to measure
-    the density. See :cite:`ramaswamy2000efficient,angiulli2002fast` for
-    details.
+    """kNN class for outlier detection. For an observation, its distance to its
+    kth nearest neighbor could be viewed as the outlying score. It could be
+    viewed as a way to measure the density. See
+    :cite:`ramaswamy2000efficient,angiulli2002fast` for details.
 
     Three kNN detectors are supported:
     largest: use the distance to the kth neighbor as the outlier score
@@ -139,9 +133,17 @@ class KNN(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, contamination=0.1, n_neighbors=5, method='largest',
-                 radius=1.0, algorithm='auto', leaf_size=30,
-                 metric='minkowski', p=2, metric_params=None, n_jobs=1,
+    def __init__(self,
+                 contamination=0.1,
+                 n_neighbors=5,
+                 method='largest',
+                 radius=1.0,
+                 algorithm='auto',
+                 leaf_size=30,
+                 metric='minkowski',
+                 p=2,
+                 metric_params=None,
+                 n_jobs=1,
                  **kwargs):
         super(KNN, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
@@ -155,19 +157,21 @@ class KNN(BaseDetector):
         self.n_jobs = n_jobs
 
         if self.algorithm != 'auto' and self.algorithm != 'ball_tree':
-            warn('algorithm parameter is deprecated and will be removed '
-                 'in version 0.7.6. By default, ball_tree will be used.',
-                 FutureWarning)
+            warn(
+                'algorithm parameter is deprecated and will be removed '
+                'in version 0.7.6. By default, ball_tree will be used.',
+                FutureWarning)
 
-        self.neigh_ = NearestNeighbors(n_neighbors=self.n_neighbors,
-                                       radius=self.radius,
-                                       algorithm=self.algorithm,
-                                       leaf_size=self.leaf_size,
-                                       metric=self.metric,
-                                       p=self.p,
-                                       metric_params=self.metric_params,
-                                       n_jobs=self.n_jobs,
-                                       **kwargs)
+        self.neigh_ = NearestNeighbors(
+            n_neighbors=self.n_neighbors,
+            radius=self.radius,
+            algorithm=self.algorithm,
+            leaf_size=self.leaf_size,
+            metric=self.metric,
+            p=self.p,
+            metric_params=self.metric_params,
+            n_jobs=self.n_jobs,
+            **kwargs)
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -200,15 +204,17 @@ class KNN(BaseDetector):
 
         else:
             if self.metric_params is not None:
-                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                      metric=self.metric,
-                                      **self.metric_params)
+                self.tree_ = BallTree(
+                    X,
+                    leaf_size=self.leaf_size,
+                    metric=self.metric,
+                    **self.metric_params)
             else:
-                self.tree_ = BallTree(X, leaf_size=self.leaf_size,
-                                      metric=self.metric)
+                self.tree_ = BallTree(
+                    X, leaf_size=self.leaf_size, metric=self.metric)
 
-        dist_arr, _ = self.neigh_.kneighbors(n_neighbors=self.n_neighbors,
-                                             return_distance=True)
+        dist_arr, _ = self.neigh_.kneighbors(
+            n_neighbors=self.n_neighbors, return_distance=True)
         dist = self._get_dist_by_method(dist_arr)
 
         self.decision_scores_ = dist.ravel()
@@ -234,8 +240,8 @@ class KNN(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        check_is_fitted(self, ['tree_', 'decision_scores_',
-                               'threshold_', 'labels_'])
+        check_is_fitted(self,
+                        ['tree_', 'decision_scores_', 'threshold_', 'labels_'])
 
         X = check_array(X)
 
@@ -257,7 +263,7 @@ class KNN(BaseDetector):
         return pred_scores.ravel()
 
     def _get_dist_by_method(self, dist_arr):
-        """Internal function to decide how to process passed in distance array
+        """Internal function to decide how to process passed in distance array.
 
         Parameters
         ----------

@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
-"""Outlier Detection with Minimum Covariance Determinant (MCD)
-"""
+"""Outlier Detection with Minimum Covariance Determinant (MCD)"""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 from sklearn.covariance import MinCovDet
-from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.validation import check_array
+from sklearn.utils.validation import check_array, check_is_fitted
 
 from .base import BaseDetector
 
@@ -17,8 +13,8 @@ __all__ = ['MCD']
 
 
 class MCD(BaseDetector):
-    """Detecting outliers in a Gaussian distributed dataset using
-    Minimum Covariance Determinant (MCD): robust estimator of covariance.
+    """Detecting outliers in a Gaussian distributed dataset using Minimum
+    Covariance Determinant (MCD): robust estimator of covariance.
 
     The Minimum Covariance Determinant covariance estimator is to be applied
     on Gaussian-distributed data, but could still be relevant on data
@@ -110,8 +106,11 @@ class MCD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, contamination=0.1, store_precision=True,
-                 assume_centered=False, support_fraction=None,
+    def __init__(self,
+                 contamination=0.1,
+                 store_precision=True,
+                 assume_centered=False,
+                 support_fraction=None,
                  random_state=None):
         super(MCD, self).__init__(contamination=contamination)
         self.store_precision = store_precision
@@ -140,10 +139,11 @@ class MCD(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        self.detector_ = MinCovDet(store_precision=self.store_precision,
-                                   assume_centered=self.assume_centered,
-                                   support_fraction=self.support_fraction,
-                                   random_state=self.random_state)
+        self.detector_ = MinCovDet(
+            store_precision=self.store_precision,
+            assume_centered=self.assume_centered,
+            support_fraction=self.support_fraction,
+            random_state=self.random_state)
         self.detector_.fit(X=X, y=y)
 
         # Use mahalanabis distance as the outlier score
@@ -177,8 +177,8 @@ class MCD(BaseDetector):
 
     @property
     def raw_location_(self):
-        """The raw robust estimated location before correction and
-        re-weighting.
+        """The raw robust estimated location before correction and re-
+        weighting.
 
         Decorator for scikit-learn MinCovDet attributes.
         """
@@ -186,8 +186,8 @@ class MCD(BaseDetector):
 
     @property
     def raw_covariance_(self):
-        """The raw robust estimated location before correction and
-        re-weighting.
+        """The raw robust estimated location before correction and re-
+        weighting.
 
         Decorator for scikit-learn MinCovDet attributes.
         """
@@ -195,9 +195,9 @@ class MCD(BaseDetector):
 
     @property
     def raw_support_(self):
-        """A mask of the observations that have been used to compute
-        the raw robust estimates of location and shape, before correction
-        and re-weighting.
+        """A mask of the observations that have been used to compute the raw
+        robust estimates of location and shape, before correction and re-
+        weighting.
 
         Decorator for scikit-learn MinCovDet attributes.
         """
@@ -221,8 +221,8 @@ class MCD(BaseDetector):
 
     @property
     def precision_(self):
-        """ Estimated pseudo inverse matrix.
-        (stored only if store_precision is True)
+        """Estimated pseudo inverse matrix. (stored only if store_precision is
+        True)
 
         Decorator for scikit-learn MinCovDet attributes.
         """
@@ -230,8 +230,8 @@ class MCD(BaseDetector):
 
     @property
     def support_(self):
-        """A mask of the observations that have been used to compute
-        the robust estimates of location and shape.
+        """A mask of the observations that have been used to compute the robust
+        estimates of location and shape.
 
         Decorator for scikit-learn MinCovDet attributes.
         """

@@ -1,11 +1,9 @@
 import torch
-
 from torchfm.layer import FeaturesEmbedding, MultiLayerPerceptron
 
 
 class FactorizationSupportedNeuralNetworkModel(torch.nn.Module):
-    """
-    A pytorch implementation of Neural Factorization Machine.
+    """A pytorch implementation of Neural Factorization Machine.
 
     Reference:
         W Zhang, et al. Deep Learning over Multi-field Categorical Data - A Case Study on User Response Prediction, 2016.
@@ -15,7 +13,8 @@ class FactorizationSupportedNeuralNetworkModel(torch.nn.Module):
         super().__init__()
         self.embedding = FeaturesEmbedding(field_dims, embed_dim)
         self.embed_output_dim = len(field_dims) * embed_dim
-        self.mlp = MultiLayerPerceptron(self.embed_output_dim, mlp_dims, dropout)
+        self.mlp = MultiLayerPerceptron(self.embed_output_dim, mlp_dims,
+                                        dropout)
 
     def forward(self, x):
         """

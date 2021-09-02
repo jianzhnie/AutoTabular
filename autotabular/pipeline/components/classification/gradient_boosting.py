@@ -1,25 +1,32 @@
 import numpy as np
-
-from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import UniformFloatHyperparameter, \
-    UniformIntegerHyperparameter, UnParametrizedHyperparameter, Constant, \
-    CategoricalHyperparameter
-from ConfigSpace.conditions import EqualsCondition, InCondition
-
-from autotabular.pipeline.components.base import (
-    autotabularClassificationAlgorithm,
-    IterativeComponentWithSampleWeight)
-from autotabular.pipeline.constants import DENSE, UNSIGNED_DATA, PREDICTIONS
+from autotabular.pipeline.components.base import IterativeComponentWithSampleWeight, autotabularClassificationAlgorithm
+from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from autotabular.util.common import check_none
+from ConfigSpace.conditions import EqualsCondition, InCondition
+from ConfigSpace.configuration_space import ConfigurationSpace
+from ConfigSpace.hyperparameters import (CategoricalHyperparameter, Constant,
+                                         UniformFloatHyperparameter,
+                                         UniformIntegerHyperparameter,
+                                         UnParametrizedHyperparameter)
 
 
-class GradientBoostingClassifier(
-    IterativeComponentWithSampleWeight,
-    autotabularClassificationAlgorithm
-):
-    def __init__(self, loss, learning_rate, min_samples_leaf, max_depth,
-                 max_leaf_nodes, max_bins, l2_regularization, early_stop, tol, scoring,
-                 n_iter_no_change=0, validation_fraction=None, random_state=None,
+class GradientBoostingClassifier(IterativeComponentWithSampleWeight,
+                                 autotabularClassificationAlgorithm):
+
+    def __init__(self,
+                 loss,
+                 learning_rate,
+                 min_samples_leaf,
+                 max_depth,
+                 max_leaf_nodes,
+                 max_bins,
+                 l2_regularization,
+                 early_stop,
+                 tol,
+                 scoring,
+                 n_iter_no_change=0,
+                 validation_fraction=None,
+                 random_state=None,
                  verbose=0):
         self.loss = loss
         self.learning_rate = learning_rate
@@ -47,10 +54,7 @@ class GradientBoostingClassifier(
         return self.estimator.n_iter_
 
     def iterative_fit(self, X, y, n_iter=2, refit=False, sample_weight=None):
-
-        """
-        Set n_iter=2 for the same reason as for SGD
-        """
+        """Set n_iter=2 for the same reason as for SGD."""
         import sklearn.ensemble
         from sklearn.experimental import enable_hist_gradient_boosting  # noqa
 
@@ -76,15 +80,15 @@ class GradientBoostingClassifier(
             self.tol = float(self.tol)
             if check_none(self.scoring):
                 self.scoring = None
-            if self.early_stop == "off":
+            if self.early_stop == 'off':
                 self.n_iter_no_change = 0
                 self.validation_fraction_ = None
                 self.early_stopping_ = False
-            elif self.early_stop == "train":
+            elif self.early_stop == 'train':
                 self.n_iter_no_change = int(self.n_iter_no_change)
                 self.validation_fraction_ = None
                 self.early_stopping_ = True
-            elif self.early_stop == "valid":
+            elif self.early_stop == 'valid':
                 self.n_iter_no_change = int(self.n_iter_no_change)
                 self.validation_fraction = float(self.validation_fraction)
                 self.early_stopping_ = True
@@ -94,7 +98,8 @@ class GradientBoostingClassifier(
                 else:
                     self.validation_fraction_ = self.validation_fraction
             else:
-                raise ValueError("early_stop should be either off, train or valid")
+                raise ValueError(
+                    'early_stop should be either off, train or valid')
             self.verbose = int(self.verbose)
             n_iter = int(np.ceil(n_iter))
 
@@ -151,53 +156,75 @@ class GradientBoostingClassifier(
 
     @staticmethod
     def get_properties(dataset_properties=None):
-        return {'shortname': 'GB',
-                'name': 'Gradient Boosting Classifier',
-                'handles_regression': False,
-                'handles_classification': True,
-                'handles_multiclass': True,
-                'handles_multilabel': False,
-                'handles_multioutput': False,
-                'is_deterministic': True,
-                'input': (DENSE, UNSIGNED_DATA),
-                'output': (PREDICTIONS,)}
+        return {
+            'shortname': 'GB',
+            'name': 'Gradient Boosting Classifier',
+            'handles_regression': False,
+            'handles_classification': True,
+            'handles_multiclass': True,
+            'handles_multilabel': False,
+            'handles_multioutput': False,
+            'is_deterministic': True,
+            'input': (DENSE, UNSIGNED_DATA),
+            'output': (PREDICTIONS, )
+        }
 
     @staticmethod
     def get_hyperparameter_search_space(dataset_properties=None):
         cs = ConfigurationSpace()
-        loss = Constant("loss", "auto")
+        loss = Constant('loss', 'auto')
         learning_rate = UniformFloatHyperparameter(
-            name="learning_rate", lower=0.01, upper=1, default_value=0.1, log=True)
+            name='learning_rate',
+            lower=0.01,
+            upper=1,
+            default_value=0.1,
+            log=True)
         min_samples_leaf = UniformIntegerHyperparameter(
-            name="min_samples_leaf", lower=1, upper=200, default_value=20, log=True)
+            name='min_samples_leaf',
+            lower=1,
+            upper=200,
+            default_value=20,
+            log=True)
         max_depth = UnParametrizedHyperparameter(
-            name="max_depth", value="None")
+            name='max_depth', value='None')
         max_leaf_nodes = UniformIntegerHyperparameter(
-            name="max_leaf_nodes", lower=3, upper=2047, default_value=31, log=True)
-        max_bins = Constant("max_bins", 255)
+            name='max_leaf_nodes',
+            lower=3,
+            upper=2047,
+            default_value=31,
+            log=True)
+        max_bins = Constant('max_bins', 255)
         l2_regularization = UniformFloatHyperparameter(
-            name="l2_regularization", lower=1E-10, upper=1, default_value=1E-10, log=True)
+            name='l2_regularization',
+            lower=1E-10,
+            upper=1,
+            default_value=1E-10,
+            log=True)
 
         early_stop = CategoricalHyperparameter(
-            name="early_stop", choices=["off", "valid", "train"], default_value="off")
-        tol = UnParametrizedHyperparameter(
-            name="tol", value=1e-7)
-        scoring = UnParametrizedHyperparameter(
-            name="scoring", value="loss")
+            name='early_stop',
+            choices=['off', 'valid', 'train'],
+            default_value='off')
+        tol = UnParametrizedHyperparameter(name='tol', value=1e-7)
+        scoring = UnParametrizedHyperparameter(name='scoring', value='loss')
         n_iter_no_change = UniformIntegerHyperparameter(
-            name="n_iter_no_change", lower=1, upper=20, default_value=10)
+            name='n_iter_no_change', lower=1, upper=20, default_value=10)
         validation_fraction = UniformFloatHyperparameter(
-            name="validation_fraction", lower=0.01, upper=0.4, default_value=0.1)
+            name='validation_fraction',
+            lower=0.01,
+            upper=0.4,
+            default_value=0.1)
 
-        cs.add_hyperparameters([loss, learning_rate, min_samples_leaf,
-                                max_depth, max_leaf_nodes, max_bins, l2_regularization,
-                                early_stop, tol, scoring, n_iter_no_change,
-                                validation_fraction])
+        cs.add_hyperparameters([
+            loss, learning_rate, min_samples_leaf, max_depth, max_leaf_nodes,
+            max_bins, l2_regularization, early_stop, tol, scoring,
+            n_iter_no_change, validation_fraction
+        ])
 
-        n_iter_no_change_cond = InCondition(
-            n_iter_no_change, early_stop, ["valid", "train"])
-        validation_fraction_cond = EqualsCondition(
-            validation_fraction, early_stop, "valid")
+        n_iter_no_change_cond = InCondition(n_iter_no_change, early_stop,
+                                            ['valid', 'train'])
+        validation_fraction_cond = EqualsCondition(validation_fraction,
+                                                   early_stop, 'valid')
 
         cs.add_conditions([n_iter_no_change_cond, validation_fraction_cond])
 

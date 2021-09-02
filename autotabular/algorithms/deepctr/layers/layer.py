@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 
 class FeaturesLinear(torch.nn.Module):
+
     def __init__(self, field_dims, output_dim=1):
         super().__init__()
         self.fc = torch.nn.Embedding(sum(field_dims), output_dim)

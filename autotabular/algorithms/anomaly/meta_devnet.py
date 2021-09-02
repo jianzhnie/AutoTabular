@@ -1,22 +1,26 @@
-import os
-import math
 import argparse
+import math
+import os
 import random
+
+import numpy as np
 import pandas as pd
 import random
 import sklearn
+<<<<<<< HEAD
 import  argparse
 import copy
 from sklearn.model_selection import StratifiedShuffleSplit
+=======
+>>>>>>> jianzh/main
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torch import optim
 import torch.nn.functional as F
+from sklearn.model_selection import StratifiedShuffleSplit
 from torch.autograd import Variable
 from torch.optim.lr_scheduler import StepLR
-import numpy as np
-
 
 
 class DevNet(nn.Module):
@@ -104,11 +108,12 @@ class Task(object):
         self.saved = saved
 
     def data_split(self):
-        """split dataset to train set and test set"""
+        """split dataset to train set and test set."""
         data_all = pd.read_csv(self.data_path)
         data_all_x = data_all.drop(self.label_name, axis=1)
         data_all_y = data_all[self.label_name]
-        sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, train_size=0.8, random_state=2021)
+        sss = StratifiedShuffleSplit(
+            n_splits=1, test_size=0.2, train_size=0.8, random_state=2021)
         for train_index, test_index in sss.split(data_all_x, data_all_y):
             x_train, x_test = data_all_x.iloc[train_index], data_all_x.iloc[test_index]
             y_train, y_test = data_all_y.iloc[train_index], data_all_y.iloc[test_index]
@@ -116,11 +121,12 @@ class Task(object):
         data_train = pd.concat([x_train, y_train], axis = 1)
         data_test = pd.concat([x_test, y_test], axis = 1)
         if self.saved:
-            to_path = os.path.join(os.path.dirname(self.data_path), self.data_name)
+            to_path = os.path.join(
+                os.path.dirname(self.data_path), self.data_name)
             if not os.path.exists(to_path):
                 os.makedirs(to_path)
-            data_train.to_csv(os.path.join(to_path, "train.csv"))
-            data_test.to_csv(os.path.join(to_path, "test.csv"))
+            data_train.to_csv(os.path.join(to_path, 'train.csv'))
+            data_test.to_csv(os.path.join(to_path, 'test.csv'))
         return data_train, data_test
 
     def generator(self, data_train, n_task, n_support, n_query, unbalanced_rate = 0.5):

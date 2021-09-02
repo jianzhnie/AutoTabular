@@ -1,21 +1,21 @@
-# -*- coding: utf-8 -*-
-"""A collection of model combination functionalities.
-"""
+"""A collection of model combination functionalities."""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 from combo.models.score_comb import aom as combo_aom
-from combo.models.score_comb import moa as combo_moa
 from combo.models.score_comb import average as combo_average
-from combo.models.score_comb import maximization as combo_maximization
 from combo.models.score_comb import majority_vote as combo_majority_vote
+from combo.models.score_comb import maximization as combo_maximization
 from combo.models.score_comb import median as combo_median
+from combo.models.score_comb import moa as combo_moa
 
 
-def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
+def aom(scores,
+        n_buckets=5,
+        method='static',
+        bootstrap_estimators=False,
         random_state=None):
     """Average of Maximum - An ensemble method for combining multiple
     estimators. See :cite:`aggarwal2015theoretical` for details.
@@ -55,7 +55,10 @@ def aom(scores, n_buckets=5, method='static', bootstrap_estimators=False,
                      random_state)
 
 
-def moa(scores, n_buckets=5, method='static', bootstrap_estimators=False,
+def moa(scores,
+        n_buckets=5,
+        method='static',
+        bootstrap_estimators=False,
         random_state=None):
     """Maximization of Average - An ensemble method for combining multiple
     estimators. See :cite:`aggarwal2015theoretical` for details.
@@ -111,7 +114,6 @@ def average(scores, estimator_weights=None):
     -------
     combined_scores : numpy array of shape (n_samples, )
         The combined outlier scores.
-
     """
     return combo_average(scores, estimator_weights)
 
@@ -129,14 +131,13 @@ def maximization(scores):
     -------
     combined_scores : numpy array of shape (n_samples, )
         The combined outlier scores.
-
     """
     return combo_maximization(scores)
 
 
 def majority_vote(scores, weights=None):
-    """Combination method to merge the scores from multiple estimators
-    by majority vote.
+    """Combination method to merge the scores from multiple estimators by
+    majority vote.
 
     Parameters
     ----------
@@ -151,14 +152,13 @@ def majority_vote(scores, weights=None):
     -------
     combined_scores : numpy array of shape (n_samples, )
         The combined scores.
-
     """
     return combo_majority_vote(scores, n_classes=2, weights=weights)
 
 
 def median(scores):
-    """Combination method to merge the scores from multiple estimators
-    by taking the median.
+    """Combination method to merge the scores from multiple estimators by
+    taking the median.
 
     Parameters
     ----------
@@ -169,6 +169,5 @@ def median(scores):
     -------
     combined_scores : numpy array of shape (n_samples, )
         The combined scores.
-
     """
     return combo_median(scores)

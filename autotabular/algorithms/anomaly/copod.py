@@ -1,20 +1,17 @@
-"""Copula Based Outlier Detector (COPOD)
-"""
+"""Copula Based Outlier Detector (COPOD)"""
 # Author: Zheng Li <jk_zhengli@hotmail.com>
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
-
+from __future__ import division, print_function
 import warnings
-import numpy as np
 
-from statsmodels.distributions.empirical_distribution import ECDF
+import matplotlib.pyplot as plt
+import numpy as np
+from joblib import Parallel, delayed, effective_n_jobs
 from scipy.stats import skew
 from sklearn.utils import check_array
-from joblib import Parallel, delayed, effective_n_jobs
-import matplotlib.pyplot as plt
+from statsmodels.distributions.empirical_distribution import ECDF
 
 from .base import BaseDetector
 from .sklearn_base import _partition_estimators
@@ -36,7 +33,7 @@ def ecdf(X):
 
 
 def _parallel_ecdf(n_dims, X):
-    """Private method to calculate ecdf in parallel.    
+    """Private method to calculate ecdf in parallel.
     Parameters
     ----------
     n_dims : int
@@ -63,10 +60,9 @@ def _parallel_ecdf(n_dims, X):
 
 
 class COPOD(BaseDetector):
-    """COPOD class for Copula Based Outlier Detector.
-    COPOD is a parameter-free, highly interpretable outlier detection algorithm
-    based on empirical copula models.
-    See :cite:`li2020copod` for details.
+    """COPOD class for Copula Based Outlier Detector. COPOD is a parameter-
+    free, highly interpretable outlier detection algorithm based on empirical
+    copula models. See :cite:`li2020copod` for details.
 
     Parameters
     ----------
@@ -74,7 +70,7 @@ class COPOD(BaseDetector):
         The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
-        
+
     n_jobs : optional (default=1)
         The number of jobs to run in parallel for both `fit` and
         `predict`. If -1, then the number of jobs is set to the
@@ -181,18 +177,17 @@ class COPOD(BaseDetector):
 
         if n_features <= self.n_jobs:
             self.n_jobs = n_features
-            warnings.warn("n_features <= n_jobs; setting them equal instead.")
+            warnings.warn('n_features <= n_jobs; setting them equal instead.')
 
-        n_jobs, n_dims_list, starts = _partition_estimators(n_features,
-                                                            self.n_jobs)
+        n_jobs, n_dims_list, starts = _partition_estimators(
+            n_features, self.n_jobs)
 
-        all_results = Parallel(n_jobs=n_jobs, max_nbytes=None,
-                               verbose=True)(
-            delayed(_parallel_ecdf)(
-                n_dims_list[i],
-                X[:, starts[i]:starts[i + 1]],
-            )
-            for i in range(n_jobs))
+        all_results = Parallel(
+            n_jobs=n_jobs, max_nbytes=None, verbose=True)(
+                delayed(_parallel_ecdf)(
+                    n_dims_list[i],
+                    X[:, starts[i]:starts[i + 1]],
+                ) for i in range(n_jobs))
 
         # recover the results
         self.U_l = np.zeros([n_samples, n_features])
@@ -218,7 +213,10 @@ class COPOD(BaseDetector):
             decision_scores_ = self.O.sum(axis=1)
         return decision_scores_.ravel()
 
-    def explain_outlier(self, ind, columns=None, cutoffs=None,
+    def explain_outlier(self,
+                        ind,
+                        columns=None,
+                        cutoffs=None,
                         feature_names=None):  # pragma: no cover
         """Plot dimensional outlier graph for a given data
             point within the dataset.
@@ -230,10 +228,10 @@ class COPOD(BaseDetector):
 
         columns : list
             Specify a list of features/dimensions for plotting.
-        
+
         cutoffs : list of floats in (0., 1), optional (default=[0.95, 0.99])
             The significance cutoff bands of the dimensional outlier graph.
-        
+
         feature_names: list of strings
             The display names of all columns of the dataset,
             to show on the x-axis of the plot.
@@ -249,14 +247,15 @@ class COPOD(BaseDetector):
         else:
             column_range = range(1, len(columns) + 1)
 
-        cutoffs = [1 - self.contamination,
-                   0.99] if cutoffs is None else cutoffs
-        plt.plot(column_range, self.O.loc[ind, columns],
-                 label='Outlier Score')
+        cutoffs = [1 -
+                   self.contamination, 0.99] if cutoffs is None else cutoffs
+        plt.plot(column_range, self.O.loc[ind, columns], label='Outlier Score')
         for i in cutoffs:
-            plt.plot(column_range,
-                     self.O.loc[:, columns].quantile(q=i, axis=0), '-',
-                     label='{percentile} Cutoff Band'.format(percentile=i))
+            plt.plot(
+                column_range,
+                self.O.loc[:, columns].quantile(q=i, axis=0),
+                '-',
+                label='{percentile} Cutoff Band'.format(percentile=i))
         plt.xlim([1, max(column_range)])
         plt.ylim([0, int(self.O.loc[:, columns].max().max()) + 1])
         plt.ylabel('Dimensional Outlier Score')
@@ -265,7 +264,7 @@ class COPOD(BaseDetector):
         ticks = column_range
         if feature_names is not None:
             assert len(feature_names) == len(ticks), \
-                "Length of feature_names does not match dataset dimensions."
+                'Length of feature_names does not match dataset dimensions.'
             plt.xticks(ticks, labels=feature_names)
         else:
             plt.xticks(ticks)
@@ -277,6 +276,5 @@ class COPOD(BaseDetector):
         plt.legend()
         plt.show()
         return self.O.loc[ind, columns], self.O.loc[:, columns].quantile(
-            q=cutoffs[0],
-            axis=0), self.O.loc[:, columns].quantile(
-            q=cutoffs[1], axis=0)
+            q=cutoffs[0], axis=0), self.O.loc[:, columns].quantile(
+                q=cutoffs[1], axis=0)

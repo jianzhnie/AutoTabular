@@ -1,20 +1,18 @@
-# -*- coding: utf-8 -*-
-"""Local Outlier Factor (LOF). Implemented on scikit-learn library.
+"""Local Outlier Factor (LOF).
+
+Implemented on scikit-learn library.
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 from sklearn.neighbors import LocalOutlierFactor
-from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.validation import check_array
+from sklearn.utils.validation import check_array, check_is_fitted
 
-from .base import BaseDetector
-from ..utils.utility import invert_order
 # noinspection PyProtectedMember
-from ..utils.utility import _get_sklearn_version
+from ..utils.utility import _get_sklearn_version, invert_order
+from .base import BaseDetector
 
 
 class LOF(BaseDetector):
@@ -136,9 +134,16 @@ class LOF(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, n_neighbors=20, algorithm='auto', leaf_size=30,
-                 metric='minkowski', p=2, metric_params=None,
-                 contamination=0.1, n_jobs=1, novelty=False):
+    def __init__(self,
+                 n_neighbors=20,
+                 algorithm='auto',
+                 leaf_size=30,
+                 metric='minkowski',
+                 p=2,
+                 metric_params=None,
+                 contamination=0.1,
+                 n_jobs=1,
+                 novelty=False):
         super(LOF, self).__init__(contamination=contamination)
         self.n_neighbors = n_neighbors
         self.algorithm = algorithm
@@ -170,15 +175,16 @@ class LOF(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        self.detector_ = LocalOutlierFactor(n_neighbors=self.n_neighbors,
-                                            algorithm=self.algorithm,
-                                            leaf_size=self.leaf_size,
-                                            metric=self.metric,
-                                            p=self.p,
-                                            metric_params=self.metric_params,
-                                            contamination=self.contamination,
-                                            n_jobs=self.n_jobs,
-                                            novelty=self.novelty)
+        self.detector_ = LocalOutlierFactor(
+            n_neighbors=self.n_neighbors,
+            algorithm=self.algorithm,
+            leaf_size=self.leaf_size,
+            metric=self.metric,
+            p=self.p,
+            metric_params=self.metric_params,
+            contamination=self.contamination,
+            n_jobs=self.n_jobs,
+            novelty=self.novelty)
         self.detector_.fit(X=X, y=y)
 
         # Invert decision_scores_. Outliers comes with higher outlier scores
@@ -218,6 +224,7 @@ class LOF(BaseDetector):
     @property
     def n_neighbors_(self):
         """The actual number of neighbors used for kneighbors queries.
+
         Decorator for scikit-learn LOF attributes.
         """
         return self.detector_.n_neighbors_

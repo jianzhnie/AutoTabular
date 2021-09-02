@@ -1,11 +1,9 @@
 import torch
-
-from torchfm.layer import FeaturesLinear, MultiLayerPerceptron, FeaturesEmbedding
+from torchfm.layer import FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
 
 
 class WideAndDeepModel(torch.nn.Module):
-    """
-    A pytorch implementation of wide and deep learning.
+    """A pytorch implementation of wide and deep learning.
 
     Reference:
         HT Cheng, et al. Wide & Deep Learning for Recommender Systems, 2016.
@@ -16,7 +14,8 @@ class WideAndDeepModel(torch.nn.Module):
         self.linear = FeaturesLinear(field_dims)
         self.embedding = FeaturesEmbedding(field_dims, embed_dim)
         self.embed_output_dim = len(field_dims) * embed_dim
-        self.mlp = MultiLayerPerceptron(self.embed_output_dim, mlp_dims, dropout)
+        self.mlp = MultiLayerPerceptron(self.embed_output_dim, mlp_dims,
+                                        dropout)
 
     def forward(self, x):
         """

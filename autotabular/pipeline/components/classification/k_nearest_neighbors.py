@@ -1,8 +1,7 @@
+from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformIntegerHyperparameter
-
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
-from autotabular.pipeline.constants import DENSE, UNSIGNED_DATA, PREDICTIONS, SPARSE
 
 
 class KNearestNeighborsClassifier(autotabularClassificationAlgorithm):
@@ -23,7 +22,8 @@ class KNearestNeighborsClassifier(autotabularClassificationAlgorithm):
                                                    p=self.p)
 
         if len(Y.shape) == 2 and Y.shape[1] > 1:
-            self.estimator = sklearn.multiclass.OneVsRestClassifier(estimator, n_jobs=1)
+            self.estimator = sklearn.multiclass.OneVsRestClassifier(
+                estimator, n_jobs=1)
         else:
             self.estimator = estimator
 
@@ -42,26 +42,31 @@ class KNearestNeighborsClassifier(autotabularClassificationAlgorithm):
 
     @staticmethod
     def get_properties(dataset_properties=None):
-        return {'shortname': 'KNN',
-                'name': 'K-Nearest Neighbor Classification',
-                'handles_regression': False,
-                'handles_classification': True,
-                'handles_multiclass': True,
-                'handles_multilabel': True,
-                'handles_multioutput': False,
-                'is_deterministic': True,
-                'input': (DENSE, SPARSE, UNSIGNED_DATA),
-                'output': (PREDICTIONS,)}
+        return {
+            'shortname': 'KNN',
+            'name': 'K-Nearest Neighbor Classification',
+            'handles_regression': False,
+            'handles_classification': True,
+            'handles_multiclass': True,
+            'handles_multilabel': True,
+            'handles_multioutput': False,
+            'is_deterministic': True,
+            'input': (DENSE, SPARSE, UNSIGNED_DATA),
+            'output': (PREDICTIONS, )
+        }
 
     @staticmethod
     def get_hyperparameter_search_space(dataset_properties=None):
         cs = ConfigurationSpace()
 
         n_neighbors = UniformIntegerHyperparameter(
-            name="n_neighbors", lower=1, upper=100, log=True, default_value=1)
+            name='n_neighbors', lower=1, upper=100, log=True, default_value=1)
         weights = CategoricalHyperparameter(
-            name="weights", choices=["uniform", "distance"], default_value="uniform")
-        p = CategoricalHyperparameter(name="p", choices=[1, 2], default_value=2)
+            name='weights',
+            choices=['uniform', 'distance'],
+            default_value='uniform')
+        p = CategoricalHyperparameter(
+            name='p', choices=[1, 2], default_value=2)
         cs.add_hyperparameters([n_neighbors, weights, p])
 
         return cs

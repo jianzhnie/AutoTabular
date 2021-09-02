@@ -1,14 +1,16 @@
 import warnings
+from typing import Dict, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
-from typing import Dict, Optional, Tuple, Union
-from ConfigSpace.configuration_space import ConfigurationSpace
 from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
 from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
-from autotabular.pipeline.constants import DENSE, SPARSE, UNSIGNED_DATA, INPUT
+from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
+from ConfigSpace.configuration_space import ConfigurationSpace
 
 
 class ExcludeRowsMissingTargetTransformer(AutotabularPreprocessingAlgorithm):
+
     def __init__(self,
                  sample_weight=None,
                  warn=False,
@@ -29,10 +31,8 @@ class ExcludeRowsMissingTargetTransformer(AutotabularPreprocessingAlgorithm):
         if self.preprocessor is None:
             raise NotImplementedError()
 
-        return self.preprocessor.transform(X,
-                                           y,
-                                           sample_weight=self.sample_weight,
-                                           warn=self.warn)
+        return self.preprocessor.transform(
+            X, y, sample_weight=self.sample_weight, warn=self.warn)
 
     @staticmethod
     def get_properties(
@@ -61,12 +61,12 @@ class ExcludeRowsMissingTargetTransformer(AutotabularPreprocessingAlgorithm):
 
 
 class ExcludeRowsMissingTarget(object):
-    """
-    ExcludeRowsMissingTarget Transformer
+    """ExcludeRowsMissingTarget Transformer.
 
     reference:
         https://github.com/mljar/mljar-supervised
     """
+
     @staticmethod
     def transform(X=None, y=None, sample_weight=None, warn=False):
         if y is None:
@@ -74,10 +74,10 @@ class ExcludeRowsMissingTarget(object):
         y_missing = pd.isnull(y)
         if np.sum(np.array(y_missing)) == 0:
             return X, y, sample_weight
-        logger.debug("Exclude rows with missing target values")
+        logger.debug('Exclude rows with missing target values')
         if warn:
             warnings.warn(
-                "There are samples with missing target values in the data which will be excluded for further analysis"
+                'There are samples with missing target values in the data which will be excluded for further analysis'
             )
         y = y.drop(y.index[y_missing])
         y.reset_index(drop=True, inplace=True)

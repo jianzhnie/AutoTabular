@@ -1,20 +1,19 @@
-from collections import OrderedDict
 import importlib
 import inspect
 import pkgutil
 import sys
-
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.utils import check_random_state
+from collections import OrderedDict
 
 from autotabular.pipeline.constants import SPARSE
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.utils import check_random_state
 
 
 def find_components(package, directory, base_class):
     components = OrderedDict()
 
     for module_loader, module_name, ispkg in pkgutil.iter_modules([directory]):
-        full_module_name = "%s.%s" % (package, module_name)
+        full_module_name = '%s.%s' % (package, module_name)
         if full_module_name not in sys.modules and not ispkg:
             module = importlib.import_module(full_module_name)
 
@@ -31,6 +30,7 @@ def find_components(package, directory, base_class):
 
 
 class ThirdPartyComponents(object):
+
     def __init__(self, base_class):
         self.base_class = base_class
         self.components = OrderedDict()
@@ -65,6 +65,7 @@ class ThirdPartyComponents(object):
 
 
 class AutotabularComponent(BaseEstimator):
+
     @staticmethod
     def get_properties(dataset_properties=None):
         """Get the properties of the underlying algorithm.
@@ -99,8 +100,8 @@ class AutotabularComponent(BaseEstimator):
         raise NotImplementedError()
 
     def fit(self, X, y):
-        """The fit function calls the fit function of the underlying
-        scikit-learn model and returns `self`.
+        """The fit function calls the fit function of the underlying scikit-
+        learn model and returns `self`.
 
         Parameters
         ----------
@@ -118,7 +119,8 @@ class AutotabularComponent(BaseEstimator):
         -----
         Please see the `scikit-learn API documentation
         <https://scikit-learn.org/stable/developers/develop.html#apis-of-scikit-learn-objects>`_
-        for further information."""
+        for further information.
+        """
         raise NotImplementedError()
 
     def set_hyperparameters(self, configuration, init_params=None):
@@ -143,10 +145,11 @@ class AutotabularComponent(BaseEstimator):
 
     def __str__(self):
         name = self.get_properties()['name']
-        return "autotabular.pipeline %s" % name
+        return 'autotabular.pipeline %s' % name
 
 
 class IterativeComponent(AutotabularComponent):
+
     def fit(self, X, y, sample_weight=None):
         self.iterative_fit(X, y, n_iter=2, refit=True)
         iteration = 2
@@ -165,19 +168,15 @@ class IterativeComponent(AutotabularComponent):
 
 
 class IterativeComponentWithSampleWeight(AutotabularComponent):
+
     def fit(self, X, y, sample_weight=None):
-        self.iterative_fit(X,
-                           y,
-                           n_iter=2,
-                           refit=True,
-                           sample_weight=sample_weight)
+        self.iterative_fit(
+            X, y, n_iter=2, refit=True, sample_weight=sample_weight)
         iteration = 2
         while not self.configuration_fully_fitted():
             n_iter = int(2**iteration / 2)
-            self.iterative_fit(X,
-                               y,
-                               n_iter=n_iter,
-                               sample_weight=sample_weight)
+            self.iterative_fit(
+                X, y, n_iter=n_iter, sample_weight=sample_weight)
             iteration += 1
         return self
 
@@ -190,17 +189,19 @@ class IterativeComponentWithSampleWeight(AutotabularComponent):
 
 
 class AutotabularClassificationAlgorithm(AutotabularComponent):
-    """Provide an abstract interface for classification algorithms in
-    auto-sklearn.
+    """Provide an abstract interface for classification algorithms in auto-
+    sklearn.
 
-    See :ref:`extending` for more information."""
+    See :ref:`extending` for more information.
+    """
+
     def __init__(self):
         self.estimator = None
         self.properties = None
 
     def predict(self, X):
-        """The predict function calls the predict function of the
-        underlying scikit-learn model and returns an array with the predictions.
+        """The predict function calls the predict function of the underlying
+        scikit-learn model and returns an array with the predictions.
 
         Parameters
         ----------
@@ -215,7 +216,8 @@ class AutotabularClassificationAlgorithm(AutotabularComponent):
         -----
         Please see the `scikit-learn API documentation
         <https://scikit-learn.org/stable/developers/develop.html#apis-of-scikit-learn-objects>`_
-        for further information."""
+        for further information.
+        """
         raise NotImplementedError()
 
     def predict_proba(self, X):
@@ -243,10 +245,12 @@ class AutotabularClassificationAlgorithm(AutotabularComponent):
 
 class AutotabularPreprocessingAlgorithm(TransformerMixin,
                                         AutotabularComponent):
-    """Provide an abstract interface for preprocessing algorithms in
-    auto-sklearn.
+    """Provide an abstract interface for preprocessing algorithms in auto-
+    sklearn.
 
-    See :ref:`extending` for more information."""
+    See :ref:`extending` for more information.
+    """
+
     def __init__(self):
         self.preprocessor = None
 
@@ -267,7 +271,8 @@ class AutotabularPreprocessingAlgorithm(TransformerMixin,
         -----
         Please see the `scikit-learn API documentation
         <https://scikit-learn.org/stable/developers/develop.html#apis-of-scikit-learn-objects>`_
-        for further information."""
+        for further information.
+        """
         raise NotImplementedError()
 
     def get_preprocessor(self):
@@ -281,18 +286,19 @@ class AutotabularPreprocessingAlgorithm(TransformerMixin,
 
 
 class AutotabularRegressionAlgorithm(AutotabularComponent):
-    """Provide an abstract interface for regression algorithms in
-    auto-sklearn.
+    """Provide an abstract interface for regression algorithms in auto-sklearn.
 
-    Make a subclass of this and put it into the directory
-    `autotabular/pipeline/components/regression` to make it available."""
+    Make a subclass of this and put it into the directory `autotabular/pipeline/components/regression` to make it
+    available.
+    """
+
     def __init__(self):
         self.estimator = None
         self.properties = None
 
     def predict(self, X):
-        """The predict function calls the predict function of the
-        underlying scikit-learn model and returns an array with the predictions.
+        """The predict function calls the predict function of the underlying
+        scikit-learn model and returns an array with the predictions.
 
         Parameters
         ----------
@@ -307,7 +313,8 @@ class AutotabularRegressionAlgorithm(AutotabularComponent):
         -----
         Please see the `scikit-learn API documentation
         <https://scikit-learn.org/stable/developers/develop.html#apis-of-scikit-learn-objects>`_
-        for further information."""
+        for further information.
+        """
         raise NotImplementedError()
 
     def get_estimator(self):
@@ -321,6 +328,7 @@ class AutotabularRegressionAlgorithm(AutotabularComponent):
 
 
 class AutotabularChoice(object):
+
     def __init__(self, dataset_properties, random_state=None):
         """
         Parameters
@@ -367,15 +375,15 @@ class AutotabularChoice(object):
 
         if include is not None and exclude is not None:
             raise ValueError(
-                "The argument include and exclude cannot be used together.")
+                'The argument include and exclude cannot be used together.')
 
         available_comp = self.get_components()
 
         if include is not None:
             for incl in include:
                 if incl not in available_comp:
-                    raise ValueError("Trying to include unknown component: "
-                                     "%s" % incl)
+                    raise ValueError('Trying to include unknown component: '
+                                     '%s' % incl)
 
         components_dict = OrderedDict()
         for name in available_comp:

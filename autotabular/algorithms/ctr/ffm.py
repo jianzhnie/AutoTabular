@@ -1,11 +1,9 @@
 import torch
-
 from torchfm.layer import FeaturesLinear, FieldAwareFactorizationMachine
 
 
 class FieldAwareFactorizationMachineModel(torch.nn.Module):
-    """
-    A pytorch implementation of Field-aware Factorization Machine.
+    """A pytorch implementation of Field-aware Factorization Machine.
 
     Reference:
         Y Juan, et al. Field-aware Factorization Machines for CTR Prediction, 2015.
@@ -20,6 +18,7 @@ class FieldAwareFactorizationMachineModel(torch.nn.Module):
         """
         :param x: Long tensor of size ``(batch_size, num_fields)``
         """
-        ffm_term = torch.sum(torch.sum(self.ffm(x), dim=1), dim=1, keepdim=True)
+        ffm_term = torch.sum(
+            torch.sum(self.ffm(x), dim=1), dim=1, keepdim=True)
         x = self.linear(x) + ffm_term
         return torch.sigmoid(x.squeeze(1))

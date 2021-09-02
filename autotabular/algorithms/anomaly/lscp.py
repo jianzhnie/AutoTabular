@@ -1,4 +1,5 @@
 """Locally Selective Combination of Parallel Outlier Ensembles (LSCP).
+
 Adapted from the original implementation.
 """
 # Author: Zain Nasrullah <zain.nasrullah.zn@gmail.com>
@@ -10,26 +11,20 @@ import warnings
 
 # numpy
 import numpy as np
-
-# sklearn imports
-from sklearn.neighbors import KDTree
-from sklearn.utils import check_array
-from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.validation import check_random_state
-
 # PyOD imports
 from pyod.models.base import BaseDetector
 from pyod.utils.stat_models import pearsonr
-from pyod.utils.utility import argmaxn
-from pyod.utils.utility import generate_bagging_indices
-from pyod.utils.utility import standardizer
-from pyod.utils.utility import check_detector
-
+from pyod.utils.utility import argmaxn, check_detector, generate_bagging_indices, standardizer
+# sklearn imports
+from sklearn.neighbors import KDTree
+from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted, check_random_state
 
 # TODO: find random state that is causing runtime warning in pearson
 
+
 class LSCP(BaseDetector):
-    """ Locally Selection Combination in Parallel Outlier Ensembles
+    """Locally Selection Combination in Parallel Outlier Ensembles.
 
     LSCP is an unsupervised parallel outlier detection ensemble which selects
     competent detectors in the local region of a test instance. This
@@ -116,9 +111,13 @@ class LSCP(BaseDetector):
     LSCP(...)
     """
 
-    def __init__(self, detector_list, local_region_size=30,
-                 local_max_features=1.0, n_bins=10,
-                 random_state=None, contamination=0.1):
+    def __init__(self,
+                 detector_list,
+                 local_region_size=30,
+                 local_max_features=1.0,
+                 n_bins=10,
+                 random_state=None,
+                 contamination=0.1):
         super(LSCP, self).__init__(contamination=contamination)
         self.detector_list = detector_list
         self.n_clf = len(self.detector_list)
@@ -151,7 +150,7 @@ class LSCP(BaseDetector):
         """
         # check detector_list
         if len(self.detector_list) < 2:
-            raise ValueError("The detector list has less than 2 detectors.")
+            raise ValueError('The detector list has less than 2 detectors.')
 
         for detector in self.detector_list:
             check_detector(detector)
@@ -197,23 +196,25 @@ class LSCP(BaseDetector):
             The anomaly score of the input samples.
         """
         # check whether model has been fit
-        check_is_fitted(self, ['training_pseudo_label_', 'train_scores_',
-                               'X_train_norm_', 'n_features_'])
+        check_is_fitted(self, [
+            'training_pseudo_label_', 'train_scores_', 'X_train_norm_',
+            'n_features_'
+        ])
 
         # check input array
         X = check_array(X)
         if self.n_features_ != X.shape[1]:
-            raise ValueError("Number of features of the model must "
-                             "match the input. Model n_features is {0} and "
-                             "input n_features is {1}."
-                             "".format(self.n_features_, X.shape[1]))
+            raise ValueError('Number of features of the model must '
+                             'match the input. Model n_features is {0} and '
+                             'input n_features is {1}.'
+                             ''.format(self.n_features_, X.shape[1]))
 
         # get decision scores and return
         decision_scores = self._get_decision_scores(X)
         return decision_scores
 
     def _get_decision_scores(self, X):
-        """ Helper function for getting outlier scores on test data X (note:
+        """Helper function for getting outlier scores on test data X (note:
         model must already be fit)
 
         Parameters
@@ -230,10 +231,10 @@ class LSCP(BaseDetector):
         # raise warning if local region size is outside acceptable limits
         if (self.local_region_size < self.local_region_min) or (
                 self.local_region_size > self.local_region_max):
-            warnings.warn("Local region size of {} is outside "
-                          "recommended range [{}, {}]".format(
-                self.local_region_size, self.local_region_min,
-                self.local_region_max))
+            warnings.warn('Local region size of {} is outside '
+                          'recommended range [{}, {}]'.format(
+                              self.local_region_size, self.local_region_min,
+                              self.local_region_max))
 
         # standardize test data and get local region for each test instance
         X_test_norm = X
@@ -245,15 +246,17 @@ class LSCP(BaseDetector):
             test_scores[:, k] = detector.decision_function(X_test_norm)
 
         # generate standardized scores
-        train_scores_norm, test_scores_norm = standardizer(self.train_scores_,
-                                                           test_scores)
+        train_scores_norm, test_scores_norm = standardizer(
+            self.train_scores_, test_scores)
 
         # generate pseudo target for training --> for calculating weights
-        self.training_pseudo_label_ = np.max(train_scores_norm,
-                                             axis=1).reshape(-1, 1)
+        self.training_pseudo_label_ = np.max(
+            train_scores_norm, axis=1).reshape(-1, 1)
 
         # placeholder for ensemble predictions
-        pred_scores_ens = np.zeros([X_test_norm.shape[0], ])
+        pred_scores_ens = np.zeros([
+            X_test_norm.shape[0],
+        ])
 
         # iterate through test instances (test_local_regions
         # indices correspond to x_test)
@@ -262,25 +265,27 @@ class LSCP(BaseDetector):
             # get pseudo target and training scores in local region of
             # test instance
             local_pseudo_ground_truth = self.training_pseudo_label_[
-                test_local_region,].ravel()
+                test_local_region, ].ravel()
             local_train_scores = train_scores_norm[test_local_region, :]
 
             # calculate pearson correlation between local pseudo ground truth
             # and local train scores
-            pearson_corr_scores = np.zeros([self.n_clf, ])
+            pearson_corr_scores = np.zeros([
+                self.n_clf,
+            ])
             for d in range(self.n_clf):
-                pearson_corr_scores[d,] = pearsonr(
-                    local_pseudo_ground_truth, local_train_scores[:, d])[0]
+                pearson_corr_scores[d, ] = pearsonr(local_pseudo_ground_truth,
+                                                    local_train_scores[:,
+                                                                       d])[0]
 
             # return best score
-            pred_scores_ens[i,] = np.mean(
-                test_scores_norm[
-                    i, self._get_competent_detectors(pearson_corr_scores)])
+            pred_scores_ens[i, ] = np.mean(test_scores_norm[
+                i, self._get_competent_detectors(pearson_corr_scores)])
 
         return pred_scores_ens
 
     def _get_local_region(self, X_test_norm):
-        """ Get local region for each test instance
+        """Get local region for each test instance.
 
         Parameters
         ----------
@@ -298,12 +303,12 @@ class LSCP(BaseDetector):
 
         if self.local_max_features > 1.0:
             warnings.warn(
-                "Local max features greater than 1.0, reducing to 1.0")
+                'Local max features greater than 1.0, reducing to 1.0')
             self.local_max_features = 1.0
 
         if self.X_train_norm_.shape[1] * self.local_min_features < 1:
             warnings.warn(
-                "Local min features smaller than 1, increasing to 1.0")
+                'Local min features smaller than 1, increasing to 1.0')
             self.local_min_features = 1.0
 
         # perform multiple iterations
@@ -312,8 +317,8 @@ class LSCP(BaseDetector):
             # if min and max are the same, then use all features
             if self.local_max_features == self.local_min_features:
                 features = range(0, self.X_train_norm_.shape[1])
-                warnings.warn("Local min features equals local max features; "
-                              "use all features instead.")
+                warnings.warn('Local min features equals local max features; '
+                              'use all features instead.')
 
             else:
                 # randomly generate feature subspaces
@@ -321,17 +326,17 @@ class LSCP(BaseDetector):
                     self.random_state,
                     bootstrap_features=False,
                     n_features=self.X_train_norm_.shape[1],
-                    min_features=int(
-                        self.X_train_norm_.shape[1] * self.local_min_features),
-                    max_features=int(
-                        self.X_train_norm_.shape[1] * self.local_max_features))
+                    min_features=int(self.X_train_norm_.shape[1] *
+                                     self.local_min_features),
+                    max_features=int(self.X_train_norm_.shape[1] *
+                                     self.local_max_features))
 
             # build KDTree out of training subspace
             tree = KDTree(self.X_train_norm_[:, features])
 
             # Find neighbors of each test instance
-            _, ind_arr = tree.query(X_test_norm[:, features],
-                                    k=self.local_region_size)
+            _, ind_arr = tree.query(
+                X_test_norm[:, features], k=self.local_region_size)
 
             # add neighbors to local region list
             for j in range(X_test_norm.shape[0]):
@@ -341,23 +346,27 @@ class LSCP(BaseDetector):
         # keep nearby points which occur at least local_region_threshold times
         final_local_region_list = [[]] * X_test_norm.shape[0]
         for j in range(X_test_norm.shape[0]):
-            tmp = [item for item, count in collections.Counter(
-                local_region_list[j]).items() if
-                   count > self.local_region_threshold]
+            tmp = [
+                item for item, count in collections.Counter(
+                    local_region_list[j]).items()
+                if count > self.local_region_threshold
+            ]
             decrease_value = 0
             while len(tmp) < 2:
                 decrease_value = decrease_value + 1
                 assert decrease_value < self.local_region_threshold
-                tmp = [item for item, count in
-                       collections.Counter(local_region_list[j]).items() if
-                       count > (self.local_region_threshold - decrease_value)]
+                tmp = [
+                    item for item, count in collections.Counter(
+                        local_region_list[j]).items()
+                    if count > (self.local_region_threshold - decrease_value)
+                ]
 
             final_local_region_list[j] = tmp
 
         return final_local_region_list
 
     def _get_competent_detectors(self, scores):
-        """ Identifies competent base detectors based on correlation scores
+        """Identifies competent base detectors based on correlation scores.
 
         Parameters
         ----------
@@ -381,8 +390,8 @@ class LSCP(BaseDetector):
 
         if self.n_bins > self.n_clf:
             warnings.warn(
-                "The number of histogram bins is greater than the number of "
-                "classifiers, reducing n_bins to n_clf.")
+                'The number of histogram bins is greater than the number of '
+                'classifiers, reducing n_bins to n_clf.')
             self.n_bins = self.n_clf
         hist, bin_edges = np.histogram(scores, bins=self.n_bins)
 

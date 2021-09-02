@@ -1,21 +1,31 @@
 import resource
 import sys
 
-from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.conditions import EqualsCondition, InCondition
-from ConfigSpace.hyperparameters import UniformFloatHyperparameter, \
-    UniformIntegerHyperparameter, CategoricalHyperparameter, \
-    UnParametrizedHyperparameter
-
 from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
-from autotabular.pipeline.constants import DENSE, UNSIGNED_DATA, PREDICTIONS, SPARSE
+from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.pipeline.implementations.util import softmax
 from autotabular.util.common import check_for_bool, check_none
+from ConfigSpace.conditions import EqualsCondition, InCondition
+from ConfigSpace.configuration_space import ConfigurationSpace
+from ConfigSpace.hyperparameters import (CategoricalHyperparameter,
+                                         UniformFloatHyperparameter,
+                                         UniformIntegerHyperparameter,
+                                         UnParametrizedHyperparameter)
 
 
 class LibSVM_SVC(autotabularClassificationAlgorithm):
-    def __init__(self, C, kernel, gamma, shrinking, tol, max_iter,
-                 class_weight=None, degree=3, coef0=0, random_state=None):
+
+    def __init__(self,
+                 C,
+                 kernel,
+                 gamma,
+                 shrinking,
+                 tol,
+                 max_iter,
+                 class_weight=None,
+                 degree=3,
+                 coef0=0,
+                 random_state=None):
         self.C = C
         self.kernel = kernel
         self.degree = degree
@@ -80,18 +90,19 @@ class LibSVM_SVC(autotabularClassificationAlgorithm):
         if check_none(self.class_weight):
             self.class_weight = None
 
-        self.estimator = sklearn.svm.SVC(C=self.C,
-                                         kernel=self.kernel,
-                                         degree=self.degree,
-                                         gamma=self.gamma,
-                                         coef0=self.coef0,
-                                         shrinking=self.shrinking,
-                                         tol=self.tol,
-                                         class_weight=self.class_weight,
-                                         max_iter=self.max_iter,
-                                         random_state=self.random_state,
-                                         cache_size=cache_size,
-                                         decision_function_shape='ovr')
+        self.estimator = sklearn.svm.SVC(
+            C=self.C,
+            kernel=self.kernel,
+            degree=self.degree,
+            gamma=self.gamma,
+            coef0=self.coef0,
+            shrinking=self.shrinking,
+            tol=self.tol,
+            class_weight=self.class_weight,
+            max_iter=self.max_iter,
+            random_state=self.random_state,
+            cache_size=cache_size,
+            decision_function_shape='ovr')
         self.estimator.fit(X, Y)
         return self
 
@@ -118,35 +129,37 @@ class LibSVM_SVC(autotabularClassificationAlgorithm):
             'handles_multioutput': False,
             'is_deterministic': True,
             'input': (DENSE, SPARSE, UNSIGNED_DATA),
-            'output': (PREDICTIONS,)}
+            'output': (PREDICTIONS, )
+        }
 
     @staticmethod
     def get_hyperparameter_search_space(dataset_properties=None):
-        C = UniformFloatHyperparameter("C", 0.03125, 32768, log=True,
-                                       default_value=1.0)
+        C = UniformFloatHyperparameter(
+            'C', 0.03125, 32768, log=True, default_value=1.0)
         # No linear kernel here, because we have liblinear
-        kernel = CategoricalHyperparameter(name="kernel",
-                                           choices=["rbf", "poly", "sigmoid"],
-                                           default_value="rbf")
-        degree = UniformIntegerHyperparameter("degree", 2, 5, default_value=3)
-        gamma = UniformFloatHyperparameter("gamma", 3.0517578125e-05, 8,
-                                           log=True, default_value=0.1)
+        kernel = CategoricalHyperparameter(
+            name='kernel',
+            choices=['rbf', 'poly', 'sigmoid'],
+            default_value='rbf')
+        degree = UniformIntegerHyperparameter('degree', 2, 5, default_value=3)
+        gamma = UniformFloatHyperparameter(
+            'gamma', 3.0517578125e-05, 8, log=True, default_value=0.1)
         # TODO this is totally ad-hoc
-        coef0 = UniformFloatHyperparameter("coef0", -1, 1, default_value=0)
+        coef0 = UniformFloatHyperparameter('coef0', -1, 1, default_value=0)
         # probability is no hyperparameter, but an argument to the SVM algo
-        shrinking = CategoricalHyperparameter("shrinking", ["True", "False"],
-                                              default_value="True")
-        tol = UniformFloatHyperparameter("tol", 1e-5, 1e-1, default_value=1e-3,
-                                         log=True)
+        shrinking = CategoricalHyperparameter(
+            'shrinking', ['True', 'False'], default_value='True')
+        tol = UniformFloatHyperparameter(
+            'tol', 1e-5, 1e-1, default_value=1e-3, log=True)
         # cache size is not a hyperparameter, but an argument to the program!
-        max_iter = UnParametrizedHyperparameter("max_iter", -1)
+        max_iter = UnParametrizedHyperparameter('max_iter', -1)
 
         cs = ConfigurationSpace()
-        cs.add_hyperparameters([C, kernel, degree, gamma, coef0, shrinking,
-                                tol, max_iter])
+        cs.add_hyperparameters(
+            [C, kernel, degree, gamma, coef0, shrinking, tol, max_iter])
 
-        degree_depends_on_poly = EqualsCondition(degree, kernel, "poly")
-        coef0_condition = InCondition(coef0, kernel, ["poly", "sigmoid"])
+        degree_depends_on_poly = EqualsCondition(degree, kernel, 'poly')
+        coef0_condition = InCondition(coef0, kernel, ['poly', 'sigmoid'])
         cs.add_condition(degree_depends_on_poly)
         cs.add_condition(coef0_condition)
 

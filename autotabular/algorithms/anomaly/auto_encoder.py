@@ -1,20 +1,16 @@
-# -*- coding: utf-8 -*-
-"""Using Auto Encoder with Outlier Detection
-"""
+"""Using Auto Encoder with Outlier Detection."""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
 from ..utils.stat_models import pairwise_distances_no_broadcast
-
+from ..utils.utility import check_parameter
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
 
@@ -34,9 +30,9 @@ else:
 # noinspection PyUnresolvedReferences,PyPep8Naming,PyTypeChecker
 class AutoEncoder(BaseDetector):
     """Auto Encoder (AE) is a type of neural networks for learning useful data
-    representations unsupervisedly. Similar to PCA, AE could be used to
-    detect outlying objects in the data by calculating the reconstruction
-    errors. See :cite:`aggarwal2015outlier` Chapter 3 for details.
+    representations unsupervisedly. Similar to PCA, AE could be used to detect
+    outlying objects in the data by calculating the reconstruction errors. See
+    :cite:`aggarwal2015outlier` Chapter 3 for details.
 
     Parameters
     ----------
@@ -134,12 +130,21 @@ class AutoEncoder(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, hidden_neurons=None,
-                 hidden_activation='relu', output_activation='sigmoid',
-                 loss=mean_squared_error, optimizer='adam',
-                 epochs=100, batch_size=32, dropout_rate=0.2,
-                 l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbose=1, random_state=None, contamination=0.1):
+    def __init__(self,
+                 hidden_neurons=None,
+                 hidden_activation='relu',
+                 output_activation='sigmoid',
+                 loss=mean_squared_error,
+                 optimizer='adam',
+                 epochs=100,
+                 batch_size=32,
+                 dropout_rate=0.2,
+                 l2_regularizer=0.1,
+                 validation_size=0.1,
+                 preprocessing=True,
+                 verbose=1,
+                 random_state=None,
+                 contamination=0.1):
         super(AutoEncoder, self).__init__(contamination=contamination)
         self.hidden_neurons = hidden_neurons
         self.hidden_activation = hidden_activation
@@ -162,33 +167,39 @@ class AutoEncoder(BaseDetector):
         # Verify the network design is valid
         if not self.hidden_neurons == self.hidden_neurons[::-1]:
             print(self.hidden_neurons)
-            raise ValueError("Hidden units should be symmetric")
+            raise ValueError('Hidden units should be symmetric')
 
         self.hidden_neurons_ = self.hidden_neurons
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
-                        include_left=True)
+        check_parameter(
+            dropout_rate, 0, 1, param_name='dropout_rate', include_left=True)
 
     def _build_model(self):
         model = Sequential()
         # Input layer
-        model.add(Dense(
-            self.hidden_neurons_[0], activation=self.hidden_activation,
-            input_shape=(self.n_features_,),
-            activity_regularizer=l2(self.l2_regularizer)))
+        model.add(
+            Dense(
+                self.hidden_neurons_[0],
+                activation=self.hidden_activation,
+                input_shape=(self.n_features_, ),
+                activity_regularizer=l2(self.l2_regularizer)))
         model.add(Dropout(self.dropout_rate))
 
         # Additional layers
         for i, hidden_neurons in enumerate(self.hidden_neurons_, 1):
-            model.add(Dense(
-                hidden_neurons,
-                activation=self.hidden_activation,
-                activity_regularizer=l2(self.l2_regularizer)))
+            model.add(
+                Dense(
+                    hidden_neurons,
+                    activation=self.hidden_activation,
+                    activity_regularizer=l2(self.l2_regularizer)))
             model.add(Dropout(self.dropout_rate))
 
         # Output layers
-        model.add(Dense(self.n_features_, activation=self.output_activation,
-                        activity_regularizer=l2(self.l2_regularizer)))
+        model.add(
+            Dense(
+                self.n_features_,
+                activation=self.output_activation,
+                activity_regularizer=l2(self.l2_regularizer)))
 
         # Compile model
         model.compile(loss=self.loss, optimizer=self.optimizer)
@@ -233,8 +244,8 @@ class AutoEncoder(BaseDetector):
 
         # Validate and complete the number of hidden neurons
         if np.min(self.hidden_neurons) > self.n_features_:
-            raise ValueError("The number of neurons should not exceed "
-                             "the number of features")
+            raise ValueError('The number of neurons should not exceed '
+                             'the number of features')
         self.hidden_neurons_.insert(0, self.n_features_)
 
         # Calculate the dimension of the encoding layer & compression rate
@@ -243,12 +254,14 @@ class AutoEncoder(BaseDetector):
 
         # Build AE model & fit with X
         self.model_ = self._build_model()
-        self.history_ = self.model_.fit(X_norm, X_norm,
-                                        epochs=self.epochs,
-                                        batch_size=self.batch_size,
-                                        shuffle=True,
-                                        validation_split=self.validation_size,
-                                        verbose=self.verbose).history
+        self.history_ = self.model_.fit(
+            X_norm,
+            X_norm,
+            epochs=self.epochs,
+            batch_size=self.batch_size,
+            shuffle=True,
+            validation_split=self.validation_size,
+            verbose=self.verbose).history
         # Reverse the operation for consistency
         self.hidden_neurons_.pop(0)
         # Predict on X itself and calculate the reconstruction error as
@@ -259,8 +272,8 @@ class AutoEncoder(BaseDetector):
             X_norm = np.copy(X)
 
         pred_scores = self.model_.predict(X_norm)
-        self.decision_scores_ = pairwise_distances_no_broadcast(X_norm,
-                                                                pred_scores)
+        self.decision_scores_ = pairwise_distances_no_broadcast(
+            X_norm, pred_scores)
         self._process_decision_scores()
         return self
 

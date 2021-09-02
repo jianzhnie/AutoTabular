@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-
-"""Variational Auto Encoder (VAE)
-and beta-VAE for Unsupervised Outlier Detection
+"""Variational Auto Encoder (VAE) and beta-VAE for Unsupervised Outlier
+Detection.
 
 Reference:
         :cite:`kingma2013auto` Kingma, Diederik, Welling
         'Auto-Encodeing Variational Bayes'
         https://arxiv.org/abs/1312.6114
-        
+
         :cite:`burgess2018understanding` Burges et al
         'Understanding disentangling in beta-VAE'
         https://arxiv.org/pdf/1804.03599.pdf
@@ -16,19 +14,15 @@ Reference:
 # Author: Andrij Vasylenko <andrij@liverpool.ac.uk>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
-
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
 from ..utils.stat_models import pairwise_distances_no_broadcast
-
+from ..utils.utility import check_parameter
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
 
@@ -175,13 +169,25 @@ class VAE(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, encoder_neurons=None, decoder_neurons=None,
-                 latent_dim=2, hidden_activation='relu',
-                 output_activation='sigmoid', loss=mse, optimizer='adam',
-                 epochs=100, batch_size=32, dropout_rate=0.2,
-                 l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbose=1, random_state=None, contamination=0.1,
-                 gamma=1.0, capacity=0.0):
+    def __init__(self,
+                 encoder_neurons=None,
+                 decoder_neurons=None,
+                 latent_dim=2,
+                 hidden_activation='relu',
+                 output_activation='sigmoid',
+                 loss=mse,
+                 optimizer='adam',
+                 epochs=100,
+                 batch_size=32,
+                 dropout_rate=0.2,
+                 l2_regularizer=0.1,
+                 validation_size=0.1,
+                 preprocessing=True,
+                 verbose=1,
+                 random_state=None,
+                 contamination=0.1,
+                 gamma=1.0,
+                 capacity=0.0):
         super(VAE, self).__init__(contamination=contamination)
         self.encoder_neurons = encoder_neurons
         self.decoder_neurons = decoder_neurons
@@ -211,8 +217,8 @@ class VAE(BaseDetector):
         self.encoder_neurons_ = self.encoder_neurons
         self.decoder_neurons_ = self.decoder_neurons
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
-                        include_left=True)
+        check_parameter(
+            dropout_rate, 0, 1, param_name='dropout_rate', include_left=True)
 
     def sampling(self, args):
         """Reparametrisation by sampling from Gaussian, N(0,I)
@@ -223,7 +229,7 @@ class VAE(BaseDetector):
         ----------
         args : tensor
             Mean and log of variance of Q(z|X).
-    
+
         Returns
         -------
         z : tensor
@@ -255,38 +261,44 @@ class VAE(BaseDetector):
         """Build VAE = encoder + decoder + vae_loss"""
 
         # Build Encoder
-        inputs = Input(shape=(self.n_features_,))
+        inputs = Input(shape=(self.n_features_, ))
         # Input layer
-        layer = Dense(self.n_features_, activation=self.hidden_activation)(
-            inputs)
+        layer = Dense(
+            self.n_features_, activation=self.hidden_activation)(
+                inputs)
         # Hidden layers
         for neurons in self.encoder_neurons:
-            layer = Dense(neurons, activation=self.hidden_activation,
-                          activity_regularizer=l2(self.l2_regularizer))(layer)
+            layer = Dense(
+                neurons,
+                activation=self.hidden_activation,
+                activity_regularizer=l2(self.l2_regularizer))(
+                    layer)
             layer = Dropout(self.dropout_rate)(layer)
         # Create mu and sigma of latent variables
         z_mean = Dense(self.latent_dim)(layer)
         z_log = Dense(self.latent_dim)(layer)
         # Use parametrisation sampling
-        z = Lambda(self.sampling, output_shape=(self.latent_dim,))(
-            [z_mean, z_log])
+        z = Lambda(
+            self.sampling, output_shape=(self.latent_dim, ))([z_mean, z_log])
         # Instantiate encoder
         encoder = Model(inputs, [z_mean, z_log, z])
         if self.verbose >= 1:
             encoder.summary()
 
         # Build Decoder
-        latent_inputs = Input(shape=(self.latent_dim,))
+        latent_inputs = Input(shape=(self.latent_dim, ))
         # Latent input layer
-        layer = Dense(self.latent_dim, activation=self.hidden_activation)(
-            latent_inputs)
+        layer = Dense(
+            self.latent_dim, activation=self.hidden_activation)(
+                latent_inputs)
         # Hidden layers
         for neurons in self.decoder_neurons:
             layer = Dense(neurons, activation=self.hidden_activation)(layer)
             layer = Dropout(self.dropout_rate)(layer)
         # Output layer
-        outputs = Dense(self.n_features_, activation=self.output_activation)(
-            layer)
+        outputs = Dense(
+            self.n_features_, activation=self.output_activation)(
+                layer)
         # Instatiate decoder
         decoder = Model(latent_inputs, outputs)
         if self.verbose >= 1:
@@ -333,17 +345,18 @@ class VAE(BaseDetector):
 
         # Validate and complete the number of hidden neurons
         if np.min(self.encoder_neurons) > self.n_features_:
-            raise ValueError("The number of neurons should not exceed "
-                             "the number of features")
+            raise ValueError('The number of neurons should not exceed '
+                             'the number of features')
 
         # Build VAE model & fit with X
         self.model_ = self._build_model()
-        self.history_ = self.model_.fit(X_norm,
-                                        epochs=self.epochs,
-                                        batch_size=self.batch_size,
-                                        shuffle=True,
-                                        validation_split=self.validation_size,
-                                        verbose=self.verbose).history
+        self.history_ = self.model_.fit(
+            X_norm,
+            epochs=self.epochs,
+            batch_size=self.batch_size,
+            shuffle=True,
+            validation_split=self.validation_size,
+            verbose=self.verbose).history
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
         if self.preprocessing:
@@ -352,8 +365,8 @@ class VAE(BaseDetector):
             X_norm = np.copy(X)
 
         pred_scores = self.model_.predict(X_norm)
-        self.decision_scores_ = pairwise_distances_no_broadcast(X_norm,
-                                                                pred_scores)
+        self.decision_scores_ = pairwise_distances_no_broadcast(
+            X_norm, pred_scores)
         self._process_decision_scores()
         return self
 

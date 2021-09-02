@@ -1,29 +1,25 @@
-# -*- coding: utf-8 -*-
-"""Angle-based Outlier Detector (ABOD)
-"""
+"""Angle-based Outlier Detector (ABOD)"""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
-
+from __future__ import division, print_function
 import warnings
 from itertools import combinations
 
 import numpy as np
 from numba import njit
-from sklearn.neighbors import KDTree
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import KDTree, NearestNeighbors
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from .base import BaseDetector
+
 from ..utils.utility import check_parameter
+from .base import BaseDetector
 
 
 @njit
 def _wcos(curr_pt, a, b):  # pragma: no cover
-    """Internal function to calculate weighted cosine using optimized
-    numba code.
+    """Internal function to calculate weighted cosine using optimized numba
+    code.
 
     Parameters
     ----------
@@ -40,16 +36,14 @@ def _wcos(curr_pt, a, b):  # pragma: no cover
     -------
     wcos : float in range [-1, 1]
         Cosine similarity between a-curr_pt and b-curr_pt.
-
     """
 
     a_curr = a - curr_pt
     b_curr = b - curr_pt
 
     # wcos = (<a_curr, b_curr>/((|a_curr|*|b_curr|)^2)
-    wcos = np.dot(a_curr, b_curr) / (
-            np.linalg.norm(a_curr, 2) ** 2) / (
-                   np.linalg.norm(b_curr, 2) ** 2)
+    wcos = np.dot(a_curr, b_curr) / (np.linalg.norm(a_curr, 2)**2) / (
+        np.linalg.norm(b_curr, 2)**2)
     return wcos
 
 
@@ -90,10 +84,9 @@ def _calculate_wocs(curr_pt, X, X_ind):
 
 # noinspection PyPep8Naming
 class ABOD(BaseDetector):
-    """ABOD class for Angle-base Outlier Detection.
-    For an observation, the variance of its weighted cosine scores to all
-    neighbors could be viewed as the outlying score.
-    See :cite:`kriegel2008angle` for details.
+    """ABOD class for Angle-base Outlier Detection. For an observation, the
+    variance of its weighted cosine scores to all neighbors could be viewed as
+    the outlying score. See :cite:`kriegel2008angle` for details.
 
     Two version of ABOD are supported:
 
@@ -172,7 +165,7 @@ class ABOD(BaseDetector):
         elif self.method == 'default':
             self._fit_default()
         else:
-            raise ValueError(self.method, "is not a valid method")
+            raise ValueError(self.method, 'is not a valid method')
 
         # flip the scores
         self.decision_scores_ = self.decision_scores_.ravel() * -1
@@ -180,8 +173,9 @@ class ABOD(BaseDetector):
         return self
 
     def _fit_default(self):
-        """Default ABOD method. Use all training points with high complexity
-        O(n^3). For internal use only.
+        """Default ABOD method.
+
+        Use all training points with high complexity O(n^3). For internal use only.
         """
         for i in range(self.n_train_):
             curr_pt = self.X_train_[i, :]
@@ -190,38 +184,43 @@ class ABOD(BaseDetector):
             X_ind = list(range(0, self.n_train_))
             X_ind.remove(i)
 
-            self.decision_scores_[i, 0] = _calculate_wocs(curr_pt,
-                                                          self.X_train_,
-                                                          X_ind)
+            self.decision_scores_[i,
+                                  0] = _calculate_wocs(curr_pt, self.X_train_,
+                                                       X_ind)
         return self
 
     def _fit_fast(self):
-        """Fast ABOD method. Only use n_neighbors for angle calculation.
-        Internal use only
+        """Fast ABOD method.
+
+        Only use n_neighbors for angle calculation. Internal use only
         """
 
         # make sure the n_neighbors is in the range
         if self.n_neighbors >= self.n_train_:
             self.n_neighbors = self.n_train_ - 1
-            warnings.warn("n_neighbors is set to the number of "
-                          "training points minus 1: {0}".format(self.n_train_))
+            warnings.warn('n_neighbors is set to the number of '
+                          'training points minus 1: {0}'.format(self.n_train_))
 
-            check_parameter(self.n_neighbors, 1, self.n_train_,
-                            include_left=True, include_right=True)
+            check_parameter(
+                self.n_neighbors,
+                1,
+                self.n_train_,
+                include_left=True,
+                include_right=True)
 
         self.tree_ = KDTree(self.X_train_)
 
         neigh = NearestNeighbors(n_neighbors=self.n_neighbors)
         neigh.fit(self.X_train_)
-        ind_arr = neigh.kneighbors(n_neighbors=self.n_neighbors,
-                                   return_distance=False)
+        ind_arr = neigh.kneighbors(
+            n_neighbors=self.n_neighbors, return_distance=False)
 
         for i in range(self.n_train_):
             curr_pt = self.X_train_[i, :]
             X_ind = ind_arr[i, :]
-            self.decision_scores_[i, 0] = _calculate_wocs(curr_pt,
-                                                          self.X_train_,
-                                                          X_ind)
+            self.decision_scores_[i,
+                                  0] = _calculate_wocs(curr_pt, self.X_train_,
+                                                       X_ind)
         return self
 
     # noinspection PyPep8Naming
@@ -244,8 +243,9 @@ class ABOD(BaseDetector):
             The anomaly score of the input samples.
         """
 
-        check_is_fitted(self, ['X_train_', 'n_train_', 'decision_scores_',
-                               'threshold_', 'labels_'])
+        check_is_fitted(self, [
+            'X_train_', 'n_train_', 'decision_scores_', 'threshold_', 'labels_'
+        ])
         X = check_array(X)
 
         if self.method == 'fast':  # fast ABOD
@@ -266,7 +266,6 @@ class ABOD(BaseDetector):
         -------
         pred_score : array, shape (n_samples,)
             The anomaly score of the input samples.
-
         """
         # initialize the output score
         pred_score = np.zeros([X.shape[0], 1])
@@ -291,7 +290,6 @@ class ABOD(BaseDetector):
         -------
         pred_score : array, shape (n_samples,)
             The anomaly score of the input samples.
-
         """
 
         check_is_fitted(self, ['tree_'])

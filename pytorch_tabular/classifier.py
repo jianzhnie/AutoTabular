@@ -1,23 +1,26 @@
 """NeuralNet subclasses for classification tasks."""
 
 import re
+import sys
 
 import numpy as np
-from sklearn.base import ClassifierMixin
-import torch
-from torch.utils.data import DataLoader
-import torch.nn.functional as F
-import sys
-sys.path.append("../")
-from autotabular.deepctr.models.lr import LogisticRegressionModel
-from autotabular.datasets.tabular_data import SklearnDataModule
-from autotabular.datasets.dsutils import load_heart_disease_uci
 import pytorch_lightning as pl
-from torchmetrics.functional import accuracy
+import torch
+import torch.nn.functional as F
+from autotabular.datasets.dsutils import load_heart_disease_uci
+from autotabular.datasets.tabular_data import SklearnDataModule
+from autotabular.deepctr.models.lr import LogisticRegressionModel
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from sklearn.base import ClassifierMixin
+from sklearn.datasets import load_breast_cancer
+from torch.utils.data import DataLoader
+from torchmetrics.functional import accuracy
+
+sys.path.append('../')
 
 
 class LR(pl.LightningModule):
+
     def __init__(self):
 
         self.model = LogisticRegressionModel(field_dims=[1, 2, 3, 4])
@@ -31,13 +34,14 @@ class LR(pl.LightningModule):
         y_hat = self.model(x)
         loss = F.binary_cross_entropy(y_hat, y)
 
-        self.log('train_loss',
-                 loss,
-                 on_step=True,
-                 on_epoch=True,
-                 prog_bar=True,
-                 logger=True,
-                 sync_dist=True)
+        self.log(
+            'train_loss',
+            loss,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+            sync_dist=True)
         return loss
 
     def evaluate(self, batch, stage=None):
@@ -64,11 +68,9 @@ class LR(pl.LightningModule):
         self.log_dict({'test_loss': loss, 'test_acc': acc})
 
     def configure_callbacks(self):
-        checkpoint = ModelCheckpoint(monitor="val_loss")
+        checkpoint = ModelCheckpoint(monitor='val_loss')
         return [checkpoint]
 
-
-from sklearn.datasets import load_breast_cancer
 
 X, y = load_breast_cancer(return_X_y=True)
 loaders = SklearnDataModule(X, y, batch_size=32)

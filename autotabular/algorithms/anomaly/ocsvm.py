@@ -1,18 +1,18 @@
-# -*- coding: utf-8 -*-
-"""One-class SVM detector. Implemented on scikit-learn library.
+"""One-class SVM detector.
+
+Implemented on scikit-learn library.
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 from sklearn.svm import OneClassSVM
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 
-from .base import BaseDetector
 from ..utils.utility import invert_order
+from .base import BaseDetector
 
 
 class OCSVM(BaseDetector):
@@ -113,9 +113,18 @@ class OCSVM(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, kernel='rbf', degree=3, gamma='auto', coef0=0.0,
-                 tol=1e-3, nu=0.5, shrinking=True, cache_size=200,
-                 verbose=False, max_iter=-1, contamination=0.1):
+    def __init__(self,
+                 kernel='rbf',
+                 degree=3,
+                 gamma='auto',
+                 coef0=0.0,
+                 tol=1e-3,
+                 nu=0.5,
+                 shrinking=True,
+                 cache_size=200,
+                 verbose=False,
+                 max_iter=-1,
+                 contamination=0.1):
         super(OCSVM, self).__init__(contamination=contamination)
         self.kernel = kernel
         self.degree = degree
@@ -152,18 +161,18 @@ class OCSVM(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        self.detector_ = OneClassSVM(kernel=self.kernel,
-                                     degree=self.degree,
-                                     gamma=self.gamma,
-                                     coef0=self.coef0,
-                                     tol=self.tol,
-                                     nu=self.nu,
-                                     shrinking=self.shrinking,
-                                     cache_size=self.cache_size,
-                                     verbose=self.verbose,
-                                     max_iter=self.max_iter)
-        self.detector_.fit(X=X, y=y, sample_weight=sample_weight,
-                           **params)
+        self.detector_ = OneClassSVM(
+            kernel=self.kernel,
+            degree=self.degree,
+            gamma=self.gamma,
+            coef0=self.coef0,
+            tol=self.tol,
+            nu=self.nu,
+            shrinking=self.shrinking,
+            cache_size=self.cache_size,
+            verbose=self.verbose,
+            max_iter=self.max_iter)
+        self.detector_.fit(X=X, y=y, sample_weight=sample_weight, **params)
 
         # invert decision_scores_. Outliers comes with higher outlier scores
         self.decision_scores_ = invert_order(
@@ -196,6 +205,7 @@ class OCSVM(BaseDetector):
     @property
     def support_(self):
         """Indices of support vectors.
+
         Decorator for scikit-learn One class SVM attributes.
         """
         return self.detector_.support_
@@ -203,6 +213,7 @@ class OCSVM(BaseDetector):
     @property
     def support_vectors_(self):
         """Support vectors.
+
         Decorator for scikit-learn One class SVM attributes.
         """
         return self.detector_.support_vectors_
@@ -210,6 +221,7 @@ class OCSVM(BaseDetector):
     @property
     def dual_coef_(self):
         """Coefficients of the support vectors in the decision function.
+
         Decorator for scikit-learn One class SVM attributes.
         """
         return self.detector_.dual_coef_
@@ -217,16 +229,17 @@ class OCSVM(BaseDetector):
     @property
     def coef_(self):
         """Weights assigned to the features (coefficients in the primal
-        problem). This is only available in the case of a linear kernel.
-        `coef_` is readonly property derived from `dual_coef_` and
-        `support_vectors_`
-        Decorator for scikit-learn One class SVM attributes.
+        problem).
+
+        This is only available in the case of a linear kernel. `coef_` is readonly property derived from `dual_coef_`
+        and `support_vectors_` Decorator for scikit-learn One class SVM attributes.
         """
         return self.detector_.coef_
 
     @property
     def intercept_(self):
-        """ Constant in the decision function.
+        """Constant in the decision function.
+
         Decorator for scikit-learn One class SVM attributes.
         """
         return self.detector_.intercept_

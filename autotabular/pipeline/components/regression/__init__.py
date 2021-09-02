@@ -1,14 +1,13 @@
-from collections import OrderedDict
 import os
+from collections import OrderedDict
 
-from ..base import autotabularRegressionAlgorithm, find_components, \
-    ThirdPartyComponents, AutotabularChoice
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
 
+from ..base import AutotabularChoice, ThirdPartyComponents, autotabularRegressionAlgorithm, find_components
+
 regressor_directory = os.path.split(__file__)[0]
-_regressors = find_components(__package__,
-                              regressor_directory,
+_regressors = find_components(__package__, regressor_directory,
                               autotabularRegressionAlgorithm)
 _addons = ThirdPartyComponents(autotabularRegressionAlgorithm)
 
@@ -38,13 +37,13 @@ class RegressorChoice(AutotabularChoice):
 
         if include is not None and exclude is not None:
             raise ValueError(
-                "The argument include and exclude cannot be used together.")
+                'The argument include and exclude cannot be used together.')
 
         if include is not None:
             for incl in include:
                 if incl not in available_comp:
-                    raise ValueError("Trying to include unknown component: "
-                                     "%s" % incl)
+                    raise ValueError('Trying to include unknown component: '
+                                     '%s' % incl)
 
         for name in available_comp:
             if include is not None and name not in include:
@@ -67,12 +66,14 @@ class RegressorChoice(AutotabularChoice):
 
         return components_dict
 
-    def get_hyperparameter_search_space(self, dataset_properties=None,
+    def get_hyperparameter_search_space(self,
+                                        dataset_properties=None,
                                         default=None,
                                         include=None,
                                         exclude=None):
         if include is not None and exclude is not None:
-            raise ValueError("The argument include and exclude cannot be used together.")
+            raise ValueError(
+                'The argument include and exclude cannot be used together.')
 
         cs = ConfigurationSpace()
 
@@ -83,7 +84,7 @@ class RegressorChoice(AutotabularChoice):
             exclude=exclude)
 
         if len(available_estimators) == 0:
-            raise ValueError("No regressors found")
+            raise ValueError('No regressors found')
 
         if default is None:
             defaults = ['random_forest', 'support_vector_regression'] + \
@@ -97,16 +98,22 @@ class RegressorChoice(AutotabularChoice):
                     default = default_
                     break
 
-        estimator = CategoricalHyperparameter('__choice__',
-                                              list(available_estimators.keys()),
-                                              default_value=default)
+        estimator = CategoricalHyperparameter(
+            '__choice__',
+            list(available_estimators.keys()),
+            default_value=default)
         cs.add_hyperparameter(estimator)
         for estimator_name in available_estimators.keys():
             estimator_configuration_space = available_estimators[estimator_name].\
                 get_hyperparameter_search_space(dataset_properties)
-            parent_hyperparameter = {'parent': estimator, 'value': estimator_name}
-            cs.add_configuration_space(estimator_name, estimator_configuration_space,
-                                       parent_hyperparameter=parent_hyperparameter)
+            parent_hyperparameter = {
+                'parent': estimator,
+                'value': estimator_name
+            }
+            cs.add_configuration_space(
+                estimator_name,
+                estimator_configuration_space,
+                parent_hyperparameter=parent_hyperparameter)
 
         return cs
 

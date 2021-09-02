@@ -1,16 +1,15 @@
 __author__ = 'feurerm'
 
-from collections import OrderedDict
 import os
+from collections import OrderedDict
 
-from ..base import autotabularClassificationAlgorithm, find_components, \
-    ThirdPartyComponents, AutotabularChoice
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
 
+from ..base import AutotabularChoice, ThirdPartyComponents, autotabularClassificationAlgorithm, find_components
+
 classifier_directory = os.path.split(__file__)[0]
-_classifiers = find_components(__package__,
-                               classifier_directory,
+_classifiers = find_components(__package__, classifier_directory,
                                autotabularClassificationAlgorithm)
 _addons = ThirdPartyComponents(autotabularClassificationAlgorithm)
 
@@ -28,7 +27,8 @@ class ClassifierChoice(AutotabularChoice):
         components.update(_addons.components)
         return components
 
-    def get_available_components(cls, dataset_properties=None,
+    def get_available_components(cls,
+                                 dataset_properties=None,
                                  include=None,
                                  exclude=None):
         if dataset_properties is None:
@@ -38,13 +38,14 @@ class ClassifierChoice(AutotabularChoice):
         components_dict = OrderedDict()
 
         if include is not None and exclude is not None:
-            raise ValueError("The argument include and exclude cannot be used together.")
+            raise ValueError(
+                'The argument include and exclude cannot be used together.')
 
         if include is not None:
             for incl in include:
                 if incl not in available_comp:
-                    raise ValueError("Trying to include unknown component: "
-                                     "%s" % incl)
+                    raise ValueError('Trying to include unknown component: '
+                                     '%s' % incl)
 
         for name in available_comp:
             if include is not None and name not in include:
@@ -70,7 +71,8 @@ class ClassifierChoice(AutotabularChoice):
 
         return components_dict
 
-    def get_hyperparameter_search_space(self, dataset_properties=None,
+    def get_hyperparameter_search_space(self,
+                                        dataset_properties=None,
                                         default=None,
                                         include=None,
                                         exclude=None):
@@ -78,8 +80,8 @@ class ClassifierChoice(AutotabularChoice):
             dataset_properties = {}
 
         if include is not None and exclude is not None:
-            raise ValueError("The arguments include_estimators and "
-                             "exclude_estimators cannot be used together.")
+            raise ValueError('The arguments include_estimators and '
+                             'exclude_estimators cannot be used together.')
 
         cs = ConfigurationSpace()
 
@@ -90,11 +92,11 @@ class ClassifierChoice(AutotabularChoice):
             exclude=exclude)
 
         if len(available_estimators) == 0:
-            raise ValueError("No classifiers found")
+            raise ValueError('No classifiers found')
 
         if default is None:
-            defaults = ['random_forest', 'liblinear_svc', 'sgd',
-                        'libsvm_svc'] + list(available_estimators.keys())
+            defaults = ['random_forest', 'liblinear_svc', 'sgd', 'libsvm_svc'
+                        ] + list(available_estimators.keys())
             for default_ in defaults:
                 if default_ in available_estimators:
                     if include is not None and default_ not in include:
@@ -104,18 +106,22 @@ class ClassifierChoice(AutotabularChoice):
                     default = default_
                     break
 
-        estimator = CategoricalHyperparameter('__choice__',
-                                              list(available_estimators.keys()),
-                                              default_value=default)
+        estimator = CategoricalHyperparameter(
+            '__choice__',
+            list(available_estimators.keys()),
+            default_value=default)
         cs.add_hyperparameter(estimator)
         for estimator_name in available_estimators.keys():
             estimator_configuration_space = available_estimators[estimator_name].\
                 get_hyperparameter_search_space(dataset_properties)
-            parent_hyperparameter = {'parent': estimator,
-                                     'value': estimator_name}
-            cs.add_configuration_space(estimator_name,
-                                       estimator_configuration_space,
-                                       parent_hyperparameter=parent_hyperparameter)
+            parent_hyperparameter = {
+                'parent': estimator,
+                'value': estimator_name
+            }
+            cs.add_configuration_space(
+                estimator_name,
+                estimator_configuration_space,
+                parent_hyperparameter=parent_hyperparameter)
 
         self.configuration_space = cs
         self.dataset_properties = dataset_properties

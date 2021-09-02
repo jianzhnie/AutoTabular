@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
 """Loda: Lightweight on-line detector of anomalies
 Adapted from tilitools (https://github.com/nicococo/tilitools) by
 """
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
-from sklearn.utils.validation import check_is_fitted
 from sklearn.utils import check_array
+from sklearn.utils.validation import check_is_fitted
 
 from .base import BaseDetector
 
@@ -96,8 +94,8 @@ class LODA(BaseDetector):
             self.histograms_[i, :] /= np.sum(self.histograms_[i, :])
 
             # calculate the scores for the training samples
-            inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                   projected_data, side='left')
+            inds = np.searchsorted(
+                self.limits_[i, :self.n_bins - 1], projected_data, side='left')
             pred_scores[:, 0] += -self.weights[i] * np.log(
                 self.histograms_[i, inds])
 
@@ -124,15 +122,16 @@ class LODA(BaseDetector):
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
-        check_is_fitted(self, ['projections_', 'decision_scores_',
-                               'threshold_', 'labels_'])
+        check_is_fitted(
+            self,
+            ['projections_', 'decision_scores_', 'threshold_', 'labels_'])
 
         X = check_array(X)
         pred_scores = np.zeros([X.shape[0], 1])
         for i in range(self.n_random_cuts):
             projected_data = self.projections_[i, :].dot(X.T)
-            inds = np.searchsorted(self.limits_[i, :self.n_bins - 1],
-                                   projected_data, side='left')
+            inds = np.searchsorted(
+                self.limits_[i, :self.n_bins - 1], projected_data, side='left')
             pred_scores[:, 0] += -self.weights[i] * np.log(
                 self.histograms_[i, inds])
         pred_scores /= self.n_random_cuts
