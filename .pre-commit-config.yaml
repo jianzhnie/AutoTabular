@@ -8,8 +8,8 @@ repos:
         name: flake8 autotabular
         files: autotabular/
       - id: flake8
-        name: flake8 file-order-data
-        files: autotabular/data
+        name: flake8 file-order-algorithms
+        files: autotabular/algorithms
         additional_dependencies:
           - flake8-import-order
       - id: flake8

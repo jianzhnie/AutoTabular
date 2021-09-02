@@ -1,7 +1,7 @@
 [flake8]
 ignore = E203, E121, E126, E128, E125, E131, W503, W504, I201
 max-line-length = 160
-show-source = True
+show-source = False
 application-import-names = autotabular
 exclude =
     venv
