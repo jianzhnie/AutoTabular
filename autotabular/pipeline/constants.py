@@ -35,9 +35,9 @@ SIGNED_DATA = 10
 UNSIGNED_DATA = 11
 
 DATASET_PROPERTIES_TO_STRING = \
-    {DENSE:         'dense',
-     SPARSE:        'sparse',
-     PREDICTIONS:   'predictions',
-     INPUT:         'input',
-     SIGNED_DATA:   'signed data',
+    {DENSE: 'dense',
+     SPARSE: 'sparse',
+     PREDICTIONS: 'predictions',
+     INPUT: 'input',
+     SIGNED_DATA: 'signed data',
      UNSIGNED_DATA: 'unsigned data'}

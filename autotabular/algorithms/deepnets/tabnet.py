@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, List, Mapping, Optional, Sequence, Tuple, Type, Union
 
 import torch
 from flash.core.classification import ClassificationTask, Probabilities

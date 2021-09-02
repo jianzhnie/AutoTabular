@@ -4,7 +4,6 @@ repos:
     hooks:
       - id: flake8
         args: [--max-line-length=160]
-        ignore: E203, E131, E128, E125
       - id: flake8
         name: flake8 autotabular
         files: autotabular/
