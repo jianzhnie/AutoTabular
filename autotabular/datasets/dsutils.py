@@ -1,4 +1,3 @@
-# -*- coding:utf-8 -*-
 import os
 
 basedir = os.path.dirname(__file__)
@@ -34,18 +33,16 @@ def load_bank():
 
 def load_bank_by_dask():
     from dask import dataframe as dd
-    data = dd.read_csv(f'{basedir}/data/bank-uci.csv.gz',
-                       compression='gzip',
-                       blocksize=None)
+    data = dd.read_csv(
+        f'{basedir}/data/bank-uci.csv.gz', compression='gzip', blocksize=None)
     return data
 
 
 def load_adult():
     import pandas as pd
     # print(f'Base dir:{basedir}')
-    data = pd.read_csv(f'{basedir}/data/adult-uci.csv.gz',
-                       compression='gzip',
-                       header=None)
+    data = pd.read_csv(
+        f'{basedir}/data/adult-uci.csv.gz', compression='gzip', header=None)
     return data
 
 

@@ -1,9 +1,7 @@
-from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import UniformFloatHyperparameter, \
-    UniformIntegerHyperparameter
-
 from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
-from autotabular.pipeline.constants import SPARSE, DENSE, UNSIGNED_DATA, INPUT
+from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
+from ConfigSpace.configuration_space import ConfigurationSpace
+from ConfigSpace.hyperparameters import UniformFloatHyperparameter, UniformIntegerHyperparameter
 
 
 class RandomKitchenSinks(AutotabularPreprocessingAlgorithm):
@@ -38,23 +36,25 @@ class RandomKitchenSinks(AutotabularPreprocessingAlgorithm):
 
     @staticmethod
     def get_properties(dataset_properties=None):
-        return {'shortname': 'KitchenSink',
-                'name': 'Random Kitchen Sinks',
-                'handles_regression': True,
-                'handles_classification': True,
-                'handles_multiclass': True,
-                'handles_multilabel': True,
-                'handles_multioutput': True,
-                'is_deterministic': True,
-                'input': (SPARSE, DENSE, UNSIGNED_DATA),
-                'output': (INPUT, UNSIGNED_DATA)}
+        return {
+            'shortname': 'KitchenSink',
+            'name': 'Random Kitchen Sinks',
+            'handles_regression': True,
+            'handles_classification': True,
+            'handles_multiclass': True,
+            'handles_multilabel': True,
+            'handles_multioutput': True,
+            'is_deterministic': True,
+            'input': (SPARSE, DENSE, UNSIGNED_DATA),
+            'output': (INPUT, UNSIGNED_DATA)
+        }
 
     @staticmethod
     def get_hyperparameter_search_space(dataset_properties=None):
         gamma = UniformFloatHyperparameter(
-            "gamma", 3.0517578125e-05, 8, default_value=1.0, log=True)
+            'gamma', 3.0517578125e-05, 8, default_value=1.0, log=True)
         n_components = UniformIntegerHyperparameter(
-            "n_components", 50, 10000, default_value=100, log=True)
+            'n_components', 50, 10000, default_value=100, log=True)
         cs = ConfigurationSpace()
         cs.add_hyperparameters([gamma, n_components])
         return cs

@@ -1,24 +1,26 @@
-# -*- coding: utf-8 -*-
 """Local Correlation Integral (LOCI).
+
 Part of the codes are adapted from https://github.com/Cloudy10/loci
 """
 # Author: Winston Li <jk_zhengli@hotmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
 from numba import njit
+from scipy.spatial.distance import pdist, squareform
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
-from scipy.spatial.distance import pdist, squareform
 
 from .base import BaseDetector
 
 
 @njit
-def _get_critical_values(dist_matrix, alpha, p_ix, r_max,
+def _get_critical_values(dist_matrix,
+                         alpha,
+                         p_ix,
+                         r_max,
                          r_min=0):  # pragma: no cover
     """Computes the critical values of a given distance matrix.
 
@@ -48,8 +50,7 @@ def _get_critical_values(dist_matrix, alpha, p_ix, r_max,
 
     distances = dist_matrix[p_ix, :]
     mask = (r_min < distances) & (distances <= r_max)
-    cv = np.sort(
-        np.concatenate((distances[mask], distances[mask] / alpha)))
+    cv = np.sort(np.concatenate((distances[mask], distances[mask] / alpha)))
     return cv
 
 
@@ -82,34 +83,34 @@ def _get_sampling_N(dist_matrix, p_ix, r):  # pragma: no cover
 
 class LOCI(BaseDetector):
     """Local Correlation Integral.
-    
-    LOCI is highly effective for detecting outliers and groups of 
-    outliers ( a.k.a.micro-clusters), which offers the following advantages 
-    and novelties: (a) It provides an automatic, data-dictated cut-off to 
-    determine whether a point is an outlier—in contrast, previous methods 
-    force users to pick cut-offs, without any hints as to what cut-off value 
-    is best for a given dataset. (b) It can provide a LOCI plot for each 
-    point; this plot summarizes a wealth of information about the data in 
-    the vicinity of the point, determining clusters, micro-clusters, their 
-    diameters and their inter-cluster distances. None of the existing 
-    outlier-detection methods can match this feature, because they output 
-    only a single number for each point: its outlierness score.(c) It can 
+
+    LOCI is highly effective for detecting outliers and groups of
+    outliers ( a.k.a.micro-clusters), which offers the following advantages
+    and novelties: (a) It provides an automatic, data-dictated cut-off to
+    determine whether a point is an outlier—in contrast, previous methods
+    force users to pick cut-offs, without any hints as to what cut-off value
+    is best for a given dataset. (b) It can provide a LOCI plot for each
+    point; this plot summarizes a wealth of information about the data in
+    the vicinity of the point, determining clusters, micro-clusters, their
+    diameters and their inter-cluster distances. None of the existing
+    outlier-detection methods can match this feature, because they output
+    only a single number for each point: its outlierness score.(c) It can
     be computed as quickly as the best previous methods
     Read more in the :cite:`papadimitriou2003loci`.
-    
+
     Parameters
     ----------
-    contamination : float in (0., 0.5), optional (default=0.1) 
+    contamination : float in (0., 0.5), optional (default=0.1)
         The amount of contamination of the data set, i.e.
         the proportion of outliers in the data set. Used when fitting to
         define the threshold on the decision function.
-    
+
     alpha : int, default = 0.5
         The neighbourhood parameter measures how large of a neighbourhood
         should be considered "local".
-    
+
     k: int, default = 3
-        An outlier cutoff threshold for determine whether or not a point 
+        An outlier cutoff threshold for determine whether or not a point
         should be considered an outlier.
 
     Attributes
@@ -181,19 +182,19 @@ class LOCI(BaseDetector):
 
     def _calculate_decision_score(self, X):
         """Computes the outlier scores.
-        
+
         Parameters
         ----------
         X : array-like, shape (n_samples, n_features)
             The input data points.
-            
+
         Returns
         -------
         outlier_scores : list
-            Returns the list of outlier scores for input dataset.       
+            Returns the list of outlier scores for input dataset.
         """
         outlier_scores = [0] * X.shape[0]
-        dist_matrix = squareform(pdist(X, metric="euclidean"))
+        dist_matrix = squareform(pdist(X, metric='euclidean'))
         max_dist = dist_matrix.max()
         r_max = max_dist / self.alpha
 
@@ -201,9 +202,8 @@ class LOCI(BaseDetector):
             critical_values = _get_critical_values(dist_matrix, self.alpha,
                                                    p_ix, r_max)
             for r in critical_values:
-                n_values = self._get_alpha_n(dist_matrix,
-                                             _get_sampling_N(dist_matrix,
-                                                             p_ix, r), r)
+                n_values = self._get_alpha_n(
+                    dist_matrix, _get_sampling_N(dist_matrix, p_ix, r), r)
                 cur_alpha_n = self._get_alpha_n(dist_matrix, p_ix, r)
                 n_hat = np.mean(n_values)
                 mdef = 1 - (cur_alpha_n / n_hat)
@@ -216,7 +216,7 @@ class LOCI(BaseDetector):
 
     def fit(self, X, y=None):
         """Fit the model using X as training data.
-        
+
         Parameters
         ----------
         X : array, shape (n_samples, n_features)
@@ -224,17 +224,16 @@ class LOCI(BaseDetector):
 
         y : Ignored
             Not used, present for API consistency by convention.
-            
+
         Returns
         -------
         self : object
-
         """
         X = check_array(X)
         self._set_n_classes(y)
         self.decision_scores_ = self._calculate_decision_score(X)
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype(
-            'int').ravel()
+        self.labels_ = (self.decision_scores_ >
+                        self.threshold_).astype('int').ravel()
 
         # calculate for predict_proba()
 

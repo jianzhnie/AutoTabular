@@ -1,16 +1,11 @@
 import itertools
 
 import numpy as np
-
-from ConfigSpace.forbidden import ForbiddenAndConjunction
-from ConfigSpace.forbidden import ForbiddenEqualsClause
-
-from autotabular.pipeline.constants import \
-    SIGNED_DATA, UNSIGNED_DATA, PREDICTIONS, INPUT, DENSE, SPARSE
+from autotabular.pipeline.constants import DENSE, INPUT, PREDICTIONS, SIGNED_DATA, SPARSE, UNSIGNED_DATA
+from ConfigSpace.forbidden import ForbiddenAndConjunction, ForbiddenEqualsClause
 
 
-def get_match_array(pipeline, dataset_properties,
-                    include=None, exclude=None):
+def get_match_array(pipeline, dataset_properties, include=None, exclude=None):
     sparse = dataset_properties.get('sparse')
     signed = dataset_properties.get('signed')
 
@@ -21,21 +16,25 @@ def get_match_array(pipeline, dataset_properties,
     all_nodes = []
     for node_name, node in pipeline:
         all_nodes.append(node)
-        is_choice = hasattr(node, "get_available_components")
+        is_choice = hasattr(node, 'get_available_components')
         node_i_is_choice.append(is_choice)
 
-        node_include = include.get(
-            node_name) if include is not None else None
-        node_exclude = exclude.get(
-            node_name) if exclude is not None else None
+        node_include = include.get(node_name) if include is not None else None
+        node_exclude = exclude.get(node_name) if exclude is not None else None
 
         if is_choice:
-            node_i_choices_names.append(list(node.get_available_components(
-                dataset_properties, include=node_include,
-                exclude=node_exclude).keys()))
-            node_i_choices.append(list(node.get_available_components(
-                dataset_properties, include=node_include,
-                exclude=node_exclude).values()))
+            node_i_choices_names.append(
+                list(
+                    node.get_available_components(
+                        dataset_properties,
+                        include=node_include,
+                        exclude=node_exclude).keys()))
+            node_i_choices.append(
+                list(
+                    node.get_available_components(
+                        dataset_properties,
+                        include=node_include,
+                        exclude=node_exclude).values()))
 
         else:
             node_i_choices.append([node])
@@ -47,8 +46,10 @@ def get_match_array(pipeline, dataset_properties,
 
     pipeline_idxs = [range(dim) for dim in matches_dimensions]
     for pipeline_instantiation_idxs in itertools.product(*pipeline_idxs):
-        pipeline_instantiation = [node_i_choices[i][idx] for i, idx in
-                                  enumerate(pipeline_instantiation_idxs)]
+        pipeline_instantiation = [
+            node_i_choices[i][idx]
+            for i, idx in enumerate(pipeline_instantiation_idxs)
+        ]
 
         data_is_sparse = sparse
         dataset_is_signed = signed
@@ -81,14 +82,14 @@ def get_match_array(pipeline, dataset_properties,
                 data_is_sparse = True
             else:
                 print(node)
-                print("Data is sparse", data_is_sparse)
+                print('Data is sparse', data_is_sparse)
                 print(node_input, node_output)
-                raise ValueError("This combination is not allowed!")
+                raise ValueError('This combination is not allowed!')
 
             if PREDICTIONS in node_output:
                 pass
-            elif (INPUT in node_output and SIGNED_DATA not in node_output and
-                  UNSIGNED_DATA not in node_output):
+            elif (INPUT in node_output and SIGNED_DATA not in node_output
+                  and UNSIGNED_DATA not in node_output):
                 pass
             elif SIGNED_DATA in node_output:
                 dataset_is_signed = True
@@ -96,34 +97,39 @@ def get_match_array(pipeline, dataset_properties,
                 dataset_is_signed = False
             else:
                 print(node)
-                print("Data is signed", dataset_is_signed)
+                print('Data is signed', dataset_is_signed)
                 print(node_input, node_output)
-                raise ValueError("This combination is not allowed!")
+                raise ValueError('This combination is not allowed!')
 
     return matches
 
 
-def find_active_choices(matches, node, node_idx, dataset_properties, include=None, exclude=None):
-    if not hasattr(node, "get_available_components"):
+def find_active_choices(matches,
+                        node,
+                        node_idx,
+                        dataset_properties,
+                        include=None,
+                        exclude=None):
+    if not hasattr(node, 'get_available_components'):
         raise ValueError()
-    available_components = node.get_available_components(dataset_properties,
-                                                         include=include,
-                                                         exclude=exclude)
+    available_components = node.get_available_components(
+        dataset_properties, include=include, exclude=exclude)
     assert matches.shape[node_idx] == len(available_components), \
         (matches.shape[node_idx], len(available_components))
 
     choices = []
     for c_idx, component in enumerate(available_components):
-        slices = tuple(slice(None) if idx != node_idx else slice(c_idx, c_idx+1)
-                       for idx in range(len(matches.shape)))
+        slices = tuple(
+            slice(None) if idx != node_idx else slice(c_idx, c_idx + 1)
+            for idx in range(len(matches.shape)))
 
         if np.sum(matches[slices]) > 0:
             choices.append(component)
     return choices
 
 
-def add_forbidden(conf_space, pipeline, matches, dataset_properties,
-                  include, exclude):
+def add_forbidden(conf_space, pipeline, matches, dataset_properties, include,
+                  exclude):
     # Not sure if this works for 3D
     node_i_is_choice = []
     node_i_choices_names = []
@@ -131,21 +137,23 @@ def add_forbidden(conf_space, pipeline, matches, dataset_properties,
     all_nodes = []
     for node_name, node in pipeline:
         all_nodes.append(node)
-        is_choice = hasattr(node, "get_available_components")
+        is_choice = hasattr(node, 'get_available_components')
         node_i_is_choice.append(is_choice)
 
-        node_include = include.get(
-            node_name) if include is not None else None
-        node_exclude = exclude.get(
-            node_name) if exclude is not None else None
+        node_include = include.get(node_name) if include is not None else None
+        node_exclude = exclude.get(node_name) if exclude is not None else None
 
         if is_choice:
-            node_i_choices_names.append(node.get_available_components(
-                dataset_properties, include=node_include,
-                exclude=node_exclude).keys())
-            node_i_choices.append(node.get_available_components(
-                dataset_properties, include=node_include,
-                exclude=node_exclude).values())
+            node_i_choices_names.append(
+                node.get_available_components(
+                    dataset_properties,
+                    include=node_include,
+                    exclude=node_exclude).keys())
+            node_i_choices.append(
+                node.get_available_components(
+                    dataset_properties,
+                    include=node_include,
+                    exclude=node_exclude).values())
 
         else:
             node_i_choices_names.append([node_name])
@@ -174,7 +182,8 @@ def add_forbidden(conf_space, pipeline, matches, dataset_properties,
 
         # Add one to have also have chain_length in the range
         for sub_chain_length in range(2, chain_length + 1):
-            for start_idx in range(chain_start, chain_stop - sub_chain_length + 1):
+            for start_idx in range(chain_start,
+                                   chain_stop - sub_chain_length + 1):
                 indices = range(start_idx, start_idx + sub_chain_length)
                 node_names = [pipeline[idx][0] for idx in indices]
 
@@ -185,12 +194,13 @@ def add_forbidden(conf_space, pipeline, matches, dataset_properties,
                 for idx in indices:
                     node = all_nodes[idx]
                     available_components = node.get_available_components(
-                        dataset_properties,
-                        include=node_i_choices_names[idx])
-                    assert len(available_components) > 0, len(available_components)
+                        dataset_properties, include=node_i_choices_names[idx])
+                    assert len(available_components) > 0, len(
+                        available_components)
                     skip_array_shape.append(len(available_components))
                     num_node_choices.append(range(len(available_components)))
-                    node_choice_names.append([name for name in available_components])
+                    node_choice_names.append(
+                        [name for name in available_components])
 
                 # Figure out which choices were already abandoned
                 skip_array = np.zeros(skip_array_shape)
@@ -198,9 +208,9 @@ def add_forbidden(conf_space, pipeline, matches, dataset_properties,
                     for node_idx, choice_idx in enumerate(product):
                         node_idx += start_idx
                         slices_ = tuple(
-                            slice(None) if idx != node_idx else
-                            slice(choice_idx, choice_idx + 1) for idx in
-                            range(len(matches.shape)))
+                            slice(None) if idx != node_idx else slice(
+                                choice_idx, choice_idx + 1)
+                            for idx in range(len(matches.shape)))
 
                         if np.sum(matches[slices_]) == 0:
                             skip_array[product] = 1
@@ -210,10 +220,10 @@ def add_forbidden(conf_space, pipeline, matches, dataset_properties,
                         continue
 
                     slices = tuple(
-                        slice(None) if idx not in indices else
-                        slice(product[idx - start_idx],
-                              product[idx - start_idx] + 1) for idx in
-                        range(len(matches.shape)))
+                        slice(None) if idx not in indices else slice(
+                            product[idx -
+                                    start_idx], product[idx - start_idx] + 1)
+                        for idx in range(len(matches.shape)))
 
                     # This prints the affected nodes
                     # print [node_choice_names[i][product[i]]
@@ -229,10 +239,12 @@ def add_forbidden(conf_space, pipeline, matches, dataset_properties,
                         #  was already added
                         continue_ = False
                         for constraint_length in range(2, len(constraint)):
-                            constr_starts = len(constraint) - constraint_length + 1
+                            constr_starts = len(
+                                constraint) - constraint_length + 1
                             for constraint_start_idx in range(constr_starts):
                                 constraint_end_idx = constraint_start_idx + constraint_length
-                                sub_constraint = constraint[constraint_start_idx:constraint_end_idx]
+                                sub_constraint = constraint[
+                                    constraint_start_idx:constraint_end_idx]
                                 if sub_constraint in constraints:
                                     continue_ = True
                                     break
@@ -246,8 +258,9 @@ def add_forbidden(conf_space, pipeline, matches, dataset_properties,
                         forbiddens = []
                         for i in range(len(product)):
                             forbiddens.append(
-                                ForbiddenEqualsClause(conf_space.get_hyperparameter(
-                                    node_names[i] + ":__choice__"),
+                                ForbiddenEqualsClause(
+                                    conf_space.get_hyperparameter(
+                                        node_names[i] + ':__choice__'),
                                     node_choice_names[i][product[i]]))
                         forbidden = ForbiddenAndConjunction(*forbiddens)
                         conf_space.add_forbidden_clause(forbidden)

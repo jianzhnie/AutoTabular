@@ -1,11 +1,11 @@
+from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
+from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import UniformFloatHyperparameter
 
-from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
-from autotabular.pipeline.constants import DENSE, UNSIGNED_DATA, PREDICTIONS
-
 
 class GaussianProcess(autotabularRegressionAlgorithm):
+
     def __init__(self, alpha, thetaL, thetaU, random_state=None):
         self.alpha = alpha
         self.thetaL = thetaL
@@ -24,8 +24,8 @@ class GaussianProcess(autotabularRegressionAlgorithm):
 
         n_features = X.shape[1]
         kernel = sklearn.gaussian_process.kernels.RBF(
-            length_scale=[1.0]*n_features,
-            length_scale_bounds=[(self.thetaL, self.thetaU)]*n_features)
+            length_scale=[1.0] * n_features,
+            length_scale_bounds=[(self.thetaL, self.thetaU)] * n_features)
 
         # Instanciate a Gaussian Process model
         self.estimator = sklearn.gaussian_process.GaussianProcessRegressor(
@@ -47,25 +47,35 @@ class GaussianProcess(autotabularRegressionAlgorithm):
 
     @staticmethod
     def get_properties(dataset_properties=None):
-        return {'shortname': 'GP',
-                'name': 'Gaussian Process',
-                'handles_regression': True,
-                'handles_classification': False,
-                'handles_multiclass': False,
-                'handles_multilabel': False,
-                'handles_multioutput': True,
-                'is_deterministic': True,
-                'input': (DENSE, UNSIGNED_DATA),
-                'output': (PREDICTIONS,)}
+        return {
+            'shortname': 'GP',
+            'name': 'Gaussian Process',
+            'handles_regression': True,
+            'handles_classification': False,
+            'handles_multiclass': False,
+            'handles_multilabel': False,
+            'handles_multioutput': True,
+            'is_deterministic': True,
+            'input': (DENSE, UNSIGNED_DATA),
+            'output': (PREDICTIONS, )
+        }
 
     @staticmethod
     def get_hyperparameter_search_space(dataset_properties=None):
         alpha = UniformFloatHyperparameter(
-            name="alpha", lower=1e-14, upper=1.0, default_value=1e-8, log=True)
+            name='alpha', lower=1e-14, upper=1.0, default_value=1e-8, log=True)
         thetaL = UniformFloatHyperparameter(
-            name="thetaL", lower=1e-10, upper=1e-3, default_value=1e-6, log=True)
+            name='thetaL',
+            lower=1e-10,
+            upper=1e-3,
+            default_value=1e-6,
+            log=True)
         thetaU = UniformFloatHyperparameter(
-            name="thetaU", lower=1.0, upper=100000, default_value=100000.0, log=True)
+            name='thetaU',
+            lower=1.0,
+            upper=100000,
+            default_value=100000.0,
+            log=True)
 
         cs = ConfigurationSpace()
         cs.add_hyperparameters([alpha, thetaL, thetaU])

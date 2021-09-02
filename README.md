@@ -1,9 +1,9 @@
-# AutoTabular   
+# AutoTabular
 
 [![Paper](http://img.shields.io/badge/paper-arxiv.1001.2234-B31B1B.svg)](https://www.nature.com/articles/nature14539)
 [![Conference](http://img.shields.io/badge/NeurIPS-2019-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)
 [![Conference](http://img.shields.io/badge/ICLR-2019-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)
-[![Conference](http://img.shields.io/badge/AnyConference-year-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)  
+[![Conference](http://img.shields.io/badge/AnyConference-year-4b44ce.svg)](https://papers.nips.cc/book/advances-in-neural-information-processing-systems-31-2018)
 
 
 AutoTabular automates machine learning tasks enabling you to easily achieve strong predictive performance in your applications.  With just a few lines of code, you can train and deploy high-accuracy machine learning and deep learning models tabular data.
@@ -11,10 +11,10 @@ AutoTabular automates machine learning tasks enabling you to easily achieve stro
 
 ![autotabular](./docs/autotabular.png)
 
-## What's good in it? 
+## What's good in it?
 
-- It is using the RAPIDS as back-end support, gives you the ability to execute end-to-end data science and analytics pipelines entirely on GPUs. 
-- It Supports many anomaly detection models: , 
+- It is using the RAPIDS as back-end support, gives you the ability to execute end-to-end data science and analytics pipelines entirely on GPUs.
+- It Supports many anomaly detection models: ,
 - It using meta learning to accelerate  model selection and parameter tuning.
 - It is using many Deep Learning models for tabular data: `Wide&Deep`,  `DCN(Deep & Cross Network)`, `FM`, `DeepFM`, `PNN` ...
 - It is using many machine learning algorithms: `Baseline`, `Linear`, `Random Forest`, `Extra Trees`, `LightGBM`, `Xgboost`, `CatBoost`, and `Nearest Neighbors`.
@@ -27,26 +27,26 @@ AutoTabular automates machine learning tasks enabling you to easily achieve stro
 
 ## Example
 
-First, install dependencies   
+First, install dependencies
 ```bash
-# clone project   
+# clone project
 git clone https://apulis-gitlab.apulis.cn/apulis/AutoTabular/autotabular.git
 
-# install project   
+# install project
 cd autotabular
-pip install -e .   
+pip install -e .
 pip install -r requirements.txt
 ```
- Next, navigate to any file and run it.   
+ Next, navigate to any file and run it.
  ```bash
 # module folder
 cd example
 
-# run module (example: mnist as your main contribution)   
-python demo.py    
+# run module (example: mnist as your main contribution)
+python demo.py
  ```
 
-### Citation  
+### Citation
 If you use AutoTabular in a scientific publication, please cite the following paper:
 
 Robin, et al. ["AutoTabular: Robust and Accurate AutoML for Structured Data."](https://arxiv.org/abs/2003.06505) arXiv preprint arXiv:2003.06505 (2021).

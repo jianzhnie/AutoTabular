@@ -2,16 +2,14 @@ from decimal import Decimal
 from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
-from ConfigSpace.configuration_space import ConfigurationSpace
-
-from autotabular.pipeline.base import (DATASET_PROPERTIES_TYPE,
-                                       PIPELINE_DATA_DTYPE)
-from autotabular.pipeline.components.base import \
-    AutotabularPreprocessingAlgorithm
+from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
+from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
 from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
+from ConfigSpace.configuration_space import ConfigurationSpace
 
 
 class LabelEncoder(object):
+
     def __init__(self, try_to_fit_numeric=False):
         from sklearn.preprocessing import LabelEncoder
         self.lbl = LabelEncoder()
@@ -23,8 +21,8 @@ class LabelEncoder(object):
             try:
                 arr = {Decimal(c): c for c in self.lbl.classes_}
                 sorted_arr = dict(sorted(arr.items()))
-                self.lbl.classes_ = np.array(list(sorted_arr.values()),
-                                             dtype=self.lbl.classes_.dtype)
+                self.lbl.classes_ = np.array(
+                    list(sorted_arr.values()), dtype=self.lbl.classes_.dtype)
             except Exception as e:
                 print(e)
                 pass
@@ -45,6 +43,7 @@ class LabelEncoder(object):
 
 
 class LabelEncoderTransformer(AutotabularPreprocessingAlgorithm):
+
     def __init__(
         self,
         random_state: Optional[np.random.RandomState] = None,

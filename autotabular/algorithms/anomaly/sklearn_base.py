@@ -1,20 +1,17 @@
-# -*- coding: utf-8 -*-
-"""Utility function copied over from sklearn/base.py
-"""
+"""Utility function copied over from sklearn/base.py."""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
-import six
 import numpy as np
+import six
 from joblib.parallel import cpu_count
 
 
 def _get_n_jobs(n_jobs):
-    """Get number of jobs for the computation.
-    See sklearn/utils/__init__.py for more information.
+    """Get number of jobs for the computation. See sklearn/utils/__init__.py
+    for more information.
 
     This function reimplements the logic of joblib to determine the actual
     number of jobs depending on the cpu count. If -1 all CPUs are used.
@@ -40,14 +37,15 @@ def _get_n_jobs(n_jobs):
 
 def _partition_estimators(n_estimators, n_jobs):
     """Private function used to partition estimators between jobs.
+
     See sklearn/ensemble/base.py for more information.
     """
     # Compute the number of jobs
     n_jobs = min(_get_n_jobs(n_jobs), n_estimators)
 
     # Partition estimators between jobs
-    n_estimators_per_job = (n_estimators // n_jobs) * np.ones(n_jobs,
-                                                              dtype=np.int)
+    n_estimators_per_job = (n_estimators // n_jobs) * np.ones(
+        n_jobs, dtype=np.int)
     n_estimators_per_job[:n_estimators % n_jobs] += 1
     starts = np.cumsum(n_estimators_per_job)
 
@@ -56,7 +54,7 @@ def _partition_estimators(n_estimators, n_jobs):
 
 def _pprint(params, offset=0, printer=repr):
     # noinspection PyPep8
-    """Pretty print the dictionary 'params'
+    """Pretty print the dictionary 'params'.
 
     See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
     and sklearn/base.py for more information.

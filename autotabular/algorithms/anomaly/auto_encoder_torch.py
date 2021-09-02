@@ -1,27 +1,22 @@
-# -*- coding: utf-8 -*-
-"""Using AutoEncoder with Outlier Detection (PyTorch)
-"""
+"""Using AutoEncoder with Outlier Detection (PyTorch)"""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
-
-import torch
-from torch import nn
+from __future__ import division, print_function
 
 import numpy as np
+import torch
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
+from torch import nn
 
-from .base import BaseDetector
-from ..utils.torch_utility import get_activation_by_name
 from ..utils.stat_models import pairwise_distances_no_broadcast
+from ..utils.torch_utility import get_activation_by_name
+from .base import BaseDetector
 
 
 class PyODDataset(torch.utils.data.Dataset):
-    """PyOD Dataset class for PyTorch Dataloader
-    """
+    """PyOD Dataset class for PyTorch Dataloader."""
 
     def __init__(self, X, y=None, mean=None, std=None):
         super(PyODDataset, self).__init__()
@@ -44,6 +39,7 @@ class PyODDataset(torch.utils.data.Dataset):
 
 
 class inner_autoencoder(nn.Module):
+
     def __init__(self,
                  n_features,
                  hidden_neurons=[128, 64],
@@ -65,29 +61,30 @@ class inner_autoencoder(nn.Module):
 
         for idx, layer in enumerate(self.layers_neurons_[:-1]):
             if batch_norm:
-                self.encoder.add_module("batch_norm" + str(idx),
-                                        nn.BatchNorm1d(
-                                            self.layers_neurons_[idx]))
-            self.encoder.add_module("linear" + str(idx),
-                                    torch.nn.Linear(self.layers_neurons_[idx],
-                                                    self.layers_neurons_[
-                                                        idx + 1]))
+                self.encoder.add_module(
+                    'batch_norm' + str(idx),
+                    nn.BatchNorm1d(self.layers_neurons_[idx]))
+            self.encoder.add_module(
+                'linear' + str(idx),
+                torch.nn.Linear(self.layers_neurons_[idx],
+                                self.layers_neurons_[idx + 1]))
             self.encoder.add_module(self.hidden_activation + str(idx),
                                     self.activation)
-            self.encoder.add_module("dropout" + str(idx),
+            self.encoder.add_module('dropout' + str(idx),
                                     torch.nn.Dropout(dropout_rate))
 
         for idx, layer in enumerate(self.layers_neurons_[:-1]):
             if batch_norm:
-                self.decoder.add_module("batch_norm" + str(idx),
-                                        nn.BatchNorm1d(
-                                            self.layers_neurons_decoder_[idx]))
-            self.decoder.add_module("linear" + str(idx), torch.nn.Linear(
-                self.layers_neurons_decoder_[idx],
-                self.layers_neurons_decoder_[idx + 1]))
+                self.decoder.add_module(
+                    'batch_norm' + str(idx),
+                    nn.BatchNorm1d(self.layers_neurons_decoder_[idx]))
+            self.decoder.add_module(
+                'linear' + str(idx),
+                torch.nn.Linear(self.layers_neurons_decoder_[idx],
+                                self.layers_neurons_decoder_[idx + 1]))
             self.encoder.add_module(self.hidden_activation + str(idx),
                                     self.activation)
-            self.decoder.add_module("dropout" + str(idx),
+            self.decoder.add_module('dropout' + str(idx),
                                     torch.nn.Dropout(dropout_rate))
 
     def forward(self, x):
@@ -207,25 +204,26 @@ class AutoEncoder(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self,
-                 hidden_neurons=None,
-                 hidden_activation='relu',
-                 batch_norm=True,
-                 # loss='mse',
-                 # optimizer='adam',
-                 learning_rate=1e-3,
-                 epochs=100,
-                 batch_size=32,
-                 dropout_rate=0.2,
-                 # l2_regularizer=0.1,
-                 weight_decay=1e-5,
-                 # validation_size=0.1,
-                 preprocessing=True,
-                 loss_fn=None,
-                 # verbose=1,
-                 # random_state=None,
-                 contamination=0.1,
-                 device=None):
+    def __init__(
+            self,
+            hidden_neurons=None,
+            hidden_activation='relu',
+            batch_norm=True,
+            # loss='mse',
+            # optimizer='adam',
+            learning_rate=1e-3,
+            epochs=100,
+            batch_size=32,
+            dropout_rate=0.2,
+            # l2_regularizer=0.1,
+            weight_decay=1e-5,
+            # validation_size=0.1,
+            preprocessing=True,
+            loss_fn=None,
+            # verbose=1,
+            # random_state=None,
+            contamination=0.1,
+            device=None):
         super(AutoEncoder, self).__init__(contamination=contamination)
         self.hidden_neurons = hidden_neurons
         self.hidden_activation = hidden_activation
@@ -244,7 +242,7 @@ class AutoEncoder(BaseDetector):
 
         if device is None:
             self.device = torch.device(
-                "cuda:0" if torch.cuda.is_available() else "cpu")
+                'cuda:0' if torch.cuda.is_available() else 'cpu')
         else:
             self.device = device
 
@@ -285,9 +283,8 @@ class AutoEncoder(BaseDetector):
         else:
             train_set = PyODDataset(X=X)
 
-        train_loader = torch.utils.data.DataLoader(train_set,
-                                                   batch_size=self.batch_size,
-                                                   shuffle=True)
+        train_loader = torch.utils.data.DataLoader(
+            train_set, batch_size=self.batch_size, shuffle=True)
 
         # initialize the model
         self.model = inner_autoencoder(
@@ -311,7 +308,7 @@ class AutoEncoder(BaseDetector):
         return self
 
     def _train_autoencoder(self, train_loader):
-        """Internal function to train the autoencoder
+        """Internal function to train the autoencoder.
 
         Parameters
         ----------
@@ -319,7 +316,8 @@ class AutoEncoder(BaseDetector):
             Train data.
         """
         optimizer = torch.optim.Adam(
-            self.model.parameters(), lr=self.learning_rate,
+            self.model.parameters(),
+            lr=self.learning_rate,
             weight_decay=self.weight_decay)
 
         self.best_loss = float('inf')
@@ -371,19 +369,21 @@ class AutoEncoder(BaseDetector):
         else:
             dataset = PyODDataset(X=X)
 
-        dataloader = torch.utils.data.DataLoader(dataset,
-                                                 batch_size=self.batch_size,
-                                                 shuffle=False)
+        dataloader = torch.utils.data.DataLoader(
+            dataset, batch_size=self.batch_size, shuffle=False)
         # enable the evaluation mode
         self.model.eval()
 
         # construct the vector for holding the reconstruction error
-        outlier_scores = np.zeros([X.shape[0], ])
+        outlier_scores = np.zeros([
+            X.shape[0],
+        ])
         with torch.no_grad():
             for data, data_idx in dataloader:
                 data_cuda = data.to(self.device).float()
                 # this is the outlier score
                 outlier_scores[data_idx] = pairwise_distances_no_broadcast(
-                    data, self.model(data_cuda).cpu().numpy())
+                    data,
+                    self.model(data_cuda).cpu().numpy())
 
         return outlier_scores

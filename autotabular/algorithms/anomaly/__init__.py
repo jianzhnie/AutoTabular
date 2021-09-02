@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # from .abod import ABOD
 # from .auto_encoder import AutoEncoder
 # from .cblof import CBLOF

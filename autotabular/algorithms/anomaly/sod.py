@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-"""Subspace Outlier Detection (SOD)
-"""
+"""Subspace Outlier Detection (SOD)"""
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
-import numpy as np
 import numba as nb
+import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_array
 
@@ -15,7 +13,7 @@ from .base import BaseDetector
 
 @nb.njit(parallel=True)
 def _snn_imp(ind, ref_set_):
-    """Internal function for fast snn calculation
+    """Internal function for fast snn calculation.
 
     Parameters
     ----------
@@ -25,7 +23,6 @@ def _snn_imp(ind, ref_set_):
     ref_set_ : int, optional (default=10)
         specifies the number of shared nearest neighbors to create the
         reference set. Note that ref_set must be smaller than n_neighbors.
-
     """
     n = ind.shape[0]
     _count = np.zeros(shape=(n, ref_set_), dtype=np.uint32)
@@ -87,25 +84,28 @@ class SOD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, contamination=0.1, n_neighbors=20, ref_set=10,
+    def __init__(self,
+                 contamination=0.1,
+                 n_neighbors=20,
+                 ref_set=10,
                  alpha=0.8):
         super(SOD, self).__init__(contamination=contamination)
         if isinstance(n_neighbors, int):
             check_parameter(n_neighbors, low=1, param_name='n_neighbors')
         else:
-            raise ValueError(
-                "n_neighbors should be int. Got %s" % type(n_neighbors))
+            raise ValueError('n_neighbors should be int. Got %s' %
+                             type(n_neighbors))
 
         if isinstance(ref_set, int):
-            check_parameter(ref_set, low=1, high=n_neighbors,
-                            param_name='ref_set')
+            check_parameter(
+                ref_set, low=1, high=n_neighbors, param_name='ref_set')
         else:
-            raise ValueError("ref_set should be int. Got %s" % type(ref_set))
+            raise ValueError('ref_set should be int. Got %s' % type(ref_set))
 
         if isinstance(alpha, float):
             check_parameter(alpha, low=0.0, high=1.0, param_name='alpha')
         else:
-            raise ValueError("alpha should be float. Got %s" % type(alpha))
+            raise ValueError('alpha should be float. Got %s' % type(alpha))
 
         self.n_neighbors_ = n_neighbors
         self.ref_set_ = ref_set
@@ -138,10 +138,10 @@ class SOD(BaseDetector):
         return self
 
     def decision_function(self, X):
-        """Predict raw anomaly score of X using the fitted detector.
-        The anomaly score of an input sample is computed based on different
-        detector algorithms. For consistency, outliers are assigned with
-        larger anomaly scores.
+        """Predict raw anomaly score of X using the fitted detector. The
+        anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with larger
+        anomaly scores.
 
         Parameters
         ----------
@@ -173,19 +173,19 @@ class SOD(BaseDetector):
         return _snn_imp(ind, self.ref_set_)
 
     def _sod(self, X):
-        """This function is called internally to perform subspace outlier 
+        """This function is called internally to perform subspace outlier
         detection algorithm.
-        
+
         Returns
         -------
         anomaly_scores : numpy array of shape (n_samples,)
             The anomaly score of the input samples.
         """
         ref_inds = self._snn(X)
-        anomaly_scores = np.zeros(shape=(X.shape[0],))
+        anomaly_scores = np.zeros(shape=(X.shape[0], ))
         for i in range(X.shape[0]):
             obs = X[i]
-            ref = X[ref_inds[i,],]
+            ref = X[ref_inds[i, ], ]
             means = np.mean(ref, axis=0)  # mean of each column
             # average squared distance of the reference to the mean
             var_total = np.sum(np.sum(np.square(ref - means))) / self.ref_set_

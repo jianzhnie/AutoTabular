@@ -1,4 +1,5 @@
 import os
+import sys
 
 import torch
 import torch.nn as nn
@@ -6,21 +7,19 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
-from pl_bolts.datamodules import CIFAR10DataModule
+from autotorch.autoptl.custom_trainer import CustomTrainer
+from autotorch.models.network import init_network
 from pl_bolts.callbacks import PrintTableMetricsCallback
+from pl_bolts.datamodules import CIFAR10DataModule
 from pl_bolts.transforms.dataset_normalizations import cifar10_normalization
-from pytorch_lightning import LightningModule, seed_everything, Trainer
-from pytorch_lightning.callbacks import LearningRateMonitor
-from pytorch_lightning.loggers import TensorBoardLogger, MLFlowLogger
-from pytorch_lightning.callbacks import Callback
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning import LightningModule, Trainer, seed_everything
+from pytorch_lightning.callbacks import Callback, EarlyStopping, LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.loggers import MLFlowLogger, TensorBoardLogger
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.optim.swa_utils import AveragedModel, update_bn
 from torchmetrics.functional import accuracy
-import sys
-sys.path.append("../../")
-from autotorch.models.network import init_network
-from autotorch.autoptl.custom_trainer import CustomTrainer
+
+sys.path.append('../../')
 
 seed_everything(7)
 
@@ -56,8 +55,8 @@ cifar10_dm = CIFAR10DataModule(
 root_dir = '/media/robin/DATA/datatsets/image_data/shopee-iet/images'
 traindir = os.path.join(root_dir, 'train')
 valdir = os.path.join(root_dir, 'val')
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
+normalize = transforms.Normalize(
+    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
 train_dataset = datasets.ImageFolder(
     traindir,
@@ -69,12 +68,13 @@ train_dataset = datasets.ImageFolder(
     ]))
 
 train_sampler = None
-train_loader = torch.utils.data.DataLoader(train_dataset,
-                                           batch_size=32,
-                                           shuffle=(train_sampler is None),
-                                           num_workers=0,
-                                           pin_memory=True,
-                                           sampler=train_sampler)
+train_loader = torch.utils.data.DataLoader(
+    train_dataset,
+    batch_size=32,
+    shuffle=(train_sampler is None),
+    num_workers=0,
+    pin_memory=True,
+    sampler=train_sampler)
 
 val_dataset = datasets.ImageFolder(
     valdir,
@@ -85,11 +85,8 @@ val_dataset = datasets.ImageFolder(
         normalize,
     ]))
 
-val_loader = torch.utils.data.DataLoader(val_dataset,
-                                         batch_size=32,
-                                         shuffle=False,
-                                         num_workers=0,
-                                         pin_memory=True)
+val_loader = torch.utils.data.DataLoader(
+    val_dataset, batch_size=32, shuffle=False, num_workers=0, pin_memory=True)
 
 
 def create_model(model_name):
@@ -106,6 +103,7 @@ def create_model(model_name):
 
 
 class LitResnet(LightningModule):
+
     def __init__(self, lr=0.05):
         super().__init__()
 
@@ -123,13 +121,14 @@ class LitResnet(LightningModule):
 
         # logs metrics for each training_step,
         # and the average across the epoch, to the progress bar and logger
-        self.log('train_loss',
-                 loss,
-                 on_step=True,
-                 on_epoch=True,
-                 prog_bar=True,
-                 logger=True,
-                 sync_dist=True)
+        self.log(
+            'train_loss',
+            loss,
+            on_step=True,
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+            sync_dist=True)
         return loss
 
     def evaluate(self, batch, stage=None):
@@ -185,23 +184,21 @@ class LitResnet(LightningModule):
         }
 
     def configure_callbacks(self):
-        checkpoint = ModelCheckpoint(monitor="val_loss")
+        checkpoint = ModelCheckpoint(monitor='val_loss')
         return [checkpoint]
 
 
 class PrintCallback(Callback):
+
     def on_train_start(self, trainer, pl_module):
-        print("Training is started!")
+        print('Training is started!')
 
     def on_train_end(self, trainer, pl_module):
-        print("Training is done.")
+        print('Training is done.')
 
 
-early_stop_callback = EarlyStopping(monitor='val_acc',
-                                    min_delta=0.00,
-                                    patience=3,
-                                    verbose=False,
-                                    mode='max')
+early_stop_callback = EarlyStopping(
+    monitor='val_acc', min_delta=0.00, patience=3, verbose=False, mode='max')
 
 model = LitResnet(lr=0.05)
 model.datamodule = cifar10_dm
@@ -216,7 +213,7 @@ trainer = CustomTrainer(
     checkpoint_callback=True,
     check_val_every_n_epoch=1,
     precision=16,
-    profiler="simple",
+    profiler='simple',
     val_check_interval=1.0,
     weights_summary='top',
     auto_scale_batch_size=True,
@@ -224,13 +221,12 @@ trainer = CustomTrainer(
     weights_save_path='lightning_logs/',
     default_root_dir=os.getcwd(),
     max_time={
-        "days": 1,
-        "hours": 5
+        'days': 1,
+        'hours': 5
     },
     logger=[
-        TensorBoardLogger(save_dir='lightning_logs/',
-                          version="0",
-                          name='resnet'),
+        TensorBoardLogger(
+            save_dir='lightning_logs/', version='0', name='resnet'),
         MLFlowLogger(save_dir='mlflow_logs/')
     ],
     callbacks=[
@@ -243,6 +239,5 @@ trainer = CustomTrainer(
 # trainer.fit(model, cifar10_dm)
 # trainer.test(model, datamodule=cifar10_dm)
 
-trainer.fit(model, train_dataloader=train_loader,  val_dataloaders=val_loader)
+trainer.fit(model, train_dataloader=train_loader, val_dataloaders=val_loader)
 trainer.test(model, val_loader)
-

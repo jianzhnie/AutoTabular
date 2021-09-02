@@ -1,14 +1,11 @@
 from typing import Optional
 
-from ConfigSpace.configuration_space import ConfigurationSpace
-
 import numpy as np
-
-from sklearn.base import BaseEstimator
-from sklearn.exceptions import NotFittedError
-
 from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
 from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
+from ConfigSpace.configuration_space import ConfigurationSpace
+from sklearn.base import BaseEstimator
+from sklearn.exceptions import NotFittedError
 
 
 class Rescaling(object):
@@ -16,8 +13,11 @@ class Rescaling(object):
     def __init__(self, random_state: Optional[np.random.RandomState] = None):
         self.preprocessor: Optional[BaseEstimator] = None
 
-    def fit(self, X: PIPELINE_DATA_DTYPE, y: Optional[PIPELINE_DATA_DTYPE] = None
-            ) -> 'AutotabularPreprocessingAlgorithm':
+    def fit(
+        self,
+        X: PIPELINE_DATA_DTYPE,
+        y: Optional[PIPELINE_DATA_DTYPE] = None
+    ) -> 'AutotabularPreprocessingAlgorithm':
         if self.preprocessor is None:
             raise NotFittedError()
         self.preprocessor.fit(X)
@@ -29,7 +29,8 @@ class Rescaling(object):
         return self.preprocessor.transform(X)
 
     @staticmethod
-    def get_hyperparameter_search_space(dataset_properties: Optional[DATASET_PROPERTIES_TYPE] = None
-                                        ) -> ConfigurationSpace:
+    def get_hyperparameter_search_space(
+        dataset_properties: Optional[DATASET_PROPERTIES_TYPE] = None
+    ) -> ConfigurationSpace:
         cs = ConfigurationSpace()
         return cs

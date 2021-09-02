@@ -1,17 +1,19 @@
 # Pytorch Tabular
-"""Tabular Data Module"""
+"""Tabular Data Module."""
 import math
-from typing import Any, Tuple, List
-import pandas as pd
+from typing import Any, List, Tuple
+
 import numpy as np
-from sklearn.utils import shuffle as sk_shuffle
+import pandas as pd
 import torch
 from pytorch_lightning import LightningDataModule
+from sklearn.utils import shuffle as sk_shuffle
 from torch import Tensor
 from torch.utils.data import DataLoader, Dataset
 
 
 class TabularDataset(Dataset):
+
     def __init__(
         self,
         data: pd.DataFrame,
@@ -21,7 +23,7 @@ class TabularDataset(Dataset):
         embed_categorical: bool = True,
         target: List[str] = None,
     ):
-        """Dataset to Load Tabular Data
+        """Dataset to Load Tabular Data.
 
         Args:
             data (pd.DataFrame): Pandas DataFrame to load during training
@@ -44,7 +46,7 @@ class TabularDataset(Dataset):
         else:
             self.y = np.zeros((self.n, 1))  # .astype(np.int64)
 
-        if task == "classification":
+        if task == 'classification':
             self.y = self.y.astype(np.int64)
         self.categorical_cols = categorical_cols if categorical_cols else []
         self.continuous_cols = continuous_cols if continuous_cols else []
@@ -62,21 +64,17 @@ class TabularDataset(Dataset):
                     np.float32).values
 
     def __len__(self):
-        """
-        Denotes the total number of samples.
-        """
+        """Denotes the total number of samples."""
         return self.n
 
     def __getitem__(self, idx):
-        """
-        Generates one sample of data.
-        """
+        """Generates one sample of data."""
         return {
-            "target":
+            'target':
             self.y[idx],
-            "continuous":
+            'continuous':
             self.continuous_X[idx] if self.continuous_cols else [],
-            "categorical":
+            'categorical':
             self.categorical_X[idx] if self.categorical_cols else [],
         }
 
@@ -92,6 +90,7 @@ class SklearnDataset(Dataset):
         >>> len(dataset)
         442
     """
+
     def __init__(self,
                  X: np.ndarray,
                  y: np.ndarray,
@@ -142,6 +141,7 @@ class TensorDataset(Dataset):
         >>> len(dataset)
         10
     """
+
     def __init__(self,
                  X: Tensor,
                  y: Tensor,
@@ -177,8 +177,9 @@ class TensorDataset(Dataset):
 
 
 class SklearnDataModule(LightningDataModule):
-    """Automatically generates the train, validation and test splits for a Numpy dataset. They are set up as
-    dataloaders for convenience. Optionally, you can pass in your own validation and test splits.
+    """Automatically generates the train, validation and test splits for a
+    Numpy dataset. They are set up as dataloaders for convenience. Optionally,
+    you can pass in your own validation and test splits.
 
     Example:
 
@@ -207,7 +208,7 @@ class SklearnDataModule(LightningDataModule):
         2
     """
 
-    name = "sklearn"
+    name = 'sklearn'
 
     def __init__(
         self,

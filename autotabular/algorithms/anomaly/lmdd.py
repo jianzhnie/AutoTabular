@@ -1,49 +1,45 @@
-# -*- coding: utf-8 -*-
-"""Linear Model Deviation-base outlier detection (LMDD).
-"""
+"""Linear Model Deviation-base outlier detection (LMDD)."""
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
 from numba import njit
+from pyod.utils import check_parameter
 from scipy import stats
 from sklearn.utils import check_array, check_random_state
 
-from pyod.utils import check_parameter
 from .base import BaseDetector
 
 
 @njit
 def _aad(X):
-    """Internal Function to Calculate Average Absolute Deviation
-    (a.k.a Mean Absolute Deviation)
-    """
+    """Internal Function to Calculate Average Absolute Deviation (a.k.a Mean
+    Absolute Deviation)"""
     return np.mean(np.absolute(X - np.mean(X)))
 
 
 def _check_params(n_iter, dis_measure, random_state):
     """Internal function to check for and validate class parameters.
-    Also, to return random state instance and the appropriate dissimilarity
-    measure if valid.
+
+    Also, to return random state instance and the appropriate dissimilarity measure if valid.
     """
     if isinstance(n_iter, int):
         check_parameter(n_iter, low=1, param_name='n_iter')
     else:
-        raise TypeError("n_iter should be int, got %s" % n_iter)
+        raise TypeError('n_iter should be int, got %s' % n_iter)
 
     if isinstance(dis_measure, str):
         if dis_measure not in ('aad', 'var', 'iqr'):
-            raise ValueError("Unknown dissimilarity measure type, "
-                             "dis_measure should be in "
+            raise ValueError('Unknown dissimilarity measure type, '
+                             'dis_measure should be in '
                              "(\'aad\', \'var\', \'iqr\'), "
-                             "got %s" % dis_measure)
+                             'got %s' % dis_measure)
         # TO-DO: 'mad': Median Absolute Deviation to be added
         # once Scipy stats version 1.3.0 is released
     else:
-        raise TypeError("dis_measure should be str, got %s" % dis_measure)
+        raise TypeError('dis_measure should be str, got %s' % dis_measure)
 
     return check_random_state(random_state), _aad if dis_measure == 'aad' \
         else (np.var if dis_measure == 'var'
@@ -107,7 +103,10 @@ class LMDD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, contamination=0.1, n_iter=50, dis_measure='aad',
+    def __init__(self,
+                 contamination=0.1,
+                 n_iter=50,
+                 dis_measure='aad',
                  random_state=None):
         super(LMDD, self).__init__(contamination=contamination)
         self.n_iter, self.n_iter_ = n_iter, n_iter
@@ -115,9 +114,8 @@ class LMDD(BaseDetector):
 
         # add this assignment to prevent clone error; not being used.
         self.random_state = random_state
-        self.random_state_, self.dis_measure_ = _check_params(n_iter,
-                                                              dis_measure,
-                                                              random_state)
+        self.random_state_, self.dis_measure_ = _check_params(
+            n_iter, dis_measure, random_state)
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -162,11 +160,9 @@ class LMDD(BaseDetector):
         return self.__sf(X)
 
     def __dis(self, X):
-        """
-        Internal function to calculate for
-        dissimilarity in a sequence of sets.
-        """
-        res_ = np.zeros(shape=(X.shape[0],))
+        """Internal function to calculate for dissimilarity in a sequence of
+        sets."""
+        res_ = np.zeros(shape=(X.shape[0], ))
         var_max, j = -np.inf, 0
         # this can be vectorized but just for comforting memory
         for i in range(1, X.shape[0]):
@@ -180,7 +176,7 @@ class LMDD(BaseDetector):
 
             for k in range(j + 1, X.shape[0]):
                 dk_diff = self.dis_measure_(np.vstack((X[:j], X[k])))\
-                        - self.dis_measure_(np.vstack((X[:j + 1], X[k]))) 
+                        - self.dis_measure_(np.vstack((X[:j + 1], X[k])))
                 if dk_diff >= 0:
                     res_[k] = dk_diff + var_max
 
@@ -188,10 +184,9 @@ class LMDD(BaseDetector):
 
     def __sf(self, X):
         """Internal function to calculate for Smoothing Factors of data points
-        Repeated n_iter_ of times in randomized mode.
-        """
-        dis_ = np.zeros(shape=(X.shape[0],))
-        card_ = np.zeros(shape=(X.shape[0],))
+        Repeated n_iter_ of times in randomized mode."""
+        dis_ = np.zeros(shape=(X.shape[0], ))
+        card_ = np.zeros(shape=(X.shape[0], ))
         # perform one process with the original input order
         itr_res = self.__dis(X)
         np.put(card_, X.shape[0] - sum([i > 0. for i in itr_res]),

@@ -1,21 +1,16 @@
-# -*- coding: utf-8 -*-
-"""Principal Component Analysis (PCA) Outlier Detector
-"""
+"""Principal Component Analysis (PCA) Outlier Detector."""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
 from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA as sklearn_PCA
-from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.validation import check_array
+from sklearn.utils.validation import check_array, check_is_fitted
 
+from ..utils.utility import check_parameter, standardizer
 from .base import BaseDetector
-from ..utils.utility import check_parameter
-from ..utils.utility import standardizer
 
 
 class PCA(BaseDetector):
@@ -184,10 +179,18 @@ class PCA(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, n_components=None, n_selected_components=None,
-                 contamination=0.1, copy=True, whiten=False, svd_solver='auto',
-                 tol=0.0, iterated_power='auto', random_state=None,
-                 weighted=True, standardization=True):
+    def __init__(self,
+                 n_components=None,
+                 n_selected_components=None,
+                 contamination=0.1,
+                 copy=True,
+                 whiten=False,
+                 svd_solver='auto',
+                 tol=0.0,
+                 iterated_power='auto',
+                 random_state=None,
+                 weighted=True,
+                 standardization=True):
 
         super(PCA, self).__init__(contamination=contamination)
         self.n_components = n_components
@@ -227,13 +230,14 @@ class PCA(BaseDetector):
         if self.standardization:
             X, self.scaler_ = standardizer(X, keep_scalar=True)
 
-        self.detector_ = sklearn_PCA(n_components=self.n_components,
-                                     copy=self.copy,
-                                     whiten=self.whiten,
-                                     svd_solver=self.svd_solver,
-                                     tol=self.tol,
-                                     iterated_power=self.iterated_power,
-                                     random_state=self.random_state)
+        self.detector_ = sklearn_PCA(
+            n_components=self.n_components,
+            copy=self.copy,
+            whiten=self.whiten,
+            svd_solver=self.svd_solver,
+            tol=self.tol,
+            iterated_power=self.iterated_power,
+            random_state=self.random_state)
         self.detector_.fit(X=X, y=y)
 
         # copy the attributes from the sklearn PCA object
@@ -245,12 +249,18 @@ class PCA(BaseDetector):
             self.n_selected_components_ = self.n_components_
         else:
             self.n_selected_components_ = self.n_selected_components
-        check_parameter(self.n_selected_components_, 1, self.n_components_,
-                        include_left=True, include_right=True,
-                        param_name='n_selected_components_')
+        check_parameter(
+            self.n_selected_components_,
+            1,
+            self.n_components_,
+            include_left=True,
+            include_right=True,
+            param_name='n_selected_components_')
 
         # use eigenvalues as the weights of eigenvectors
-        self.w_components_ = np.ones([self.n_components_, ])
+        self.w_components_ = np.ones([
+            self.n_components_,
+        ])
         if self.weighted:
             self.w_components_ = self.detector_.explained_variance_ratio_
 
@@ -261,9 +271,9 @@ class PCA(BaseDetector):
         # are used since they better reflect the variance change
 
         self.selected_components_ = self.components_[
-                                    -1 * self.n_selected_components_:, :]
+            -1 * self.n_selected_components_:, :]
         self.selected_w_components_ = self.w_components_[
-                                      -1 * self.n_selected_components_:]
+            -1 * self.n_selected_components_:]
 
         self.decision_scores_ = np.sum(
             cdist(X, self.selected_components_) / self.selected_w_components_,
@@ -343,8 +353,8 @@ class PCA(BaseDetector):
     @property
     def noise_variance_(self):
         """The estimated noise covariance following the Probabilistic PCA model
-        from Tipping and Bishop 1999. See "Pattern Recognition and
-        Machine Learning" by C. Bishop, 12.2.1 p. 574 or
+        from Tipping and Bishop 1999. See "Pattern Recognition and Machine
+        Learning" by C. Bishop, 12.2.1 p. 574 or
         http://www.miketipping.com/papers/met-mppca.pdf. It is required to
         computed the estimated data covariance and score samples.
 

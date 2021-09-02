@@ -1,20 +1,15 @@
-# -*- coding: utf-8 -*-
-"""Histogram-based Outlier Detection (HBOS)
-"""
+"""Histogram-based Outlier Detection (HBOS)"""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
 from numba import njit
 from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_parameter
-from ..utils.utility import invert_order
-
+from ..utils.utility import check_parameter, invert_order
 from .base import BaseDetector
 
 
@@ -104,13 +99,14 @@ class HBOS(BaseDetector):
             self.hist_[:, i], self.bin_edges_[:, i] = \
                 np.histogram(X[:, i], bins=self.n_bins, density=True)
             # the sum of (width * height) should equal to 1
-            assert (np.isclose(1, np.sum(
-                self.hist_[:, i] * np.diff(self.bin_edges_[:, i])), atol=0.1))
+            assert (np.isclose(
+                1,
+                np.sum(self.hist_[:, i] * np.diff(self.bin_edges_[:, i])),
+                atol=0.1))
 
         # outlier_scores = self._calculate_outlier_scores(X)
         outlier_scores = _calculate_outlier_scores(X, self.bin_edges_,
-                                                   self.hist_,
-                                                   self.n_bins,
+                                                   self.hist_, self.n_bins,
                                                    self.alpha, self.tol)
 
         # invert decision_scores_. Outliers comes with higher outlier scores
@@ -141,8 +137,7 @@ class HBOS(BaseDetector):
 
         # outlier_scores = self._calculate_outlier_scores(X)
         outlier_scores = _calculate_outlier_scores(X, self.bin_edges_,
-                                                   self.hist_,
-                                                   self.n_bins,
+                                                   self.hist_, self.n_bins,
                                                    self.alpha, self.tol)
         return invert_order(np.sum(outlier_scores, axis=1))
 
@@ -150,10 +145,10 @@ class HBOS(BaseDetector):
 @njit
 def _calculate_outlier_scores(X, bin_edges, hist, n_bins, alpha,
                               tol):  # pragma: no cover
-    """The internal function to calculate the outlier scores based on
-    the bins and histograms constructed with the training data. The program
-    is optimized through numba. It is excluded from coverage test for
-    eliminating the redundancy.
+    """The internal function to calculate the outlier scores based on the bins
+    and histograms constructed with the training data. The program is optimized
+    through numba. It is excluded from coverage test for eliminating the
+    redundancy.
 
     Parameters
     ----------

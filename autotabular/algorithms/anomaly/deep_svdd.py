@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-"""Deep One-Class Classification for outlier detection
-"""
+"""Deep One-Class Classification for outlier detection."""
 # Author: Rafal Bodziony <bodziony.rafal@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -13,7 +10,6 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 from ..utils.utility import check_parameter
-
 from .base import BaseDetector
 from .base_dl import _get_tensorflow_version
 
@@ -31,11 +27,11 @@ class DeepSVDD(BaseDetector):
     """Deep One-Class Classifier with AutoEncoder (AE) is a type of neural
     networks for learning useful data representations in an unsupervised way.
     DeepSVDD trains a neural network while minimizing the volume of a
-    hypersphere that encloses the network representations of the data,
-    forcing the network to extract the common factors of variation.
-    Similar to PCA, DeepSVDD could be used to detect outlying objects in the
-    data by calculating the distance from center
-    See :cite:`ruff2018deepsvdd` for details.
+    hypersphere that encloses the network representations of the data, forcing
+    the network to extract the common factors of variation. Similar to PCA,
+    DeepSVDD could be used to detect outlying objects in the data by
+    calculating the distance from center See :cite:`ruff2018deepsvdd` for
+    details.
 
     Parameters
     ----------
@@ -132,15 +128,22 @@ class DeepSVDD(BaseDetector):
         ``threshold_`` on ``decision_scores_``.
     """
 
-    def __init__(self, c=None,
+    def __init__(self,
+                 c=None,
                  use_ae=False,
                  hidden_neurons=None,
                  hidden_activation='relu',
                  output_activation='sigmoid',
                  optimizer='adam',
-                 epochs=100, batch_size=32, dropout_rate=0.2,
-                 l2_regularizer=0.1, validation_size=0.1, preprocessing=True,
-                 verbose=1, random_state=None, contamination=0.1):
+                 epochs=100,
+                 batch_size=32,
+                 dropout_rate=0.2,
+                 l2_regularizer=0.1,
+                 validation_size=0.1,
+                 preprocessing=True,
+                 verbose=1,
+                 random_state=None,
+                 contamination=0.1):
         super(DeepSVDD, self).__init__(contamination=contamination)
         self.c = c
         self.use_ae = use_ae
@@ -165,8 +168,8 @@ class DeepSVDD(BaseDetector):
 
         self.hidden_neurons_ = self.hidden_neurons
 
-        check_parameter(dropout_rate, 0, 1, param_name='dropout_rate',
-                        include_left=True)
+        check_parameter(
+            dropout_rate, 0, 1, param_name='dropout_rate', include_left=True)
 
     def _init_c(self, X_norm, eps=0.1):
         # create true Center value from model predict of intermediate layers
@@ -185,21 +188,30 @@ class DeepSVDD(BaseDetector):
 
     def _build_model(self, training=True):
 
-        inputs = Input(shape=(self.n_features_,))
-        x = Dense(self.hidden_neurons_[0], activation=self.hidden_activation,
-                  activity_regularizer=l2(self.l2_regularizer))(inputs)
+        inputs = Input(shape=(self.n_features_, ))
+        x = Dense(
+            self.hidden_neurons_[0],
+            activation=self.hidden_activation,
+            activity_regularizer=l2(self.l2_regularizer))(
+                inputs)
         for hidden_neurons in self.hidden_neurons_[1:-1]:
-            x = Dense(hidden_neurons, activation=self.hidden_activation,
-                      activity_regularizer=l2(self.l2_regularizer))(x)
+            x = Dense(
+                hidden_neurons,
+                activation=self.hidden_activation,
+                activity_regularizer=l2(self.l2_regularizer))(
+                    x)
             x = Dropout(self.dropout_rate)(x)
 
         # add name to last hidden layer
-        x = Dense(self.hidden_neurons_[-1], activation=self.hidden_activation,
-                  activity_regularizer=l2(self.l2_regularizer),
-                  name='net_output')(x)
+        x = Dense(
+            self.hidden_neurons_[-1],
+            activation=self.hidden_activation,
+            activity_regularizer=l2(self.l2_regularizer),
+            name='net_output')(
+                x)
 
         # build distance loss
-        dist = tf.math.reduce_sum((x - self.c) ** 2, axis=-1)
+        dist = tf.math.reduce_sum((x - self.c)**2, axis=-1)
         outputs = dist
         loss = tf.math.reduce_mean(dist)
 
@@ -212,13 +224,20 @@ class DeepSVDD(BaseDetector):
         # Use AutoEncoder version of DeepSVDD
         if self.use_ae:
             for reversed_neurons in self.hidden_neurons_[::-1]:
-                x = Dense(reversed_neurons, activation=self.hidden_activation,
-                          activity_regularizer=l2(self.l2_regularizer))(x)
+                x = Dense(
+                    reversed_neurons,
+                    activation=self.hidden_activation,
+                    activity_regularizer=l2(self.l2_regularizer))(
+                        x)
                 x = Dropout(self.dropout_rate)(x)
-            x = Dense(self.n_features_, activation=self.output_activation,
-                      activity_regularizer=l2(self.l2_regularizer))(x)
-            dsvd.add_loss(
-                loss + tf.math.reduce_mean(tf.math.square(x - inputs)) + w_d)
+            x = Dense(
+                self.n_features_,
+                activation=self.output_activation,
+                activity_regularizer=l2(self.l2_regularizer))(
+                    x)
+            dsvd.add_loss(loss +
+                          tf.math.reduce_mean(tf.math.square(x - inputs)) +
+                          w_d)
         else:
             dsvd.add_loss(loss + w_d)
 
@@ -264,8 +283,8 @@ class DeepSVDD(BaseDetector):
 
         # Validate and complete the number of hidden neurons
         if np.min(self.hidden_neurons) > self.n_features_ and self.use_ae:
-            raise ValueError("The number of neurons should not exceed "
-                             "the number of features")
+            raise ValueError('The number of neurons should not exceed '
+                             'the number of features')
         if self.c is None:
             self.c = 0.0
             self.model_ = self._build_model(training=False)
@@ -273,12 +292,14 @@ class DeepSVDD(BaseDetector):
 
         # Build DeepSVDD model & fit with X
         self.model_ = self._build_model()
-        self.history_ = self.model_.fit(X_norm, X_norm,
-                                        epochs=self.epochs,
-                                        batch_size=self.batch_size,
-                                        shuffle=True,
-                                        validation_split=self.validation_size,
-                                        verbose=self.verbose).history
+        self.history_ = self.model_.fit(
+            X_norm,
+            X_norm,
+            epochs=self.epochs,
+            batch_size=self.batch_size,
+            shuffle=True,
+            validation_split=self.validation_size,
+            verbose=self.verbose).history
         # Predict on X itself and calculate the reconstruction error as
         # the outlier scores. Noted X_norm was shuffled has to recreate
         if self.preprocessing:

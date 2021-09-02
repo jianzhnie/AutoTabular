@@ -1,14 +1,13 @@
-from collections import OrderedDict
 import os
+from collections import OrderedDict
 
-from ..base import AutotabularPreprocessingAlgorithm, find_components, \
-    ThirdPartyComponents, AutotabularChoice
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
 
+from ..base import AutotabularChoice, AutotabularPreprocessingAlgorithm, ThirdPartyComponents, find_components
+
 classifier_directory = os.path.split(__file__)[0]
-_preprocessors = find_components(__package__,
-                                 classifier_directory,
+_preprocessors = find_components(__package__, classifier_directory,
                                  AutotabularPreprocessingAlgorithm)
 _addons = ThirdPartyComponents(AutotabularPreprocessingAlgorithm)
 
@@ -26,7 +25,8 @@ class FeaturePreprocessorChoice(AutotabularChoice):
         components.update(_addons.components)
         return components
 
-    def get_available_components(self, dataset_properties=None,
+    def get_available_components(self,
+                                 dataset_properties=None,
                                  include=None,
                                  exclude=None):
         if dataset_properties is None:
@@ -34,15 +34,15 @@ class FeaturePreprocessorChoice(AutotabularChoice):
 
         if include is not None and exclude is not None:
             raise ValueError(
-                "The argument include and exclude cannot be used together.")
+                'The argument include and exclude cannot be used together.')
 
         available_comp = self.get_components()
 
         if include is not None:
             for incl in include:
                 if incl not in available_comp:
-                    raise ValueError("Trying to include unknown component: "
-                                     "%s" % incl)
+                    raise ValueError('Trying to include unknown component: '
+                                     '%s' % incl)
 
         # TODO check for task type classification and/or regression!
 
@@ -56,7 +56,8 @@ class FeaturePreprocessorChoice(AutotabularChoice):
             entry = available_comp[name]
 
             # Exclude itself to avoid infinite loop
-            if entry == FeaturePreprocessorChoice or hasattr(entry, 'get_components'):
+            if entry == FeaturePreprocessorChoice or hasattr(
+                    entry, 'get_components'):
                 continue
 
             target_type = dataset_properties['target_type']
@@ -84,7 +85,8 @@ class FeaturePreprocessorChoice(AutotabularChoice):
 
         return components_dict
 
-    def get_hyperparameter_search_space(self, dataset_properties=None,
+    def get_hyperparameter_search_space(self,
+                                        dataset_properties=None,
                                         default=None,
                                         include=None,
                                         exclude=None):
@@ -96,31 +98,35 @@ class FeaturePreprocessorChoice(AutotabularChoice):
         # Compile a list of legal preprocessors for this problem
         available_preprocessors = self.get_available_components(
             dataset_properties=dataset_properties,
-            include=include, exclude=exclude)
+            include=include,
+            exclude=exclude)
 
         if len(available_preprocessors) == 0:
             raise ValueError(
-                "No preprocessors found, please add NoPreprocessing")
+                'No preprocessors found, please add NoPreprocessing')
 
         if default is None:
-            defaults = ['no_preprocessing', 'select_percentile', 'pca',
-                        'truncatedSVD']
+            defaults = [
+                'no_preprocessing', 'select_percentile', 'pca', 'truncatedSVD'
+            ]
             for default_ in defaults:
                 if default_ in available_preprocessors:
                     default = default_
                     break
 
-        preprocessor = CategoricalHyperparameter('__choice__',
-                                                 list(
-                                                     available_preprocessors.keys()),
-                                                 default_value=default)
+        preprocessor = CategoricalHyperparameter(
+            '__choice__',
+            list(available_preprocessors.keys()),
+            default_value=default)
         cs.add_hyperparameter(preprocessor)
         for name in available_preprocessors:
             preprocessor_configuration_space = available_preprocessors[name]. \
                 get_hyperparameter_search_space(dataset_properties)
             parent_hyperparameter = {'parent': preprocessor, 'value': name}
-            cs.add_configuration_space(name, preprocessor_configuration_space,
-                                       parent_hyperparameter=parent_hyperparameter)
+            cs.add_configuration_space(
+                name,
+                preprocessor_configuration_space,
+                parent_hyperparameter=parent_hyperparameter)
 
         return cs
 

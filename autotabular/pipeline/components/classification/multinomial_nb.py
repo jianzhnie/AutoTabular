@@ -1,14 +1,9 @@
 import numpy as np
-
-from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import UniformFloatHyperparameter, \
-    CategoricalHyperparameter
-
-from autotabular.pipeline.components.base import (
-    autotabularClassificationAlgorithm,
-)
-from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, SIGNED_DATA
+from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.constants import DENSE, PREDICTIONS, SIGNED_DATA, SPARSE
 from autotabular.util.common import check_for_bool
+from ConfigSpace.configuration_space import ConfigurationSpace
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter
 
 
 class MultinomialNB(autotabularClassificationAlgorithm):
@@ -31,7 +26,7 @@ class MultinomialNB(autotabularClassificationAlgorithm):
         self.estimator = sklearn.naive_bayes.MultinomialNB(
             alpha=self.alpha,
             fit_prior=self.fit_prior,
-            )
+        )
         self.classes_ = np.unique(y.astype(int))
 
         # Because the pipeline guarantees that each feature is positive,
@@ -62,16 +57,18 @@ class MultinomialNB(autotabularClassificationAlgorithm):
 
     @staticmethod
     def get_properties(dataset_properties=None):
-        return {'shortname': 'MultinomialNB',
-                'name': 'Multinomial Naive Bayes classifier',
-                'handles_regression': False,
-                'handles_classification': True,
-                'handles_multiclass': True,
-                'handles_multilabel': True,
-                'handles_multioutput': False,
-                'is_deterministic': True,
-                'input': (DENSE, SPARSE, SIGNED_DATA),
-                'output': (PREDICTIONS,)}
+        return {
+            'shortname': 'MultinomialNB',
+            'name': 'Multinomial Naive Bayes classifier',
+            'handles_regression': False,
+            'handles_classification': True,
+            'handles_multiclass': True,
+            'handles_multilabel': True,
+            'handles_multioutput': False,
+            'is_deterministic': True,
+            'input': (DENSE, SPARSE, SIGNED_DATA),
+            'output': (PREDICTIONS, )
+        }
 
     @staticmethod
     def get_hyperparameter_search_space(dataset_properties=None):
@@ -80,12 +77,11 @@ class MultinomialNB(autotabularClassificationAlgorithm):
         # the smoothing parameter is a non-negative float
         # I will limit it to 100 and put it on a logarithmic scale. (SF)
         # Please adjust that, if you know a proper range, this is just a guess.
-        alpha = UniformFloatHyperparameter(name="alpha", lower=1e-2, upper=100,
-                                           default_value=1, log=True)
+        alpha = UniformFloatHyperparameter(
+            name='alpha', lower=1e-2, upper=100, default_value=1, log=True)
 
-        fit_prior = CategoricalHyperparameter(name="fit_prior",
-                                              choices=["True", "False"],
-                                              default_value="True")
+        fit_prior = CategoricalHyperparameter(
+            name='fit_prior', choices=['True', 'False'], default_value='True')
 
         cs.add_hyperparameters([alpha, fit_prior])
 

@@ -1,36 +1,29 @@
-# -*- coding: utf-8 -*-
-"""Base class for all outlier detector models
-"""
+"""Base class for all outlier detector models."""
 # Author: Yue Zhao <zhaoy@cmu.edu>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
-
+from __future__ import division, print_function
+import abc
 import warnings
 from collections import defaultdict
 
-from ..utils.utility import _get_sklearn_version
+import numpy as np
+import six
+from numpy import percentile
+from scipy.special import erf
+from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.utils import deprecated
+from sklearn.utils.multiclass import check_classification_targets
+from sklearn.utils.validation import check_is_fitted
+
+from ..utils.utility import _get_sklearn_version, precision_n_scores
+from .sklearn_base import _pprint
 
 if _get_sklearn_version() > 20:
     from inspect import signature
 else:
     from sklearn.externals.funcsigs import signature
-
-import abc
-import six
-
-import numpy as np
-from numpy import percentile
-from scipy.special import erf
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import roc_auc_score
-from sklearn.utils import deprecated
-from sklearn.utils.validation import check_is_fitted
-from sklearn.utils.multiclass import check_classification_targets
-
-from .sklearn_base import _pprint
-from ..utils.utility import precision_n_scores
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -71,8 +64,8 @@ class BaseDetector(object):
     def __init__(self, contamination=0.1):
 
         if not (0. < contamination <= 0.5):
-            raise ValueError("contamination must be in (0, 0.5], "
-                             "got: %f" % contamination)
+            raise ValueError('contamination must be in (0, 0.5], '
+                             'got: %f' % contamination)
 
         self.contamination = contamination
 
@@ -119,8 +112,8 @@ class BaseDetector(object):
 
     @deprecated()
     def fit_predict(self, X, y=None):
-        """Fit detector first and then predict whether a particular sample
-        is an outlier or not. y is ignored in unsupervised models.
+        """Fit detector first and then predict whether a particular sample is
+        an outlier or not. y is ignored in unsupervised models.
 
         Parameters
         ----------
@@ -202,15 +195,15 @@ class BaseDetector(object):
         probs = np.zeros([X.shape[0], int(self._classes)])
         if method == 'linear':
             scaler = MinMaxScaler().fit(train_scores.reshape(-1, 1))
-            probs[:, 1] = scaler.transform(
-                test_scores.reshape(-1, 1)).ravel().clip(0, 1)
+            probs[:, 1] = scaler.transform(test_scores.reshape(
+                -1, 1)).ravel().clip(0, 1)
             probs[:, 0] = 1 - probs[:, 1]
             return probs
 
         elif method == 'unify':
             # turn output into probability
             pre_erf_score = (test_scores - self._mu) / (
-                    self._sigma * np.sqrt(2))
+                self._sigma * np.sqrt(2))
             erf_score = erf(pre_erf_score)
             probs[:, 1] = erf_score.clip(0, 1).ravel()
             probs[:, 0] = 1 - probs[:, 1]
@@ -235,7 +228,6 @@ class BaseDetector(object):
         -------
         ranks : array, shape (n_samples,)
             Outlying rank of a sample according to the training data.
-
         """
 
         check_is_fitted(self, ['decision_scores_'])
@@ -291,7 +283,7 @@ class BaseDetector(object):
             raise NotImplementedError('PyOD built-in scoring only supports '
                                       'ROC and Precision @ rank n')
 
-        print("{metric}: {score}".format(metric=scoring, score=score))
+        print('{metric}: {score}'.format(metric=scoring, score=score))
 
         return score
 
@@ -346,7 +338,7 @@ class BaseDetector(object):
             check_classification_targets(y)
             self._classes = len(np.unique(y))
             warnings.warn(
-                "y should not be presented in unsupervised learning.")
+                'y should not be presented in unsupervised learning.')
         return self
 
     def _process_decision_scores(self):
@@ -362,8 +354,8 @@ class BaseDetector(object):
 
         self.threshold_ = percentile(self.decision_scores_,
                                      100 * (1 - self.contamination))
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype(
-            'int').ravel()
+        self.labels_ = (self.decision_scores_ >
+                        self.threshold_).astype('int').ravel()
 
         # calculate for predict_proba()
 
@@ -375,7 +367,7 @@ class BaseDetector(object):
     # noinspection PyMethodParameters
     def _get_param_names(cls):
         # noinspection PyPep8
-        """Get parameter names for the estimator
+        """Get parameter names for the estimator.
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
         and sklearn/base.py for more information.
@@ -392,16 +384,18 @@ class BaseDetector(object):
         # to represent
         init_signature = signature(init)
         # Consider the constructor parameters excluding 'self'
-        parameters = [p for p in init_signature.parameters.values()
-                      if p.name != 'self' and p.kind != p.VAR_KEYWORD]
+        parameters = [
+            p for p in init_signature.parameters.values()
+            if p.name != 'self' and p.kind != p.VAR_KEYWORD
+        ]
         for p in parameters:
             if p.kind == p.VAR_POSITIONAL:
-                raise RuntimeError("scikit-learn estimators should always "
-                                   "specify their parameters in the signature"
-                                   " of their __init__ (no varargs)."
+                raise RuntimeError('scikit-learn estimators should always '
+                                   'specify their parameters in the signature'
+                                   ' of their __init__ (no varargs).'
                                    " %s with constructor %s doesn't "
-                                   " follow this convention."
-                                   % (cls, init_signature))
+                                   ' follow this convention.' %
+                                   (cls, init_signature))
         # Extract and sort argument names excluding 'self'
         return sorted([p.name for p in parameters])
 
@@ -430,7 +424,7 @@ class BaseDetector(object):
             # catch deprecated param values.
             # This is set in utils/__init__.py but it gets overwritten
             # when running under python3 somehow.
-            warnings.simplefilter("always", DeprecationWarning)
+            warnings.simplefilter('always', DeprecationWarning)
             try:
                 with warnings.catch_warnings(record=True) as w:
                     value = getattr(self, key, None)
@@ -449,11 +443,10 @@ class BaseDetector(object):
 
     def set_params(self, **params):
         # noinspection PyPep8
-        """Set the parameters of this estimator.
-        The method works on simple estimators as well as on nested objects
-        (such as pipelines). The latter have parameters of the form
-        ``<component>__<parameter>`` so that it's possible to update each
-        component of a nested object.
+        """Set the parameters of this estimator. The method works on simple
+        estimators as well as on nested objects (such as pipelines). The latter
+        have parameters of the form ``<component>__<parameter>`` so that it's
+        possible to update each component of a nested object.
 
         See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
         and sklearn/base.py for more information.
@@ -489,11 +482,15 @@ class BaseDetector(object):
 
     def __repr__(self):
         # noinspection PyPep8
-        """
-        See http://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html
-        and sklearn/base.py for more information.
-        """
+        """See http://scikit-
+        learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html and
+        sklearn/base.py for more information."""
 
         class_name = self.__class__.__name__
-        return '%s(%s)' % (class_name, _pprint(self.get_params(deep=False),
-                                               offset=len(class_name), ),)
+        return '%s(%s)' % (
+            class_name,
+            _pprint(
+                self.get_params(deep=False),
+                offset=len(class_name),
+            ),
+        )

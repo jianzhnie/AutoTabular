@@ -1,27 +1,26 @@
 import torch
 import tqdm
-from sklearn.metrics import roc_auc_score
-from torch.utils.data import DataLoader
-
+from autotabular.algorithms.ctr.afi import AutomaticFeatureInteractionModel
+from autotabular.algorithms.ctr.afm import AttentionalFactorizationMachineModel
+from autotabular.algorithms.ctr.afn import AdaptiveFactorizationNetwork
+from autotabular.algorithms.ctr.dcn import DeepCrossNetworkModel
+from autotabular.algorithms.ctr.dfm import DeepFactorizationMachineModel
+from autotabular.algorithms.ctr.ffm import FieldAwareFactorizationMachineModel
+from autotabular.algorithms.ctr.fm import FactorizationMachineModel
+from autotabular.algorithms.ctr.fnfm import FieldAwareNeuralFactorizationMachineModel
+from autotabular.algorithms.ctr.fnn import FactorizationSupportedNeuralNetworkModel
+from autotabular.algorithms.ctr.hofm import HighOrderFactorizationMachineModel
+from autotabular.algorithms.ctr.lr import LogisticRegressionModel
+from autotabular.algorithms.ctr.ncf import NeuralCollaborativeFiltering
+from autotabular.algorithms.ctr.nfm import NeuralFactorizationMachineModel
+from autotabular.algorithms.ctr.pnn import ProductNeuralNetworkModel
+from autotabular.algorithms.ctr.wd import WideAndDeepModel
+from autotabular.algorithms.ctr.xdfm import ExtremeDeepFactorizationMachineModel
 from autotabular.dataset.avazu import AvazuDataset
 from autotabular.dataset.criteo import CriteoDataset
 from autotabular.dataset.movielens import MovieLens1MDataset, MovieLens20MDataset
-from autotabular.model.afi import AutomaticFeatureInteractionModel
-from autotabular.model.afm import AttentionalFactorizationMachineModel
-from autotabular.model.dcn import DeepCrossNetworkModel
-from autotabular.model.dfm import DeepFactorizationMachineModel
-from autotabular.model.ffm import FieldAwareFactorizationMachineModel
-from autotabular.model.fm import FactorizationMachineModel
-from autotabular.model.fnfm import FieldAwareNeuralFactorizationMachineModel
-from autotabular.model.fnn import FactorizationSupportedNeuralNetworkModel
-from autotabular.model.hofm import HighOrderFactorizationMachineModel
-from autotabular.model.lr import LogisticRegressionModel
-from autotabular.model.ncf import NeuralCollaborativeFiltering
-from autotabular.model.nfm import NeuralFactorizationMachineModel
-from autotabular.model.pnn import ProductNeuralNetworkModel
-from autotabular.model.wd import WideAndDeepModel
-from autotabular.model.xdfm import ExtremeDeepFactorizationMachineModel
-from autotabular.model.afn import AdaptiveFactorizationNetwork
+from sklearn.metrics import roc_auc_score
+from torch.utils.data import DataLoader
 
 
 def get_dataset(name, path):
@@ -38,52 +37,92 @@ def get_dataset(name, path):
 
 
 def get_model(name, dataset):
-    """
-    Hyperparameters are empirically determined, not opitmized.
-    """
+    """Hyperparameters are empirically determined, not opitmized."""
     field_dims = dataset.field_dims
     if name == 'lr':
         return LogisticRegressionModel(field_dims)
     elif name == 'fm':
         return FactorizationMachineModel(field_dims, embed_dim=16)
     elif name == 'hofm':
-        return HighOrderFactorizationMachineModel(field_dims, order=3, embed_dim=16)
+        return HighOrderFactorizationMachineModel(
+            field_dims, order=3, embed_dim=16)
     elif name == 'ffm':
         return FieldAwareFactorizationMachineModel(field_dims, embed_dim=4)
     elif name == 'fnn':
-        return FactorizationSupportedNeuralNetworkModel(field_dims, embed_dim=16, mlp_dims=(16, 16), dropout=0.2)
+        return FactorizationSupportedNeuralNetworkModel(
+            field_dims, embed_dim=16, mlp_dims=(16, 16), dropout=0.2)
     elif name == 'wd':
-        return WideAndDeepModel(field_dims, embed_dim=16, mlp_dims=(16, 16), dropout=0.2)
+        return WideAndDeepModel(
+            field_dims, embed_dim=16, mlp_dims=(16, 16), dropout=0.2)
     elif name == 'ipnn':
-        return ProductNeuralNetworkModel(field_dims, embed_dim=16, mlp_dims=(16,), method='inner', dropout=0.2)
+        return ProductNeuralNetworkModel(
+            field_dims,
+            embed_dim=16,
+            mlp_dims=(16, ),
+            method='inner',
+            dropout=0.2)
     elif name == 'opnn':
-        return ProductNeuralNetworkModel(field_dims, embed_dim=16, mlp_dims=(16,), method='outer', dropout=0.2)
+        return ProductNeuralNetworkModel(
+            field_dims,
+            embed_dim=16,
+            mlp_dims=(16, ),
+            method='outer',
+            dropout=0.2)
     elif name == 'dcn':
-        return DeepCrossNetworkModel(field_dims, embed_dim=16, num_layers=3, mlp_dims=(16, 16), dropout=0.2)
+        return DeepCrossNetworkModel(
+            field_dims,
+            embed_dim=16,
+            num_layers=3,
+            mlp_dims=(16, 16),
+            dropout=0.2)
     elif name == 'nfm':
-        return NeuralFactorizationMachineModel(field_dims, embed_dim=64, mlp_dims=(64,), dropouts=(0.2, 0.2))
+        return NeuralFactorizationMachineModel(
+            field_dims, embed_dim=64, mlp_dims=(64, ), dropouts=(0.2, 0.2))
     elif name == 'ncf':
         # only supports MovieLens dataset because for other datasets user/item colums are indistinguishable
-        assert isinstance(dataset, MovieLens20MDataset) or isinstance(dataset, MovieLens1MDataset)
-        return NeuralCollaborativeFiltering(field_dims, embed_dim=16, mlp_dims=(16, 16), dropout=0.2,
-                                            user_field_idx=dataset.user_field_idx,
-                                            item_field_idx=dataset.item_field_idx)
+        assert isinstance(dataset, MovieLens20MDataset) or isinstance(
+            dataset, MovieLens1MDataset)
+        return NeuralCollaborativeFiltering(
+            field_dims,
+            embed_dim=16,
+            mlp_dims=(16, 16),
+            dropout=0.2,
+            user_field_idx=dataset.user_field_idx,
+            item_field_idx=dataset.item_field_idx)
     elif name == 'fnfm':
-        return FieldAwareNeuralFactorizationMachineModel(field_dims, embed_dim=4, mlp_dims=(64,), dropouts=(0.2, 0.2))
+        return FieldAwareNeuralFactorizationMachineModel(
+            field_dims, embed_dim=4, mlp_dims=(64, ), dropouts=(0.2, 0.2))
     elif name == 'dfm':
-        return DeepFactorizationMachineModel(field_dims, embed_dim=16, mlp_dims=(16, 16), dropout=0.2)
+        return DeepFactorizationMachineModel(
+            field_dims, embed_dim=16, mlp_dims=(16, 16), dropout=0.2)
     elif name == 'xdfm':
         return ExtremeDeepFactorizationMachineModel(
-            field_dims, embed_dim=16, cross_layer_sizes=(16, 16), split_half=False, mlp_dims=(16, 16), dropout=0.2)
+            field_dims,
+            embed_dim=16,
+            cross_layer_sizes=(16, 16),
+            split_half=False,
+            mlp_dims=(16, 16),
+            dropout=0.2)
     elif name == 'afm':
-        return AttentionalFactorizationMachineModel(field_dims, embed_dim=16, attn_size=16, dropouts=(0.2, 0.2))
+        return AttentionalFactorizationMachineModel(
+            field_dims, embed_dim=16, attn_size=16, dropouts=(0.2, 0.2))
     elif name == 'afi':
         return AutomaticFeatureInteractionModel(
-             field_dims, embed_dim=16, atten_embed_dim=64, num_heads=2, num_layers=3, mlp_dims=(400, 400), dropouts=(0, 0, 0))
+            field_dims,
+            embed_dim=16,
+            atten_embed_dim=64,
+            num_heads=2,
+            num_layers=3,
+            mlp_dims=(400, 400),
+            dropouts=(0, 0, 0))
     elif name == 'afn':
-        print("Model:AFN")
+        print('Model:AFN')
         return AdaptiveFactorizationNetwork(
-            field_dims, embed_dim=16, LNN_dim=1500, mlp_dims=(400, 400, 400), dropouts=(0, 0, 0))
+            field_dims,
+            embed_dim=16,
+            LNN_dim=1500,
+            mlp_dims=(400, 400, 400),
+            dropouts=(0, 0, 0))
     else:
         raise ValueError('unknown model name: ' + name)
 
@@ -130,7 +169,8 @@ def test(model, data_loader, device):
     model.eval()
     targets, predicts = list(), list()
     with torch.no_grad():
-        for fields, target in tqdm.tqdm(data_loader, smoothing=0, mininterval=1.0):
+        for fields, target in tqdm.tqdm(
+                data_loader, smoothing=0, mininterval=1.0):
             fields, target = fields.to(device), target.to(device)
             y = model(fields)
             targets.extend(target.tolist())
@@ -138,15 +178,8 @@ def test(model, data_loader, device):
     return roc_auc_score(targets, predicts)
 
 
-def main(dataset_name,
-         dataset_path,
-         model_name,
-         epoch,
-         learning_rate,
-         batch_size,
-         weight_decay,
-         device,
-         save_dir):
+def main(dataset_name, dataset_path, model_name, epoch, learning_rate,
+         batch_size, weight_decay, device, save_dir):
     device = torch.device(device)
     dataset = get_dataset(dataset_name, dataset_path)
     train_length = int(len(dataset) * 0.8)
@@ -154,13 +187,18 @@ def main(dataset_name,
     test_length = len(dataset) - train_length - valid_length
     train_dataset, valid_dataset, test_dataset = torch.utils.data.random_split(
         dataset, (train_length, valid_length, test_length))
-    train_data_loader = DataLoader(train_dataset, batch_size=batch_size, num_workers=8)
-    valid_data_loader = DataLoader(valid_dataset, batch_size=batch_size, num_workers=8)
-    test_data_loader = DataLoader(test_dataset, batch_size=batch_size, num_workers=8)
+    train_data_loader = DataLoader(
+        train_dataset, batch_size=batch_size, num_workers=8)
+    valid_data_loader = DataLoader(
+        valid_dataset, batch_size=batch_size, num_workers=8)
+    test_data_loader = DataLoader(
+        test_dataset, batch_size=batch_size, num_workers=8)
     model = get_model(model_name, dataset).to(device)
     criterion = torch.nn.BCELoss()
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    early_stopper = EarlyStopper(num_trials=2, save_path=f'{save_dir}/{model_name}.pt')
+    optimizer = torch.optim.Adam(
+        params=model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    early_stopper = EarlyStopper(
+        num_trials=2, save_path=f'{save_dir}/{model_name}.pt')
     for epoch_i in range(epoch):
         train(model, optimizer, train_data_loader, criterion, device)
         auc = test(model, valid_data_loader, device)
@@ -177,7 +215,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_name', default='criteo')
-    parser.add_argument('--dataset_path', help='criteo/train.txt, avazu/train, or ml-1m/ratings.dat')
+    parser.add_argument(
+        '--dataset_path',
+        help='criteo/train.txt, avazu/train, or ml-1m/ratings.dat')
     parser.add_argument('--model_name', default='afi')
     parser.add_argument('--epoch', type=int, default=100)
     parser.add_argument('--learning_rate', type=float, default=0.001)
@@ -186,12 +226,6 @@ if __name__ == '__main__':
     parser.add_argument('--device', default='cuda:0')
     parser.add_argument('--save_dir', default='chkpt')
     args = parser.parse_args()
-    main(args.dataset_name,
-         args.dataset_path,
-         args.model_name,
-         args.epoch,
-         args.learning_rate,
-         args.batch_size,
-         args.weight_decay,
-         args.device,
+    main(args.dataset_name, args.dataset_path, args.model_name, args.epoch,
+         args.learning_rate, args.batch_size, args.weight_decay, args.device,
          args.save_dir)

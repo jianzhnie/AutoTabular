@@ -1,22 +1,18 @@
-from collections import OrderedDict
 import os
-
+from collections import OrderedDict
 from typing import Any, Dict, Optional
 
+from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
 from ConfigSpace import Configuration
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
-
-from ...base import AutotabularPreprocessingAlgorithm, find_components, \
-    ThirdPartyComponents, AutotabularChoice
-
 from sklearn.base import BaseEstimator
 
-from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
+from ...base import AutotabularChoice, AutotabularPreprocessingAlgorithm, ThirdPartyComponents, find_components
 
 mc_directory = os.path.split(__file__)[0]
-_mcs = find_components(
-    __package__, mc_directory, AutotabularPreprocessingAlgorithm)
+_mcs = find_components(__package__, mc_directory,
+                       AutotabularPreprocessingAlgorithm)
 _addons = ThirdPartyComponents(AutotabularPreprocessingAlgorithm)
 
 
@@ -48,12 +44,13 @@ class CoalescenseChoice(AutotabularChoice):
         # Compile a list of legal preprocessors for this problem
         available_preprocessors = self.get_available_components(
             dataset_properties=dataset_properties,
-            include=include, exclude=exclude)
+            include=include,
+            exclude=exclude)
 
         if len(available_preprocessors) == 0:
             raise ValueError(
-                "No minority coalescers found, please add any one minority coalescer"
-                "component.")
+                'No minority coalescers found, please add any one minority coalescer'
+                'component.')
 
         if default is None:
             defaults = ['minority_coalescer', 'no_coalescense']
@@ -63,22 +60,28 @@ class CoalescenseChoice(AutotabularChoice):
                     break
 
         preprocessor = CategoricalHyperparameter(
-            '__choice__', list(available_preprocessors.keys()), default_value=default)
+            '__choice__',
+            list(available_preprocessors.keys()),
+            default_value=default)
         cs.add_hyperparameter(preprocessor)
         for name in available_preprocessors:
             preprocessor_configuration_space = available_preprocessors[name]. \
                 get_hyperparameter_search_space(dataset_properties)
             parent_hyperparameter = {'parent': preprocessor, 'value': name}
-            cs.add_configuration_space(name, preprocessor_configuration_space,
-                                       parent_hyperparameter=parent_hyperparameter)
+            cs.add_configuration_space(
+                name,
+                preprocessor_configuration_space,
+                parent_hyperparameter=parent_hyperparameter)
 
         self.configuration_space = cs
         self.dataset_properties = dataset_properties
         return cs
 
-    def set_hyperparameters(self, configuration: Configuration,
-                            init_params: Optional[Dict[str, Any]] = None
-                            ) -> 'CoalescenseChoice':
+    def set_hyperparameters(
+            self,
+            configuration: Configuration,
+            init_params: Optional[Dict[str,
+                                       Any]] = None) -> 'CoalescenseChoice':
         new_params = {}
 
         params = configuration.get_dictionary()

@@ -1,6 +1,6 @@
 from pathlib import Path
-from setuptools import setup, find_packages
 
+from setuptools import find_packages, setup
 
 if __name__ == '__main__':
 
@@ -8,13 +8,13 @@ if __name__ == '__main__':
         long_description = f.read()
 
     setup(
-        name="AutoTabular",
-        version="0.1.0",
-        description="PyTorch implementation of autogluon for tabulardata",
+        name='AutoTabular',
+        version='0.1.0',
+        description='PyTorch implementation of autogluon for tabulardata',
         long_description=long_description,
-        long_description_content_type="text/markdown",
-        url="https://github.com/jianzhnie/AutoTabular",
-        author="jianzhnie",
-        author_email="jianzhnie@gmail.com",
-        packages=find_packages(exclude=["examples", "docs"]),
+        long_description_content_type='text/markdown',
+        url='https://github.com/jianzhnie/AutoTabular',
+        author='jianzhnie',
+        author_email='jianzhnie@gmail.com',
+        packages=find_packages(exclude=['examples', 'docs']),
     )

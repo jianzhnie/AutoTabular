@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
 """Median Absolute deviation (MAD)Algorithm.
+
 Strictly for Univariate Data.
 """
 # Author: Yahya Almardeny <almardeny@gmail.com>
 # License: BSD 2 clause
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import numpy as np
 from sklearn.utils import check_array
@@ -15,18 +14,16 @@ from .base import BaseDetector
 
 
 def _check_dim(X):
-    """
-    Internal function to assert univariate data
-    """
+    """Internal function to assert univariate data."""
     if X.shape[1] != 1:
         raise ValueError('MAD algorithm is just for univariate data. '
                          'Got Data with {} Dimensions.'.format(X.shape[1]))
 
 
 class MAD(BaseDetector):
-    """Median Absolute Deviation: for measuring the distances between
-    data points and the median in terms of median distance.
-    See :cite:`iglewicz1993detect` for details.
+    """Median Absolute Deviation: for measuring the distances between data
+    points and the median in terms of median distance. See
+    :cite:`iglewicz1993detect` for details.
 
     Parameters
     ----------
@@ -60,8 +57,8 @@ class MAD(BaseDetector):
         super(MAD, self).__init__()
         self.decision_scores_ = None
         if not isinstance(threshold, (float, int)):
-            raise TypeError(
-                'threshold must be a number. Got {}'.format(type(threshold)))
+            raise TypeError('threshold must be a number. Got {}'.format(
+                type(threshold)))
         self.threshold_ = threshold
 
     def fit(self, X, y=None):
@@ -89,10 +86,10 @@ class MAD(BaseDetector):
         return self
 
     def decision_function(self, X):
-        """Predict raw anomaly score of X using the fitted detector.
-        The anomaly score of an input sample is computed based on different
-        detector algorithms. For consistency, outliers are assigned with
-        larger anomaly scores.
+        """Predict raw anomaly score of X using the fitted detector. The
+        anomaly score of an input sample is computed based on different
+        detector algorithms. For consistency, outliers are assigned with larger
+        anomaly scores.
 
         Parameters
         ----------
@@ -111,9 +108,9 @@ class MAD(BaseDetector):
         return self._mad(X)
 
     def _mad(self, X):
-        """
-        Apply the robust median absolute deviation (MAD)
-        to measure the distances of data points from the median.
+        """Apply the robust median absolute deviation (MAD) to measure the
+        distances of data points from the median.
+
         :return: numpy array containing modified Z-scores of the observations.
                  The greater the score, the greater the outlierness.
         """
@@ -123,9 +120,10 @@ class MAD(BaseDetector):
         return np.nan_to_num(np.ravel(0.6745 * diff / np.median(diff)))
 
     def _process_decision_scores(self):
-        """This overrides PyOD base class function in order to use the
-        proper `threshold_` which is quite different in the base class.
-        Internal function to calculate key attributes:
+        """This overrides PyOD base class function in order to use the proper
+        `threshold_` which is quite different in the base class. Internal
+        function to calculate key attributes:
+
         - labels_: binary labels of training data.
         - _mu: mean of decision scores.
         - _sigma: standard deviation of decision scores.
@@ -134,8 +132,8 @@ class MAD(BaseDetector):
         -------
         self
         """
-        self.labels_ = (self.decision_scores_ > self.threshold_).astype(
-            'int').ravel()
+        self.labels_ = (self.decision_scores_ >
+                        self.threshold_).astype('int').ravel()
 
         # calculate for predict_proba()
         self._mu = np.mean(self.decision_scores_)

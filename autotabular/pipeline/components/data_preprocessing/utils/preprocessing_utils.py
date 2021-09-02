@@ -9,29 +9,28 @@ class PreprocessingUtilsException(Exception):
 
 
 class PreprocessingUtils(object):
-    CATEGORICAL = "categorical"
-    CONTINOUS = "continous"
-    DISCRETE = "discrete"
-    DATETIME = "datetime"
-    TEXT = "text"
+    CATEGORICAL = 'categorical'
+    CONTINOUS = 'continous'
+    DISCRETE = 'discrete'
+    DATETIME = 'datetime'
+    TEXT = 'text'
 
     @staticmethod
     def get_type(x):
         if len(x.shape) > 1:
             if x.shape[1] != 1:
                 raise PreprocessingUtilsException(
-                    "Please select one column to get its type"
-                )
+                    'Please select one column to get its type')
         col_type = str(x.dtype)
 
         data_type = PreprocessingUtils.CATEGORICAL
-        if col_type.startswith("float"):
+        if col_type.startswith('float'):
             data_type = PreprocessingUtils.CONTINOUS
-        elif col_type.startswith("int") or col_type.startswith("uint"):
+        elif col_type.startswith('int') or col_type.startswith('uint'):
             data_type = PreprocessingUtils.DISCRETE
-        elif col_type.startswith("datetime"):
+        elif col_type.startswith('datetime'):
             data_type = PreprocessingUtils.DATETIME
-        elif col_type.startswith("category"):
+        elif col_type.startswith('category'):
             # do not check the additional condition for text feature
             # treat it as categorical
             return PreprocessingUtils.CATEGORICAL

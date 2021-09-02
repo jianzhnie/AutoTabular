@@ -1,23 +1,26 @@
 import numpy as np
-
-from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import UniformFloatHyperparameter, \
-    CategoricalHyperparameter, UnParametrizedHyperparameter
-
-from autotabular.pipeline.components.base import (
-    autotabularClassificationAlgorithm,
-    IterativeComponentWithSampleWeight,
-)
-from autotabular.pipeline.constants import DENSE, SPARSE, UNSIGNED_DATA, PREDICTIONS
+from autotabular.pipeline.components.base import IterativeComponentWithSampleWeight, autotabularClassificationAlgorithm
+from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.pipeline.implementations.util import softmax
 from autotabular.util.common import check_for_bool
+from ConfigSpace.configuration_space import ConfigurationSpace
+from ConfigSpace.hyperparameters import (CategoricalHyperparameter,
+                                         UniformFloatHyperparameter,
+                                         UnParametrizedHyperparameter)
 
 
 class PassiveAggressive(
-    IterativeComponentWithSampleWeight,
-    autotabularClassificationAlgorithm,
+        IterativeComponentWithSampleWeight,
+        autotabularClassificationAlgorithm,
 ):
-    def __init__(self, C, fit_intercept, tol, loss, average, random_state=None):
+
+    def __init__(self,
+                 C,
+                 fit_intercept,
+                 tol,
+                 loss,
+                 average,
+                 random_state=None):
         self.C = C
         self.fit_intercept = fit_intercept
         self.average = average
@@ -87,26 +90,25 @@ class PassiveAggressive(
                 self.n_iter_ = n_iter
             else:
                 self.estimator.max_iter += n_iter
-                self.estimator.max_iter = min(self.estimator.max_iter, self.max_iter)
+                self.estimator.max_iter = min(self.estimator.max_iter,
+                                              self.max_iter)
                 self.estimator._validate_params()
-                lr = "pa1" if self.estimator.loss == "hinge" else "pa2"
+                lr = 'pa1' if self.estimator.loss == 'hinge' else 'pa2'
                 self.estimator._partial_fit(
-                    X, y,
+                    X,
+                    y,
                     alpha=1.0,
                     C=self.estimator.C,
-                    loss="hinge",
+                    loss='hinge',
                     learning_rate=lr,
                     max_iter=n_iter,
                     classes=None,
                     sample_weight=sample_weight,
                     coef_init=None,
-                    intercept_init=None
-                )
+                    intercept_init=None)
                 self.n_iter_ += self.estimator.n_iter_
-                if (
-                    self.estimator.max_iter >= self.max_iter
-                        or self.estimator.max_iter > self.n_iter_
-                ):
+                if (self.estimator.max_iter >= self.max_iter
+                        or self.estimator.max_iter > self.n_iter_):
                     self.fully_fit_ = True
 
         return self
@@ -133,30 +135,31 @@ class PassiveAggressive(
 
     @staticmethod
     def get_properties(dataset_properties=None):
-        return {'shortname': 'PassiveAggressive Classifier',
-                'name': 'Passive Aggressive Classifier',
-                'handles_regression': False,
-                'handles_classification': True,
-                'handles_multiclass': True,
-                'handles_multilabel': True,
-                'handles_multioutput': False,
-                'is_deterministic': True,
-                'input': (DENSE, SPARSE, UNSIGNED_DATA),
-                'output': (PREDICTIONS,)}
+        return {
+            'shortname': 'PassiveAggressive Classifier',
+            'name': 'Passive Aggressive Classifier',
+            'handles_regression': False,
+            'handles_classification': True,
+            'handles_multiclass': True,
+            'handles_multilabel': True,
+            'handles_multioutput': False,
+            'is_deterministic': True,
+            'input': (DENSE, SPARSE, UNSIGNED_DATA),
+            'output': (PREDICTIONS, )
+        }
 
     @staticmethod
     def get_hyperparameter_search_space(dataset_properties=None):
-        C = UniformFloatHyperparameter("C", 1e-5, 10, 1.0, log=True)
-        fit_intercept = UnParametrizedHyperparameter("fit_intercept", "True")
+        C = UniformFloatHyperparameter('C', 1e-5, 10, 1.0, log=True)
+        fit_intercept = UnParametrizedHyperparameter('fit_intercept', 'True')
         loss = CategoricalHyperparameter(
-            "loss", ["hinge", "squared_hinge"], default_value="hinge"
-        )
+            'loss', ['hinge', 'squared_hinge'], default_value='hinge')
 
-        tol = UniformFloatHyperparameter("tol", 1e-5, 1e-1, default_value=1e-4,
-                                         log=True)
+        tol = UniformFloatHyperparameter(
+            'tol', 1e-5, 1e-1, default_value=1e-4, log=True)
         # Note: Average could also be an Integer if > 1
-        average = CategoricalHyperparameter('average', ['False', 'True'],
-                                            default_value='False')
+        average = CategoricalHyperparameter(
+            'average', ['False', 'True'], default_value='False')
 
         cs = ConfigurationSpace()
         cs.add_hyperparameters([loss, fit_intercept, tol, C, average])
