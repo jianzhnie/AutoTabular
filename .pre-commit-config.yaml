@@ -8,8 +8,13 @@ repos:
         name: flake8 autotabular
         files: autotabular/
       - id: flake8
-        name: flake8 file-order-data
-        files: autotabular/data
+        name: flake8 file-order-algorithms
+        files: autotabular/algorithms
+        additional_dependencies:
+          - flake8-import-order
+      - id: flake8
+        name: flake8 file-order-pipeline
+        files: autotabular/pipeline
         additional_dependencies:
           - flake8-import-order
       - id: flake8
@@ -30,33 +35,6 @@ repos:
       - id: flake8
         name: flake8 autotabular-test
         files: test/.*
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v0.761
-  #   hooks:
-  #     - id: mypy
-  #       args: [--show-error-codes]
-  #       name: mypy autotabular-ensembles
-  #       files: autotabular/ensembles
-  #     - id: mypy
-  #       args: [--show-error-codes]
-  #       name: mypy autotabular-metrics
-  #       files: autotabular/metrics
-  #     - id: mypy
-  #       args: [--show-error-codes]
-  #       name: mypy autotabular-data
-  #       files: autotabular/data
-  #     - id: mypy
-  #       args: [--show-error-codes]
-  #       name: mypy autotabular-util
-  #       files: autotabular/util
-  #     - id: mypy
-  #       args: [--show-error-codes]
-  #       name: mypy autotabular-evaluation
-  #       files: autotabular/evaluation
-  #     - id: mypy
-  #       args: [--show-error-codes]
-  #       name: mypy autotabular-datapreprocessing
-  #       files: autotabular/pipeline/components/data_preprocessing/
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0
     hooks:

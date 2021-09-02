@@ -73,9 +73,9 @@ class LabelEncoderTransformer(AutotabularPreprocessingAlgorithm):
         dataset_properties: Optional[DATASET_PROPERTIES_TYPE] = None
     ) -> Dict[str, Optional[Union[str, int, bool, Tuple]]]:
         return {
-            'shortname': 'OrdinalEncoder',
-            'name': 'Ordinal Encoder',
-            'handles_regression': True,
+            'shortname': 'LabelEncoderTransformer',
+            'name': 'LabelEncoder Transformer',
+            'handles_regression': False,
             'handles_classification': True,
             'handles_multiclass': True,
             'handles_multilabel': True,
