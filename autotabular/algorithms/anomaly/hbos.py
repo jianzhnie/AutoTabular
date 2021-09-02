@@ -90,7 +90,7 @@ class HBOS(BaseDetector):
         X = check_array(X)
         self._set_n_classes(y)
 
-        n_samples, n_features = X.shape[0], X.shape[1]
+        _, n_features = X.shape[0], X.shape[1]
         self.hist_ = np.zeros([self.n_bins, n_features])
         self.bin_edges_ = np.zeros([self.n_bins + 1, n_features])
 

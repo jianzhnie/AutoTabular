@@ -16,7 +16,6 @@ from .base import BaseDetector
 from .hbos import HBOS
 from .iforest import IForest
 from .knn import KNN
-from .loda import LODA
 from .lof import LOF
 from .ocsvm import OCSVM
 
@@ -246,8 +245,8 @@ class XGBOD(BaseDetector):
 
     def _validate_estimator(self, X):
         if self.estimator_list is None:
-            self.estimator_list, \
-            self.standardization_flag_list = self._init_detectors(X)
+            self.estimator_list, self.standardization_flag_list = self._init_detectors(
+                X)
 
         # perform standardization for all detectors by default
         if self.standardization_flag_list is None:
@@ -330,7 +329,7 @@ class XGBOD(BaseDetector):
         self.X_train_new_ = np.concatenate((X, self.X_train_add_), axis=1)
 
         # initialize, train, and predict on XGBoost
-        self.clf_ = clf = XGBClassifier(
+        self.clf_ = XGBClassifier(
             max_depth=self.max_depth,
             learning_rate=self.learning_rate,
             n_estimators=self.n_estimators,
