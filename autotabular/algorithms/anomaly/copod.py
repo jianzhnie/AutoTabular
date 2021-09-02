@@ -8,7 +8,7 @@ import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
-from joblib import Parallel, delayed, effective_n_jobs
+from joblib import Parallel, delayed
 from scipy.stats import skew
 from sklearn.utils import check_array
 from statsmodels.distributions.empirical_distribution import ECDF
@@ -145,11 +145,11 @@ class COPOD(BaseDetector):
         skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
-        self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
+        self.Out = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
         if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1)[-original_size:]
+            decision_scores_ = self.Out.sum(axis=1)[-original_size:]
         else:
-            decision_scores_ = self.O.sum(axis=1)
+            decision_scores_ = self.Out.sum(axis=1)
         return decision_scores_.ravel()
 
     def _decision_function_parallel(self, X):
@@ -206,11 +206,11 @@ class COPOD(BaseDetector):
         skewness = np.sign(skew(X, axis=0))
         self.U_skew = self.U_l * -1 * np.sign(
             skewness - 1) + self.U_r * np.sign(skewness + 1)
-        self.O = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
+        self.Out = np.maximum(self.U_skew, np.add(self.U_l, self.U_r) / 2)
         if hasattr(self, 'X_train'):
-            decision_scores_ = self.O.sum(axis=1)[-original_size:]
+            decision_scores_ = self.Out.sum(axis=1)[-original_size:]
         else:
-            decision_scores_ = self.O.sum(axis=1)
+            decision_scores_ = self.Out.sum(axis=1)
         return decision_scores_.ravel()
 
     def explain_outlier(self,
@@ -242,22 +242,23 @@ class COPOD(BaseDetector):
             The dimensional outlier graph for data point with index ind.
         """
         if columns is None:
-            columns = self.O.columns
-            column_range = range(1, self.O.shape[1] + 1)
+            columns = self.Out.columns
+            column_range = range(1, self.Out.shape[1] + 1)
         else:
             column_range = range(1, len(columns) + 1)
 
         cutoffs = [1 -
                    self.contamination, 0.99] if cutoffs is None else cutoffs
-        plt.plot(column_range, self.O.loc[ind, columns], label='Outlier Score')
+        plt.plot(
+            column_range, self.Out.loc[ind, columns], label='Outlier Score')
         for i in cutoffs:
             plt.plot(
                 column_range,
-                self.O.loc[:, columns].quantile(q=i, axis=0),
+                self.Out.loc[:, columns].quantile(q=i, axis=0),
                 '-',
                 label='{percentile} Cutoff Band'.format(percentile=i))
         plt.xlim([1, max(column_range)])
-        plt.ylim([0, int(self.O.loc[:, columns].max().max()) + 1])
+        plt.ylim([0, int(self.Out.loc[:, columns].max().max()) + 1])
         plt.ylabel('Dimensional Outlier Score')
         plt.xlabel('Dimension')
 
@@ -269,12 +270,12 @@ class COPOD(BaseDetector):
         else:
             plt.xticks(ticks)
 
-        plt.yticks(range(0, int(self.O.loc[:, columns].max().max()) + 1))
+        plt.yticks(range(0, int(self.Out.loc[:, columns].max().max()) + 1))
         label = 'Outlier' if self.labels_[ind] == 1 else 'Inlier'
         plt.title('Outlier Score Breakdown for Data #{index} ({label})'.format(
             index=ind + 1, label=label))
         plt.legend()
         plt.show()
-        return self.O.loc[ind, columns], self.O.loc[:, columns].quantile(
-            q=cutoffs[0], axis=0), self.O.loc[:, columns].quantile(
+        return self.Out.loc[ind, columns], self.Out.loc[:, columns].quantile(
+            q=cutoffs[0], axis=0), self.Out.loc[:, columns].quantile(
                 q=cutoffs[1], axis=0)

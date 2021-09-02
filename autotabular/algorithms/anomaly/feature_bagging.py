@@ -5,18 +5,14 @@ from __future__ import division, print_function
 import numbers
 
 import numpy as np
-from joblib import Parallel
-from joblib.parallel import delayed
 from sklearn.base import clone
 from sklearn.utils import check_array, check_random_state
-from sklearn.utils.random import sample_without_replacement
 from sklearn.utils.validation import check_is_fitted
 
-from ..utils.utility import check_detector, check_parameter, generate_bagging_indices, generate_indices
+from ..utils.utility import check_detector, check_parameter, generate_bagging_indices
 from .base import BaseDetector
 from .combination import average, maximization
 from .lof import LOF
-from .sklearn_base import _partition_estimators
 
 MAX_INT = np.iinfo(np.int32).max
 

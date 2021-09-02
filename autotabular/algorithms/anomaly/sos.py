@@ -154,7 +154,8 @@ class SOS(BaseDetector):
         else:
             try:
                 from scipy.spatial import distance
-            except ImportError as e:
+            except ImportError as err:
+                print(err)
                 raise ImportError(
                     'Please install scipy if you wish to use a metric '
                     "other than 'euclidean' or 'none'")
@@ -250,8 +251,8 @@ class SOS(BaseDetector):
         B : array, shape (n_samples, )
             Returns the matrix of binding probabilities.
         """
-        O = np.prod(1 - B, 0)
-        return O
+        Out = np.prod(1 - B, 0)
+        return Out
 
     def fit(self, X, y=None):
         """Fit detector. y is ignored in unsupervised methods.
@@ -274,9 +275,9 @@ class SOS(BaseDetector):
         D = self._x2d(X)
         A = self._d2a(D)
         B = self._a2b(A)
-        O = self._b2o(B)
+        Out = self._b2o(B)
         # Invert decision_scores_. Outliers comes with higher outlier scores
-        self.decision_scores_ = O
+        self.decision_scores_ = Out
         self._process_decision_scores()
         return self
 
@@ -303,5 +304,5 @@ class SOS(BaseDetector):
         D = self._x2d(X)
         A = self._d2a(D)
         B = self._a2b(A)
-        O = self._b2o(B)
-        return O
+        Out = self._b2o(B)
+        return Out

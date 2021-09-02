@@ -31,13 +31,13 @@ if _get_tensorflow_version() == 1:
     from keras.models import Model
     from keras.layers import Lambda, Input, Dense, Dropout
     from keras.regularizers import l2
-    from keras.losses import mse, binary_crossentropy
+    from keras.losses import mse
     from keras import backend as K
 else:
     from tensorflow.keras.models import Model
     from tensorflow.keras.layers import Lambda, Input, Dense, Dropout
     from tensorflow.keras.regularizers import l2
-    from tensorflow.keras.losses import mse, binary_crossentropy
+    from tensorflow.keras.losses import mse
     from tensorflow.keras import backend as K
 
 
