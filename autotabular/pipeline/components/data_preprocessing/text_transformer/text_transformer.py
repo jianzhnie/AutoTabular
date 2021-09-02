@@ -1,8 +1,62 @@
+from typing import Dict, Optional, Tuple, Union
+
+import numpy as np
 import pandas as pd
+from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
+from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
+from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
+from ConfigSpace.configuration_space import ConfigurationSpace
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-class TextTransformer(object):
+class TextTFIDFTransformer(AutotabularPreprocessingAlgorithm):
+
+    def __init__(self,
+                 column,
+                 random_state: Optional[np.random.RandomState] = None):
+        self.column = column
+        self.random_state = random_state
+
+    def fit(self,
+            X: PIPELINE_DATA_DTYPE,
+            y: Optional[PIPELINE_DATA_DTYPE] = None) -> 'TextTFIDFTransformer':
+
+        self.preprocessor = TfidfVectorizerTransformer()
+        self.preprocessor.fit(X, self.column)
+        return self
+
+    def transform(self, X: PIPELINE_DATA_DTYPE) -> PIPELINE_DATA_DTYPE:
+        if self.preprocessor is None:
+            raise NotImplementedError()
+        return self.preprocessor.transform(X)
+
+    @staticmethod
+    def get_properties(
+        dataset_properties: Optional[DATASET_PROPERTIES_TYPE] = None
+    ) -> Dict[str, Optional[Union[str, int, bool, Tuple]]]:
+        return {
+            'shortname': 'TextTFIDFTransformer',
+            'name': 'Text TFIDF Transformer',
+            'handles_regression': True,
+            'handles_classification': True,
+            'handles_multiclass': True,
+            'handles_multilabel': True,
+            'handles_multioutput': True,
+            # TODO find out of this is right!
+            'handles_sparse': True,
+            'handles_dense': True,
+            'input': (DENSE, SPARSE, UNSIGNED_DATA),
+            'output': (INPUT, ),
+        }
+
+    @staticmethod
+    def get_hyperparameter_search_space(
+        dataset_properties: Optional[DATASET_PROPERTIES_TYPE] = None
+    ) -> ConfigurationSpace:
+        return ConfigurationSpace()
+
+
+class TfidfVectorizerTransformer(object):
 
     def __init__(self):
         self._new_columns = []
@@ -37,34 +91,3 @@ class TextTransformer(object):
         X.loc[ii, self._new_columns] = vect.toarray()
         X.drop(self._old_column, axis=1, inplace=True)
         return X
-
-    def to_json(self):
-        for k in self._vectorizer.vocabulary_.keys():
-            self._vectorizer.vocabulary_[k] = int(
-                self._vectorizer.vocabulary_[k])
-
-        data_json = {
-            'new_columns': list(self._new_columns),
-            'old_column': self._old_column,
-            'vocabulary': self._vectorizer.vocabulary_,
-            'fixed_vocabulary': self._vectorizer.fixed_vocabulary_,
-            'idf': list(self._vectorizer.idf_),
-        }
-        return data_json
-
-    def from_json(self, data_json):
-        self._new_columns = data_json.get('new_columns', None)
-        self._old_column = data_json.get('old_column', None)
-        vocabulary = data_json.get('vocabulary')
-        fixed_vocabulary = data_json.get('fixed_vocabulary')
-        idf = data_json.get('idf')
-        if vocabulary is not None and fixed_vocabulary is not None and idf is not None:
-            self._vectorizer = TfidfVectorizer(
-                analyzer='word',
-                stop_words='english',
-                lowercase=True,
-                max_features=self._max_features,
-            )
-            self._vectorizer.vocabulary_ = vocabulary
-            self._vectorizer.fixed_vocabulary_ = fixed_vocabulary
-            self._vectorizer.idf_ = idf
