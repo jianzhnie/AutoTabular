@@ -1,7 +1,6 @@
 [flake8]
-ignore = E203, E121, E126, E128, E125, E131, W503, W504, I201
+ignore = E203, E121, E126, E128, E125, E131, W503, W504, I201, I100, I101
 max-line-length = 160
-max-complexity = 18
 show-source = False
 application-import-names = autotabular
 exclude =
