@@ -41,3 +41,14 @@ DATASET_PROPERTIES_TO_STRING = \
      INPUT: 'input',
      SIGNED_DATA: 'signed data',
      UNSIGNED_DATA: 'unsigned data'}
+
+TASK_AUTO = 'auto'
+TASK_BINARY = 'binary'
+TASK_MULTICLASS = 'multiclass'
+TASK_REGRESSION = 'regression'
+TASK_MULTILABEL = 'multilabel'
+
+COLUMNNAME_POSTFIX_DISCRETE = '_discrete'
+COLUMNNAME_POSTFIX_CATEGORIZE = '_cat'
+
+DATATYPE_LABEL = 'int16'
