@@ -2,10 +2,7 @@ from autotabular.pipeline.components.base import IterativeComponent, autotabular
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.util.common import check_for_bool, check_none
 from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import (CategoricalHyperparameter,
-                                         UniformFloatHyperparameter,
-                                         UniformIntegerHyperparameter,
-                                         UnParametrizedHyperparameter)
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UniformIntegerHyperparameter, UnParametrizedHyperparameter
 
 
 class ExtraTreesRegressor(

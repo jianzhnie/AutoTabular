@@ -5,10 +5,8 @@ import sklearn.compose
 from autotabular.data.validation import SUPPORTED_FEAT_TYPES, SUPPORTED_TARGET_TYPES
 from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE, BasePipeline
 from autotabular.pipeline.components.base import AutotabularChoice, AutotabularComponent
-from autotabular.pipeline.components.data_preprocessing.data_preprocessing_categorical import \
-    CategoricalPreprocessingPipeline
-from autotabular.pipeline.components.data_preprocessing.data_preprocessing_numerical import \
-    NumericalPreprocessingPipeline
+from autotabular.pipeline.components.data_preprocessing.data_preprocessing_categorical import CategoricalPreprocessingPipeline
+from autotabular.pipeline.components.data_preprocessing.data_preprocessing_numerical import NumericalPreprocessingPipeline
 from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
 from ConfigSpace import Configuration
 from ConfigSpace.configuration_space import ConfigurationSpace

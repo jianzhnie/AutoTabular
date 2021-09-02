@@ -231,8 +231,8 @@ class OCSVM(BaseDetector):
         """Weights assigned to the features (coefficients in the primal
         problem).
 
-        This is only available in the case of a linear kernel. `coef_` is readonly property derived from `dual_coef_`
-        and `support_vectors_` Decorator for scikit-learn One class SVM attributes.
+        This is only available in the case of a linear kernel. `coef_` is readonly property derived from `dual_coef_` and `support_vectors_` Decorator for
+        scikit-learn One class SVM attributes.
         """
         return self.detector_.coef_
 

@@ -5,9 +5,7 @@ from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorit
 from autotabular.pipeline.constants import DENSE, SPARSE, UNSIGNED_DATA
 from ConfigSpace.conditions import EqualsCondition, InCondition
 from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import (CategoricalHyperparameter,
-                                         UniformFloatHyperparameter,
-                                         UniformIntegerHyperparameter)
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UniformIntegerHyperparameter
 
 
 class KernelPCA(AutotabularPreprocessingAlgorithm):

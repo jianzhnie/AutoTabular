@@ -3,9 +3,7 @@ from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_
 from autotabular.util.common import check_for_bool
 from ConfigSpace.conditions import EqualsCondition, InCondition
 from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import (CategoricalHyperparameter,
-                                         UniformFloatHyperparameter,
-                                         UnParametrizedHyperparameter)
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UnParametrizedHyperparameter
 
 
 class SGD(

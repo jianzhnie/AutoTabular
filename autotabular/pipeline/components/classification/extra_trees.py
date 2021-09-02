@@ -3,10 +3,7 @@ from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_
 from autotabular.pipeline.implementations.util import convert_multioutput_multiclass_to_multilabel
 from autotabular.util.common import check_for_bool, check_none
 from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import (CategoricalHyperparameter,
-                                         UniformFloatHyperparameter,
-                                         UniformIntegerHyperparameter,
-                                         UnParametrizedHyperparameter)
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UniformIntegerHyperparameter, UnParametrizedHyperparameter
 
 
 class ExtraTreesClassifier(

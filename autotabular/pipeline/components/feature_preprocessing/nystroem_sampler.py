@@ -3,9 +3,7 @@ from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorit
 from autotabular.pipeline.constants import DENSE, INPUT, SIGNED_DATA, SPARSE, UNSIGNED_DATA
 from ConfigSpace.conditions import EqualsCondition, InCondition
 from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import (CategoricalHyperparameter,
-                                         UniformFloatHyperparameter,
-                                         UniformIntegerHyperparameter)
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UniformIntegerHyperparameter
 
 
 class Nystroem(AutotabularPreprocessingAlgorithm):

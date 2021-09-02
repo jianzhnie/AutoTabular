@@ -11,8 +11,8 @@ from ConfigSpace.configuration_space import ConfigurationSpace
 class CategoryShift(AutotabularPreprocessingAlgorithm):
     """Add 3 to every category.
 
-    Down in the pipeline, category 2 will be attribute to missing values, category 1 will be assigned to low occurence
-    categories, and category 0 is not used, so to provide compatibility with sparse matrices.
+    Down in the pipeline, category 2 will be attribute to missing values, category 1 will be assigned to low occurence categories, and category 0 is not used,
+    so to provide compatibility with sparse matrices.
     """
 
     def __init__(self, random_state: Optional[np.random.RandomState] = None):

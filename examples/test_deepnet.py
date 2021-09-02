@@ -4,7 +4,6 @@ import flash
 import pandas as pd
 import torch
 from autotabular.algorithms.deepnets.tabnet import TabularClassifier
-from flash.core.data.utils import download_data
 from flash.tabular import TabularClassificationData
 
 sys.path.append('../')

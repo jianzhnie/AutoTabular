@@ -10,8 +10,8 @@ from ConfigSpace.configuration_space import ConfigurationSpace
 class CategoricalImputation(AutotabularPreprocessingAlgorithm):
     """Substitute missing values by constant:
 
-    When strategy == “constant”, fill_value is used to replace all occurrences of missing_values. If left to the
-    default, fill_value will be 0 when imputing numerical data and “missing_value” for strings or object data types.
+    When strategy == “constant”, fill_value is used to replace all occurrences of missing_values. If left to the default, fill_value will be 0 when imputing
+    numerical data and “missing_value” for strings or object data types.
     """
 
     def __init__(self, random_state: Optional[np.random.RandomState] = None):

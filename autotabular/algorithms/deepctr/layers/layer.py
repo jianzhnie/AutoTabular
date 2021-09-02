@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-import torch.nn.functional as F
 
 
 class FeaturesLinear(torch.nn.Module):

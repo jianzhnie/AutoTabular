@@ -1,7 +1,5 @@
 import torch
-from torchfm.layer import (FeaturesEmbedding, FeaturesLinear,
-                           InnerProductNetwork, MultiLayerPerceptron,
-                           OuterProductNetwork)
+from torchfm.layer import FeaturesEmbedding, FeaturesLinear, InnerProductNetwork, MultiLayerPerceptron, OuterProductNetwork
 
 
 class ProductNeuralNetworkModel(torch.nn.Module):

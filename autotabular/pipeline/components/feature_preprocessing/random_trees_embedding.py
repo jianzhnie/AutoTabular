@@ -2,9 +2,7 @@ from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorit
 from autotabular.pipeline.constants import DENSE, SIGNED_DATA, SPARSE, UNSIGNED_DATA
 from autotabular.util.common import check_for_bool, check_none
 from ConfigSpace.configuration_space import ConfigurationSpace
-from ConfigSpace.hyperparameters import (CategoricalHyperparameter, Constant,
-                                         UniformIntegerHyperparameter,
-                                         UnParametrizedHyperparameter)
+from ConfigSpace.hyperparameters import CategoricalHyperparameter, Constant, UniformIntegerHyperparameter, UnParametrizedHyperparameter
 
 
 class RandomTreesEmbedding(AutotabularPreprocessingAlgorithm):

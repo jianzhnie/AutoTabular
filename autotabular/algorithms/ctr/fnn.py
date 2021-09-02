@@ -6,7 +6,8 @@ class FactorizationSupportedNeuralNetworkModel(torch.nn.Module):
     """A pytorch implementation of Neural Factorization Machine.
 
     Reference:
-        W Zhang, et al. Deep Learning over Multi-field Categorical Data - A Case Study on User Response Prediction, 2016.
+        W Zhang, et al. Deep Learning over Multi-field Categorical Data -
+        A Case Study on User Response Prediction, 2016.
     """
 
     def __init__(self, field_dims, embed_dim, mlp_dims, dropout):

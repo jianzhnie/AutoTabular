@@ -3,7 +3,61 @@ repos:
     rev: 3.8.3
     hooks:
       - id: flake8
-        args: [--max-line-length=120]
+        args: [--max-line-length=160]
+        ignore: E203, E131, E128, E125
+      - id: flake8
+        name: flake8 autotabular
+        files: autotabular/
+      - id: flake8
+        name: flake8 file-order-data
+        files: autotabular/data
+        additional_dependencies:
+          - flake8-import-order
+      - id: flake8
+        name: flake8 file-order-ensemble
+        files: autotabular/ensembles
+        additional_dependencies:
+          - flake8-import-order
+      - id: flake8
+        name: flake8 file-order-metrics
+        files: autotabular/metrics
+        additional_dependencies:
+          - flake8-import-order
+      - id: flake8
+        name: flake8 file-order-util
+        files:  autotabular/util
+        additional_dependencies:
+          - flake8-import-order
+      - id: flake8
+        name: flake8 autotabular-test
+        files: test/.*
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v0.761
+  #   hooks:
+  #     - id: mypy
+  #       args: [--show-error-codes]
+  #       name: mypy autotabular-ensembles
+  #       files: autotabular/ensembles
+  #     - id: mypy
+  #       args: [--show-error-codes]
+  #       name: mypy autotabular-metrics
+  #       files: autotabular/metrics
+  #     - id: mypy
+  #       args: [--show-error-codes]
+  #       name: mypy autotabular-data
+  #       files: autotabular/data
+  #     - id: mypy
+  #       args: [--show-error-codes]
+  #       name: mypy autotabular-util
+  #       files: autotabular/util
+  #     - id: mypy
+  #       args: [--show-error-codes]
+  #       name: mypy autotabular-evaluation
+  #       files: autotabular/evaluation
+  #     - id: mypy
+  #       args: [--show-error-codes]
+  #       name: mypy autotabular-datapreprocessing
+  #       files: autotabular/pipeline/components/data_preprocessing/
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0
     hooks:
@@ -33,4 +87,4 @@ repos:
     rev: v1.3.1
     hooks:
       - id: docformatter
-        args: ["--in-place", "--wrap-descriptions", "120"]
+        args: ["--in-place", "--wrap-descriptions", "160"]

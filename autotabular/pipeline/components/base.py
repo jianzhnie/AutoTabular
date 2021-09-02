@@ -288,8 +288,7 @@ class AutotabularPreprocessingAlgorithm(TransformerMixin,
 class AutotabularRegressionAlgorithm(AutotabularComponent):
     """Provide an abstract interface for regression algorithms in auto-sklearn.
 
-    Make a subclass of this and put it into the directory `autotabular/pipeline/components/regression` to make it
-    available.
+    Make a subclass of this and put it into the directory `autotabular/pipeline/components/regression` to make it available.
     """
 
     def __init__(self):

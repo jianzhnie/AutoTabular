@@ -1,0 +1,7 @@
+[flake8]
+max-line-length = 160
+show-source = False
+application-import-names = autotabular
+exclude =
+    venv
+    build
