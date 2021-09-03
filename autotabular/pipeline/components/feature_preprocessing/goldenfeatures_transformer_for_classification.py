@@ -1,13 +1,12 @@
+import itertools
+import time
+from multiprocessing import Pool
+
 import numpy as np
 import pandas as pd
-import time
-import itertools
-from multiprocessing import Pool
+from sklearn.metrics import log_loss, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.metrics import log_loss, mean_squared_error
-
-
 
 
 def get_binary_score(X_train, y_train, X_test, y_test):
@@ -56,9 +55,13 @@ def get_score(item):
             np.array(X_train[col1], dtype=float),
             np.array(X_train[col2], dtype=float),
         )
-        x_train = np.divide(a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
-        a, b = np.array(X_test[col1], dtype=float), np.array(X_test[col2], dtype=float)
-        x_test = np.divide(a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
+        x_train = np.divide(
+            a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
+        a, b = np.array(
+            X_test[col1], dtype=float), np.array(
+                X_test[col2], dtype=float)
+        x_test = np.divide(
+            a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
         ratio_1_score = scorer(x_train, y_train, x_test, y_test)
     except Exception as e:
         print(str(e))
@@ -69,9 +72,13 @@ def get_score(item):
             np.array(X_train[col1], dtype=float),
             np.array(X_train[col2], dtype=float),
         )
-        x_train = np.divide(a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
-        b, a = np.array(X_test[col1], dtype=float), np.array(X_test[col2], dtype=float)
-        x_test = np.divide(a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
+        x_train = np.divide(
+            a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
+        b, a = np.array(
+            X_test[col1], dtype=float), np.array(
+                X_test[col2], dtype=float)
+        x_test = np.divide(
+            a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
         ratio_2_score = scorer(x_train, y_train, x_test, y_test)
     except Exception as e:
         print(str(e))
@@ -93,10 +100,12 @@ def get_score(item):
         multiply_score = None
         print(str(e))
 
-    return (diff_score, ratio_1_score, ratio_2_score, sum_score, multiply_score)
+    return (diff_score, ratio_1_score, ratio_2_score, sum_score,
+            multiply_score)
 
 
 class GoldenFeaturesTransformer(object):
+
     def __init__(self, features_count=None):
         self._new_features = []
         self._new_columns = []
@@ -109,12 +118,12 @@ class GoldenFeaturesTransformer(object):
             return
         if self._error is not None and self._error:
             raise Exception(
-                "Golden Features not created due to error (please check errors.md). "
-                + self._error
-            )
+                'Golden Features not created due to error (please check errors.md). '
+                + self._error)
         if X.shape[1] == 0:
-            self._error = f"Golden Features not created. No continous features. Input data shape: {X.shape}, {y.shape}"
-            raise Exception("Golden Features not created. No continous features.")
+            self._error = f'Golden Features not created. No continous features. Input data shape: {X.shape}, {y.shape}'
+            raise Exception(
+                'Golden Features not created. No continous features.')
 
         start_time = time.time()
         combinations = itertools.combinations(X.columns, r=2)
@@ -137,77 +146,72 @@ class GoldenFeaturesTransformer(object):
         #    scores += [get_score(item)]
 
         if not scores:
-            self._error = f"Golden Features not created. Empty scores. Input data shape: {X.shape}, {y.shape}"
-            raise Exception("Golden Features not created. Empty scores.")
+            self._error = f'Golden Features not created. Empty scores. Input data shape: {X.shape}, {y.shape}'
+            raise Exception('Golden Features not created. Empty scores.')
 
         result = []
         for i in range(len(items)):
             if scores[i][0] is not None:
-                result += [(items[i][0], items[i][1], "diff", scores[i][0])]
+                result += [(items[i][0], items[i][1], 'diff', scores[i][0])]
             if scores[i][1] is not None:
-                result += [(items[i][0], items[i][1], "ratio", scores[i][1])]
+                result += [(items[i][0], items[i][1], 'ratio', scores[i][1])]
             if scores[i][2] is not None:
-                result += [(items[i][1], items[i][0], "ratio", scores[i][2])]
+                result += [(items[i][1], items[i][0], 'ratio', scores[i][2])]
             if scores[i][3] is not None:
-                result += [(items[i][1], items[i][0], "sum", scores[i][3])]
+                result += [(items[i][1], items[i][0], 'sum', scores[i][3])]
             if scores[i][4] is not None:
-                result += [(items[i][1], items[i][0], "multiply", scores[i][4])]
+                result += [(items[i][1], items[i][0], 'multiply', scores[i][4])
+                           ]
 
         df = pd.DataFrame(
-            result, columns=["feature1", "feature2", "operation", "score"]
-        )
-        df.sort_values(by="score", inplace=True)
+            result, columns=['feature1', 'feature2', 'operation', 'score'])
+        df.sort_values(by='score', inplace=True)
 
         new_cols_cnt = np.min([100, np.max([10, int(0.1 * X.shape[1])])])
 
-        if (
-            self._features_count is not None
-            and self._features_count > 0
-            and self._features_count < df.shape[0]
-        ):
+        if (self._features_count is not None and self._features_count > 0
+                and self._features_count < df.shape[0]):
             new_cols_cnt = self._features_count
 
         print(self._features_count, new_cols_cnt)
         self._new_features = df.head(new_cols_cnt)
 
         for new_feature in self._new_features:
-            new_col = "_".join(
-                [
-                    new_feature["feature1"],
-                    new_feature["operation"],
-                    new_feature["feature2"],
-                ]
-            )
+            new_col = '_'.join([
+                new_feature['feature1'],
+                new_feature['operation'],
+                new_feature['feature2'],
+            ])
             self._new_columns += [new_col]
-            print(f"Add Golden Feature: {new_col}")
+            print(f'Add Golden Feature: {new_col}')
 
         print(
-            f"Created {len(self._new_features)} Golden Features in {np.round(time.time() - start_time,2)} seconds."
+            f'Created {len(self._new_features)} Golden Features in {np.round(time.time() - start_time,2)} seconds.'
         )
 
     def transform(self, X):
         for new_feature in self._new_features:
-            new_col = "_".join(
-                [
-                    new_feature["feature1"],
-                    new_feature["operation"],
-                    new_feature["feature2"],
-                ]
-            )
-            if new_feature["operation"] == "diff":
-                X[new_col] = X[new_feature["feature1"]] - X[new_feature["feature2"]]
-            elif new_feature["operation"] == "ratio":
+            new_col = '_'.join([
+                new_feature['feature1'],
+                new_feature['operation'],
+                new_feature['feature2'],
+            ])
+            if new_feature['operation'] == 'diff':
+                X[new_col] = X[new_feature['feature1']] - X[
+                    new_feature['feature2']]
+            elif new_feature['operation'] == 'ratio':
                 a, b = (
-                    np.array(X[new_feature["feature1"]], dtype=float),
-                    np.array(X[new_feature["feature2"]], dtype=float),
+                    np.array(X[new_feature['feature1']], dtype=float),
+                    np.array(X[new_feature['feature2']], dtype=float),
                 )
                 X[new_col] = np.divide(
-                    a, b, out=np.zeros_like(a), where=b != 0
-                ).reshape(-1, 1)
-            elif new_feature["operation"] == "sum":
-                X[new_col] = X[new_feature["feature1"]] + X[new_feature["feature2"]]
-            elif new_feature["operation"] == "multiply":
-                X[new_col] = X[new_feature["feature1"]] * X[new_feature["feature2"]]
+                    a, b, out=np.zeros_like(a), where=b != 0).reshape(-1, 1)
+            elif new_feature['operation'] == 'sum':
+                X[new_col] = X[new_feature['feature1']] + X[
+                    new_feature['feature2']]
+            elif new_feature['operation'] == 'multiply':
+                X[new_col] = X[new_feature['feature1']] * X[
+                    new_feature['feature2']]
 
         return X
 
