@@ -5,7 +5,7 @@ import numpy as np
 from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
 from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
 from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
-from category_encoders.leave_one_out import LeaveOneOutEncoder
+from category_encoders import LeaveOneOutEncoder
 from ConfigSpace.configuration_space import ConfigurationSpace
 
 
