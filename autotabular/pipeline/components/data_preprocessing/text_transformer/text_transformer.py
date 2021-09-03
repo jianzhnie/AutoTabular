@@ -21,7 +21,7 @@ class TextTFIDFTransformer(AutotabularPreprocessingAlgorithm):
             X: PIPELINE_DATA_DTYPE,
             y: Optional[PIPELINE_DATA_DTYPE] = None) -> 'TextTFIDFTransformer':
 
-        self.preprocessor = TfidfVectorizerTransformer()
+        self.preprocessor = TextTFIDFTransformerOriginal()
         self.preprocessor.fit(X, self.column)
         return self
 
@@ -56,7 +56,7 @@ class TextTFIDFTransformer(AutotabularPreprocessingAlgorithm):
         return ConfigurationSpace()
 
 
-class TfidfVectorizerTransformer(object):
+class TextTFIDFTransformerOriginal(object):
 
     def __init__(self):
         self._new_columns = []

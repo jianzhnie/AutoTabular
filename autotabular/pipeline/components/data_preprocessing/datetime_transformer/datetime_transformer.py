@@ -8,7 +8,7 @@ from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
 
 
-class DateTimeEncoding(AutotabularPreprocessingAlgorithm):
+class DateTimeTransformer(AutotabularPreprocessingAlgorithm):
     """DateTimeEncoding to handle date and time data."""
 
     def __init__(
@@ -20,9 +20,9 @@ class DateTimeEncoding(AutotabularPreprocessingAlgorithm):
 
     def fit(self,
             X: PIPELINE_DATA_DTYPE,
-            y: Optional[PIPELINE_DATA_DTYPE] = None) -> 'DateTimeEncoding':
+            y: Optional[PIPELINE_DATA_DTYPE] = None) -> 'DateTimeTransformer':
 
-        self.preprocessor = DateTimeTransformer()
+        self.preprocessor = DateTimeTransformerOriginal()
 
         self.preprocessor.fit(X, y)
 
@@ -57,7 +57,7 @@ class DateTimeEncoding(AutotabularPreprocessingAlgorithm):
         return ConfigurationSpace()
 
 
-class DateTimeTransformer(object):
+class DateTimeTransformerOriginal(object):
     """DataTime Transformer.
 
     reference:

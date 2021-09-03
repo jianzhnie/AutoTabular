@@ -30,7 +30,6 @@ class DateTimeTransformerTest(unittest.TestCase):
         self.assertTrue('col1_Year' in df.columns)
 
         transf2 = DateTimeTransformer()
-        transf2.from_json(transf.to_json())
         df2 = transf2.transform(df_org)
         self.assertTrue('col1' not in df2.columns)
         self.assertTrue('col1_Year' in df2.columns)
