@@ -20,7 +20,9 @@ class ExcludeRowsMissingTargetTransformer(AutotabularPreprocessingAlgorithm):
         self.random_state = random_state
 
     def fit(
-        self, X: PIPELINE_DATA_DTYPE, y: Optional[PIPELINE_DATA_DTYPE]
+        self,
+        X: PIPELINE_DATA_DTYPE,
+        y: Optional[PIPELINE_DATA_DTYPE] = None,
     ) -> 'ExcludeRowsMissingTargetTransformer':
         self.preprocessor = ExcludeRowsMissingTarget()
         return self

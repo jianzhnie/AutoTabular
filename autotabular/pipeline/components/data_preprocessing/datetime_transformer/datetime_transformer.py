@@ -1,7 +1,6 @@
 from typing import Dict, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
 from autotabular.pipeline.base import DATASET_PROPERTIES_TYPE, PIPELINE_DATA_DTYPE
 from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
 from autotabular.pipeline.constants import DENSE, INPUT, SPARSE, UNSIGNED_DATA
@@ -149,19 +148,3 @@ class DateTimeTransformerOriginal(object):
 
         X.drop(column, axis=1, inplace=True)
         return X
-
-    def to_json(self):
-        data_json = {
-            'new_columns': list(self._new_columns),
-            'old_column': self._old_column,
-            'min_datetime': str(self._min_datetime),
-            'transforms': list(self._transforms),
-        }
-        return data_json
-
-    def from_json(self, data_json):
-        self._new_columns = data_json.get('new_columns', None)
-        self._old_column = data_json.get('old_column', None)
-        d = data_json.get('min_datetime', None)
-        self._min_datetime = None if d is None else pd.to_datetime(d)
-        self._transforms = data_json.get('transforms', [])
