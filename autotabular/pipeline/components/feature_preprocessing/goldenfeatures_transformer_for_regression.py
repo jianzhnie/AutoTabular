@@ -4,16 +4,15 @@ from multiprocessing import Pool
 
 import numpy as np
 import pandas as pd
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor
 from autotabular.pipeline.components.base import AutotabularPreprocessingAlgorithm
 from autotabular.pipeline.constants import DENSE, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
-from sklearn.metrics import log_loss
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
 
 
-class GoldenFeaturesTransformerClassification(AutotabularPreprocessingAlgorithm
-                                              ):
+class GoldenFeaturesTransformerRegression(AutotabularPreprocessingAlgorithm):
 
     def __init__(self, features_count, random_state=None):
         self.features_count = features_count
@@ -35,7 +34,7 @@ class GoldenFeaturesTransformerClassification(AutotabularPreprocessingAlgorithm
     @staticmethod
     def get_properties(dataset_properties=None):
         return {
-            'shortname': 'GoldenFeaturesTransformerClassification',
+            'shortname': 'GoldenFeaturesTransformer',
             'name': 'Golden Features Transformer To generate new features',
             'handles_regression': True,
             'handles_classification': True,
@@ -54,11 +53,11 @@ class GoldenFeaturesTransformerClassification(AutotabularPreprocessingAlgorithm
         return cs
 
 
-def get_logloss_score(X_train, y_train, X_test, y_test):
-    clf = DecisionTreeClassifier(max_depth=3)
+def get_regression_score(X_train, y_train, X_test, y_test):
+    clf = DecisionTreeRegressor(max_depth=3)
     clf.fit(X_train, y_train)
-    pred = clf.predict_proba(X_test)
-    ll = log_loss(y_test, pred)
+    pred = clf.predict(X_test)
+    ll = mean_squared_error(y_test, pred)
     return ll
 
 
@@ -139,7 +138,7 @@ class GoldenFeaturesTransformerOriginal(object):
         self._new_features = []
         self._new_columns = []
         self._features_count = features_count
-        self._scorer = get_logloss_score
+        self._scorer = get_regression_score
         self._error = None
 
     def fit(self, X, y):
@@ -253,7 +252,6 @@ class GoldenFeaturesTransformerOriginal(object):
         stratify = None
 
         if X.shape[0] > MAX_SIZE:
-            stratify = y
             X_train, _, y_train, _ = train_test_split(
                 X,
                 y,
@@ -262,7 +260,6 @@ class GoldenFeaturesTransformerOriginal(object):
                 stratify=stratify,
                 random_state=1,
             )
-            stratify = y_train
 
             X_train, X_test, y_train, y_test = train_test_split(
                 X_train,
@@ -273,7 +270,6 @@ class GoldenFeaturesTransformerOriginal(object):
                 random_state=1,
             )
         else:
-            stratify = y
             train_size = X.shape[0] // 4
             X_train, X_test, y_train, y_test = train_test_split(
                 X,
