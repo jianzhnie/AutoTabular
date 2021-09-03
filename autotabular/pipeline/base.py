@@ -239,7 +239,7 @@ class BasePipeline(Pipeline):
         Returns
         -------
         cs : ConfigSpace.configuration_space.Configuration
-            The configuration space describing the autotabularClassifier.
+            The configuration space describing the AutotabularClassifier.
         """
         if not hasattr(self, 'config_space') or self.config_space is None:
             self.config_space = self._get_hyperparameter_search_space(
@@ -287,7 +287,7 @@ class BasePipeline(Pipeline):
         Returns
         -------
         cs : ConfigSpace.configuration_space.Configuration
-            The configuration space describing the autotabularClassifier.
+            The configuration space describing the AutotabularClassifier.
         """
         raise NotImplementedError()
 
