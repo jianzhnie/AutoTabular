@@ -8,6 +8,9 @@ repos:
         name: flake8 autotabular
         files: autotabular/
       - id: flake8
+        name: flake8 autotabular-tests
+        files: tests/
+      - id: flake8
         name: flake8 file-order-algorithms
         files: autotabular/algorithms
         additional_dependencies:
@@ -32,9 +35,6 @@ repos:
         files:  autotabular/util
         additional_dependencies:
           - flake8-import-order
-      - id: flake8
-        name: flake8 autotabular-test
-        files: test/.*
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0
     hooks:
