@@ -1,4 +1,4 @@
-from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.util.common import check_for_bool
 from ConfigSpace.configuration_space import ConfigurationSpace
@@ -6,7 +6,7 @@ from ConfigSpace.forbidden import ForbiddenAndConjunction, ForbiddenEqualsClause
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, Constant, UniformFloatHyperparameter
 
 
-class LibLinear_SVR(autotabularRegressionAlgorithm):
+class LibLinear_SVR(AutotabularRegressionAlgorithm):
     # Liblinear is not deterministic as it uses a RNG inside
     def __init__(self,
                  loss,

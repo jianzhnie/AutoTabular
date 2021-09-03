@@ -1,4 +1,4 @@
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from autotabular.pipeline.implementations.util import softmax
 from autotabular.util.common import check_none
@@ -7,7 +7,7 @@ from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter
 
 
-class LDA(autotabularClassificationAlgorithm):
+class LDA(AutotabularClassificationAlgorithm):
 
     def __init__(self,
                  shrinkage,

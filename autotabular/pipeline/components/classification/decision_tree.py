@@ -1,5 +1,5 @@
 import numpy as np
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.pipeline.implementations.util import convert_multioutput_multiclass_to_multilabel
 from autotabular.util.common import check_none
@@ -10,7 +10,7 @@ from ConfigSpace.hyperparameters import (CategoricalHyperparameter, Constant,
                                          UnParametrizedHyperparameter)
 
 
-class DecisionTree(autotabularClassificationAlgorithm):
+class DecisionTree(AutotabularClassificationAlgorithm):
 
     def __init__(self,
                  criterion,

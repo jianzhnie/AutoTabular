@@ -4,12 +4,12 @@ from collections import OrderedDict
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
 
-from ..base import AutotabularChoice, ThirdPartyComponents, autotabularRegressionAlgorithm, find_components
+from ..base import AutotabularChoice, AutotabularRegressionAlgorithm, ThirdPartyComponents, find_components
 
 regressor_directory = os.path.split(__file__)[0]
 _regressors = find_components(__package__, regressor_directory,
-                              autotabularRegressionAlgorithm)
-_addons = ThirdPartyComponents(autotabularRegressionAlgorithm)
+                              AutotabularRegressionAlgorithm)
+_addons = ThirdPartyComponents(AutotabularRegressionAlgorithm)
 
 
 def add_regressor(regressor):

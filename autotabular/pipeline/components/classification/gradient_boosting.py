@@ -1,5 +1,5 @@
 import numpy as np
-from autotabular.pipeline.components.base import IterativeComponentWithSampleWeight, autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm, IterativeComponentWithSampleWeight
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from autotabular.util.common import check_none
 from ConfigSpace.conditions import EqualsCondition, InCondition
@@ -11,7 +11,7 @@ from ConfigSpace.hyperparameters import (CategoricalHyperparameter, Constant,
 
 
 class GradientBoostingClassifier(IterativeComponentWithSampleWeight,
-                                 autotabularClassificationAlgorithm):
+                                 AutotabularClassificationAlgorithm):
 
     def __init__(self,
                  loss,

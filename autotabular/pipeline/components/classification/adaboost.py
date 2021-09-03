@@ -1,10 +1,10 @@
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UniformIntegerHyperparameter
 
 
-class AdaboostClassifier(autotabularClassificationAlgorithm):
+class AdaboostClassifier(AutotabularClassificationAlgorithm):
 
     def __init__(self,
                  n_estimators,

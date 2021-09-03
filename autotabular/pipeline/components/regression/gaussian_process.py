@@ -1,10 +1,10 @@
-from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import UniformFloatHyperparameter
 
 
-class GaussianProcess(autotabularRegressionAlgorithm):
+class GaussianProcess(AutotabularRegressionAlgorithm):
 
     def __init__(self, alpha, thetaL, thetaU, random_state=None):
         self.alpha = alpha

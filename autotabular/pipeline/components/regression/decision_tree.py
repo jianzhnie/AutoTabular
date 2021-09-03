@@ -1,5 +1,5 @@
 import numpy as np
-from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.util.common import check_none
 from ConfigSpace.configuration_space import ConfigurationSpace
@@ -9,7 +9,7 @@ from ConfigSpace.hyperparameters import (CategoricalHyperparameter, Constant,
                                          UnParametrizedHyperparameter)
 
 
-class DecisionTree(autotabularRegressionAlgorithm):
+class DecisionTree(AutotabularRegressionAlgorithm):
 
     def __init__(self,
                  criterion,

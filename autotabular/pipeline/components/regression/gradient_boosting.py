@@ -1,5 +1,5 @@
 import numpy as np
-from autotabular.pipeline.components.base import IterativeComponent, autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm, IterativeComponent
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from autotabular.util.common import check_none
 from ConfigSpace.conditions import EqualsCondition, InCondition
@@ -12,7 +12,7 @@ from ConfigSpace.hyperparameters import (CategoricalHyperparameter, Constant,
 
 class GradientBoosting(
         IterativeComponent,
-        autotabularRegressionAlgorithm,
+        AutotabularRegressionAlgorithm,
 ):
 
     def __init__(self,

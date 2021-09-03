@@ -1,11 +1,11 @@
-from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from autotabular.util.common import check_for_bool
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import UniformFloatHyperparameter, UnParametrizedHyperparameter
 
 
-class ARDRegression(autotabularRegressionAlgorithm):
+class ARDRegression(AutotabularRegressionAlgorithm):
 
     def __init__(self,
                  n_iter,

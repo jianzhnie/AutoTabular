@@ -1,10 +1,10 @@
 import numpy as np
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
 
 
-class GaussianNB(autotabularClassificationAlgorithm):
+class GaussianNB(AutotabularClassificationAlgorithm):
 
     def __init__(self, random_state=None, verbose=0):
 

@@ -1,7 +1,7 @@
 import copy
 
 import numpy as np
-from autotabular.pipeline.components.base import IterativeComponent, autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm, IterativeComponent
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.util.common import check_for_bool
 from ConfigSpace.conditions import InCondition
@@ -12,7 +12,7 @@ from ConfigSpace.hyperparameters import (CategoricalHyperparameter, Constant,
                                          UnParametrizedHyperparameter)
 
 
-class MLPClassifier(IterativeComponent, autotabularClassificationAlgorithm):
+class MLPClassifier(IterativeComponent, AutotabularClassificationAlgorithm):
 
     def __init__(self,
                  hidden_layer_depth,

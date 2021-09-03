@@ -1,12 +1,12 @@
 import numpy as np
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, UNSIGNED_DATA
 from autotabular.pipeline.implementations.util import softmax
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import UniformFloatHyperparameter
 
 
-class QDA(autotabularClassificationAlgorithm):
+class QDA(AutotabularClassificationAlgorithm):
 
     def __init__(self, reg_param, random_state=None):
         self.reg_param = float(reg_param)

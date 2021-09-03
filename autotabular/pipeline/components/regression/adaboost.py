@@ -1,10 +1,10 @@
-from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UniformIntegerHyperparameter
 
 
-class AdaboostRegressor(autotabularRegressionAlgorithm):
+class AdaboostRegressor(AutotabularRegressionAlgorithm):
 
     def __init__(self,
                  n_estimators,

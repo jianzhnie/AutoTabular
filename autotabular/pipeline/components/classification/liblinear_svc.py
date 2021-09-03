@@ -1,4 +1,4 @@
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.pipeline.implementations.util import softmax
 from autotabular.util.common import check_for_bool, check_none
@@ -7,7 +7,7 @@ from ConfigSpace.forbidden import ForbiddenAndConjunction, ForbiddenEqualsClause
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, Constant, UniformFloatHyperparameter
 
 
-class LibLinear_SVC(autotabularClassificationAlgorithm):
+class LibLinear_SVC(AutotabularClassificationAlgorithm):
     # Liblinear is not deterministic as it uses a RNG inside
     def __init__(self,
                  penalty,

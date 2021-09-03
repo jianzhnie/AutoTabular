@@ -1,12 +1,12 @@
 import numpy as np
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SIGNED_DATA, SPARSE
 from autotabular.util.common import check_for_bool
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter
 
 
-class MultinomialNB(autotabularClassificationAlgorithm):
+class MultinomialNB(AutotabularClassificationAlgorithm):
 
     def __init__(self, alpha, fit_prior, random_state=None, verbose=0):
         self.alpha = alpha

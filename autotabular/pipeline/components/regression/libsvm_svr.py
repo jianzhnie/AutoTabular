@@ -1,7 +1,7 @@
 import resource
 import sys
 
-from autotabular.pipeline.components.base import autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.util.common import check_for_bool, check_none
 from ConfigSpace.conditions import InCondition
@@ -9,7 +9,7 @@ from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatHyperparameter, UniformIntegerHyperparameter, UnParametrizedHyperparameter
 
 
-class LibSVM_SVR(autotabularRegressionAlgorithm):
+class LibSVM_SVR(AutotabularRegressionAlgorithm):
 
     def __init__(self,
                  kernel,

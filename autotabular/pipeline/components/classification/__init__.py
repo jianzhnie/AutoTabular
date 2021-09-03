@@ -6,12 +6,12 @@ from collections import OrderedDict
 from ConfigSpace.configuration_space import ConfigurationSpace
 from ConfigSpace.hyperparameters import CategoricalHyperparameter
 
-from ..base import AutotabularChoice, ThirdPartyComponents, autotabularClassificationAlgorithm, find_components
+from ..base import AutotabularChoice, AutotabularClassificationAlgorithm, ThirdPartyComponents, find_components
 
 classifier_directory = os.path.split(__file__)[0]
 _classifiers = find_components(__package__, classifier_directory,
-                               autotabularClassificationAlgorithm)
-_addons = ThirdPartyComponents(autotabularClassificationAlgorithm)
+                               AutotabularClassificationAlgorithm)
+_addons = ThirdPartyComponents(AutotabularClassificationAlgorithm)
 
 
 def add_classifier(classifier):

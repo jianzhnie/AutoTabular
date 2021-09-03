@@ -1,4 +1,4 @@
-from autotabular.pipeline.components.base import IterativeComponentWithSampleWeight, autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm, IterativeComponentWithSampleWeight
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.pipeline.implementations.util import convert_multioutput_multiclass_to_multilabel
 from autotabular.util.common import check_for_bool, check_none
@@ -8,7 +8,7 @@ from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatH
 
 class RandomForest(
         IterativeComponentWithSampleWeight,
-        autotabularClassificationAlgorithm,
+        AutotabularClassificationAlgorithm,
 ):
 
     def __init__(self,

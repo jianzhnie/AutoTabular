@@ -1,4 +1,4 @@
-from autotabular.pipeline.components.base import IterativeComponent, autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularRegressionAlgorithm, IterativeComponent
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SPARSE, UNSIGNED_DATA
 from autotabular.util.common import check_for_bool, check_none
 from ConfigSpace.configuration_space import ConfigurationSpace
@@ -7,7 +7,7 @@ from ConfigSpace.hyperparameters import CategoricalHyperparameter, UniformFloatH
 
 class RandomForest(
         IterativeComponent,
-        autotabularRegressionAlgorithm,
+        AutotabularRegressionAlgorithm,
 ):
 
     def __init__(self,
