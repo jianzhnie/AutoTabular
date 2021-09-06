@@ -46,7 +46,7 @@ if __name__ == '__main__':
         long_description = fh.read()
 
     setup(
-        name='AutoTabular',
+        name='auto-tabular',
         author='Jianzh Nie',
         author_email='jianzhnie@gmail.com',
         description='Automated machine learning for tabular data.',
