@@ -1,4 +1,4 @@
-@RELATION auto-sklearn_ALGORITHM_RUNS
+@RELATION Auto-tabular_ALGORITHM_RUNS
 
 @ATTRIBUTE instance_id STRING
 @ATTRIBUTE repetition NUMERIC

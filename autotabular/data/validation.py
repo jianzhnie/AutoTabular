@@ -10,7 +10,7 @@ from sklearn.exceptions import NotFittedError
 
 
 class InputValidator(BaseEstimator):
-    """Makes sure the input data complies with Auto-sklearn requirements.
+    """Makes sure the input data complies with Auto-tabular requirements.
     Categorical inputs are encoded via a Label Encoder, if the input is a
     dataframe.
 

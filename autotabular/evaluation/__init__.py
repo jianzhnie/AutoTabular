@@ -43,13 +43,13 @@ def fit_predict_try_except_decorator(ta: Callable,
 
         # Printing stuff to stdout just in case the queue doesn't work, which happened with the
         # following traceback:
-        #     File "auto-sklearn/autotabular/evaluation/__init__.py", line 29, in fit_predict_try_except_decorator  # noqa E501
+        #     File "Auto-tabular/autotabular/evaluation/__init__.py", line 29, in fit_predict_try_except_decorator  # noqa E501
         #     return ta(queue=queue, **kwargs)
-        #     File "auto-sklearn/autotabular/evaluation/train_evaluator.py", line 1067, in eval_holdout  # noqa E501
+        #     File "Auto-tabular/autotabular/evaluation/train_evaluator.py", line 1067, in eval_holdout  # noqa E501
         #     evaluator.fit_predict_and_loss(iterative=iterative)
-        #     File "auto-sklearn/autotabular/evaluation/train_evaluator.py", line 616, in fit_predict_and_loss,  # noqa E501
+        #     File "Auto-tabular/autotabular/evaluation/train_evaluator.py", line 616, in fit_predict_and_loss,  # noqa E501
         #     status=status
-        #     File "auto-sklearn/autotabular/evaluation/abstract_evaluator.py", line 320, in finish_up  # noqa E501
+        #     File "Auto-tabular/autotabular/evaluation/abstract_evaluator.py", line 320, in finish_up  # noqa E501
         #     self.queue.put(rval_dict)
         #     File "miniconda/3-4.5.4/envs/autotabular/lib/python3.7/multiprocessing/queues.py", line 87, in put  # noqa E501
         #     self._start_thread()
@@ -413,7 +413,7 @@ class ExecuteTaFuncWithQueue(AbstractTAFunc):
             cost = self.worst_possible_result
             additional_run_info = {
                 'error': 'Your configuration of '
-                'auto-sklearn does not work!',
+                'Auto-tabular does not work!',
                 'exit_status': _encode_exit_status(obj.exit_status),
                 'subprocess_stdout': obj.stdout,
                 'subprocess_stderr': obj.stderr,

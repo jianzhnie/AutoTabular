@@ -51,7 +51,7 @@ class AutotabularEstimator(BaseEstimator):
         ----------
         time_left_for_this_task : int, optional (default=3600)
             Time limit in seconds for the search of appropriate
-            models. By increasing this value, *auto-sklearn* has a higher
+            models. By increasing this value, *Auto-tabular* has a higher
             chance of finding better models.
 
         per_run_time_limit : int, optional (default=1/10 of time_left_for_this_task)
@@ -89,7 +89,7 @@ class AutotabularEstimator(BaseEstimator):
 
         memory_limit : int, optional (3072)
             Memory limit in MB for the machine learning algorithm.
-            `auto-sklearn` will stop fitting the machine learning algorithm if
+            `Auto-tabular` will stop fitting the machine learning algorithm if
             it tries to allocate more than `memory_limit` MB.
             If None is provided, no memory limit is set.
             In case of multi-processing, `memory_limit` will be per job.
@@ -160,7 +160,7 @@ class AutotabularEstimator(BaseEstimator):
 
         n_jobs : int, optional, experimental
             The number of jobs to run in parallel for ``fit()``. ``-1`` means
-            using all processors. By default, Auto-sklearn uses a single core
+            using all processors. By default, Auto-tabular uses a single core
             for fitting the machine learning model and a single core for fitting
             an ensemble. Ensemble building is not affected by ``n_jobs`` but
             can be controlled by the number of models in the ensemble. In
@@ -170,7 +170,7 @@ class AutotabularEstimator(BaseEstimator):
 
         dask_client : dask.distributed.Client, optional
             User-created dask client, can be used to start a dask cluster and then
-            attach auto-sklearn to it.
+            attach Auto-tabular to it.
 
         disable_evaluator_output: bool or list, optional (False)
             If True, disable model and prediction output. Cannot be used
@@ -217,7 +217,7 @@ class AutotabularEstimator(BaseEstimator):
             available via ``cv_results``
 
         load_models : bool, optional (True)
-            Whether to load the models after fitting Auto-sklearn.
+            Whether to load the models after fitting Auto-tabular.
 
         get_trials_callback: callable
             Callback function to create an object of subclass defined in module
@@ -372,8 +372,8 @@ class AutotabularEstimator(BaseEstimator):
             A configuration object used to define the pipeline steps.
             If a dictionary is passed, a configuration is created based on this dictionary.
         dataset_name: Optional[str]
-            Name that will be used to tag the Auto-Sklearn run and identify the
-            Auto-Sklearn run
+            Name that will be used to tag the Auto-tabular run and identify the
+            Auto-tabular run
         feat_type : list, optional (default=None)
             List of str of `len(X.shape[1])` describing the attribute type.
             Possible types are `Categorical` and `Numerical`. `Categorical`
@@ -418,7 +418,7 @@ class AutotabularEstimator(BaseEstimator):
         the default values which were set in a call to ``fit()`` are used.
 
         Calling this function is only necessary if ``ensemble_size==0``, for
-        example when executing *auto-sklearn* in parallel.
+        example when executing *Auto-tabular* in parallel.
 
         Parameters
         ----------
@@ -467,7 +467,7 @@ class AutotabularEstimator(BaseEstimator):
     def refit(self, X, y):
         """Refit all models found with fit to new data.
 
-        Necessary when using cross-validation. During training, auto-sklearn
+        Necessary when using cross-validation. During training, Auto-tabular
         fits each model k times on the dataset, but does not keep any trained
         model and can therefore not be used to predict for new data points.
         This methods fits all models found during a call to fit on the data
@@ -502,7 +502,7 @@ class AutotabularEstimator(BaseEstimator):
         return self.automl_.score(X, y)
 
     def show_models(self):
-        """Return a representation of the final ensemble found by auto-sklearn.
+        """Return a representation of the final ensemble found by Auto-tabular.
 
         Returns
         -------
@@ -511,7 +511,7 @@ class AutotabularEstimator(BaseEstimator):
         return self.automl_.show_models()
 
     def get_models_with_weights(self):
-        """Return a list of the final ensemble found by auto-sklearn.
+        """Return a list of the final ensemble found by Auto-tabular.
 
         Returns
         -------
@@ -853,7 +853,7 @@ class AutotabularEstimator(BaseEstimator):
         dataset_name: Optional[str] = None,
         feat_type: Optional[List[str]] = None,
     ):
-        """Returns the Configuration Space object, from which Auto-Sklearn will
+        """Returns the Configuration Space object, from which Auto-tabular will
         sample configurations and build pipelines.
 
         Parameters
@@ -868,7 +868,7 @@ class AutotabularEstimator(BaseEstimator):
         y_test : array-like, shape = [n_samples] or [n_samples, n_outputs]
             Array with the problem labels for the testing split
         dataset_name: Optional[str]
-            A string to tag the Auto-Sklearn run
+            A string to tag the Auto-tabular run
         """
         if self.automl_ is None:
             self.automl_ = self.build_automl()
@@ -893,7 +893,7 @@ class AutotabularClassifier(AutotabularEstimator, ClassifierMixin):
             y_test=None,
             feat_type=None,
             dataset_name=None):
-        """Fit *auto-sklearn* to given training set (X, y).
+        """Fit *Auto-tabular* to given training set (X, y).
 
         Fit both optimizes the machine learning models and builds an ensemble
         out of them. To disable ensembling, set ``ensemble_size==0``.
@@ -909,13 +909,13 @@ class AutotabularClassifier(AutotabularEstimator, ClassifierMixin):
 
         X_test : array-like or sparse matrix of shape = [n_samples, n_features]
             Test data input samples. Will be used to save test predictions for
-            all models. This allows to evaluate the performance of Auto-sklearn
+            all models. This allows to evaluate the performance of Auto-tabular
             over time.
 
         y_test : array-like, shape = [n_samples] or [n_samples, n_outputs]
             Test data target classes. Will be used to calculate the test error
             of all models. This allows to evaluate the performance of
-            Auto-sklearn over time.
+            Auto-tabular over time.
 
         feat_type : list, optional (default=None)
             List of str of `len(X.shape[1])` describing the attribute type.
@@ -934,7 +934,7 @@ class AutotabularClassifier(AutotabularEstimator, ClassifierMixin):
         self
         """
         # Before running anything else, first check that the
-        # type of data is compatible with auto-sklearn. Legal target
+        # type of data is compatible with Auto-tabular. Legal target
         # types are: binary, multiclass, multilabel-indicator.
         target_type = type_of_target(y)
         supported_types = ['binary', 'multiclass', 'multilabel-indicator']
@@ -1027,7 +1027,7 @@ class AutotabularRegressor(AutotabularEstimator, RegressorMixin):
             y_test=None,
             feat_type=None,
             dataset_name=None):
-        """Fit *Auto-sklearn* to given training set (X, y).
+        """Fit *Auto-tabular* to given training set (X, y).
 
         Fit both optimizes the machine learning models and builds an ensemble
         out of them. To disable ensembling, set ``ensemble_size==0``.
@@ -1043,13 +1043,13 @@ class AutotabularRegressor(AutotabularEstimator, RegressorMixin):
 
         X_test : array-like or sparse matrix of shape = [n_samples, n_features]
             Test data input samples. Will be used to save test predictions for
-            all models. This allows to evaluate the performance of Auto-sklearn
+            all models. This allows to evaluate the performance of Auto-tabular
             over time.
 
         y_test : array-like, shape = [n_samples] or [n_samples, n_targets]
             The regression target. Will be used to calculate the test error
             of all models. This allows to evaluate the performance of
-            Auto-sklearn over time.
+            Auto-tabular over time.
 
         feat_type : list, optional (default=None)
             List of str of `len(X.shape[1])` describing the attribute type.
@@ -1065,7 +1065,7 @@ class AutotabularRegressor(AutotabularEstimator, RegressorMixin):
         self
         """
         # Before running anything else, first check that the
-        # type of data is compatible with auto-sklearn. Legal target
+        # type of data is compatible with Auto-tabular. Legal target
         # types are: continuous, continuous-multioutput, and the special cases:
         # multiclass : because [3.0, 1.0, 5.0] is considered as multiclass
         # binary: because [1.0, 0.0] is considered multiclass

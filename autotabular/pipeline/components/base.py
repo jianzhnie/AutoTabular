@@ -286,7 +286,7 @@ class AutotabularPreprocessingAlgorithm(TransformerMixin,
 
 
 class AutotabularRegressionAlgorithm(AutotabularComponent):
-    """Provide an abstract interface for regression algorithms in auto-sklearn.
+    """Provide an abstract interface for regression algorithms in Auto-tabular.
 
     Make a subclass of this and put it into the directory `autotabular/pipeline/components/regression` to make it available.
     """
@@ -334,7 +334,7 @@ class AutotabularChoice(object):
         ----------
         dataset_properties : dict
             Describes the dataset to work on, this can change the
-            configuration space constructed by auto-sklearn. Mandatory
+            configuration space constructed by Auto-tabular. Mandatory
             properties are:
             * target_type: classification or regression
 
@@ -394,7 +394,7 @@ class AutotabularChoice(object):
             if 'sparse' in dataset_properties and dataset_properties['sparse']:
                 # In case the dataset is sparse, ignore
                 # components that do not handle sparse data
-                # Auto-sklearn uses SPARSE constant as a mechanism
+                # Auto-tabular uses SPARSE constant as a mechanism
                 # to indicate whether a component can handle sparse data.
                 # If SPARSE is not in the input properties of the component, it
                 # means SPARSE is not a valid input to this component, so filter it out
