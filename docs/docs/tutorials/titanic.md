@@ -1,8 +1,8 @@
 # Classify Titanic passangers
 
-In this example, I would like to show you how to analyze Titanic dataset with AutoML [`AutoTabular`](https://github.com/jianzhnie/AutoTabular). The AutoML will do all the job and let's go through all results.
+In this example, I would like to show you how to analyze Titanic dataset with AutoML [`mljar-supervised`](https://github.com/mljar/mljar-supervised). The AutoML will do all the job and let's go through all results.
 
-All the code and results are available at the [GitHub](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification)
+All the code and results are available at the [GitHub](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification)
 
 
 ## The code
@@ -43,7 +43,7 @@ I will show you step by step what above code produced based on the training data
 
 ## The `Explain` mode
 
-The default `mode` for [`AutoTabular`](https://github.com/jianzhnie/jianzhnie-suerpvised) is `Explain`, which means that:
+The default `mode` for [`mljar-supervised`](https://github.com/mljar/mljar-suerpvised) is `Explain`, which means that:
 
 - there will be used `75% / 25%` for train / test split for model training and evaluation,
 - there will be trained following algorithms: `Baseline`, `Decision Tree`, `Linear`, `Random Forest`, `Xgboost`, `Neural Network`, and `Ensemble`,
@@ -54,17 +54,17 @@ All results created during `AutoML` training will be saved to the hard drive. Th
 
 ## Automated EDA
 
-The ditribution plots are created for all features. The plots are available in the Markdown [report](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/EDA).
+The ditribution plots are created for all features. The plots are available in the Markdown [report](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/EDA).
 
 The few examples of plots from EDA:
 
-![Age distribution](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/EDA/Age.png)
-![Name distribution](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/EDA/Name.png)
-![Pclass distribution](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/EDA/Pclass.png)
+![Age distribution](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/EDA/Age.png)
+![Name distribution](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/EDA/Name.png)
+![Pclass distribution](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/EDA/Pclass.png)
 
 ## The AutoML leaderboard report
 
-The main [`README.md`](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3) in the report will contain:
+The main [`README.md`](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3) in the report will contain:
 
 - table will all models performance,
 - performance plotted as scatter plot and box plot.
@@ -73,21 +73,21 @@ The leaderbord:
 
 | Best model   | name                    | model_type     | metric_type   |   metric_value |   train_time | Link                                              |
 |:-------------|:------------------------|:---------------|:--------------|---------------:|-------------:|:--------------------------------------------------|
-|              | 1_Baseline              | Baseline       | logloss       |       0.666775 |         0.26 | [Results link](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/1_Baseline/README.md)              |
-|              | 2_DecisionTree          | Decision Tree  | logloss       |       0.648504 |        18    | [Results link](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/2_DecisionTree/README.md)          |
-|              | 3_Linear                | Linear         | logloss       |       0.593649 |        12.2  | [Results link](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/3_Linear/README.md)                |
-|              | 4_Default_RandomForest  | Random Forest  | logloss       |       0.448691 |        22.24 | [Results link](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/4_Default_RandomForest/README.md)  |
-|              | 5_Default_Xgboost       | Xgboost        | logloss       |       0.458922 |        12.63 | [Results link](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/README.md)       |
-|              | 6_Default_NeuralNetwork | Neural Network | logloss       |       0.733411 |        23.84 | [Results link](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/6_Default_NeuralNetwork/README.md) |
-| **the best** | Ensemble                | Ensemble       | logloss       |       0.436319 |         0.83 | [Results link](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/Ensemble/README.md)                |
+|              | 1_Baseline              | Baseline       | logloss       |       0.666775 |         0.26 | [Results link](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/1_Baseline/README.md)              |
+|              | 2_DecisionTree          | Decision Tree  | logloss       |       0.648504 |        18    | [Results link](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/2_DecisionTree/README.md)          |
+|              | 3_Linear                | Linear         | logloss       |       0.593649 |        12.2  | [Results link](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/3_Linear/README.md)                |
+|              | 4_Default_RandomForest  | Random Forest  | logloss       |       0.448691 |        22.24 | [Results link](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/4_Default_RandomForest/README.md)  |
+|              | 5_Default_Xgboost       | Xgboost        | logloss       |       0.458922 |        12.63 | [Results link](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/README.md)       |
+|              | 6_Default_NeuralNetwork | Neural Network | logloss       |       0.733411 |        23.84 | [Results link](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/6_Default_NeuralNetwork/README.md) |
+| **the best** | Ensemble                | Ensemble       | logloss       |       0.436319 |         0.83 | [Results link](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/Ensemble/README.md)                |
 
 From the above table you can check what was the performance of the models and how long was the training. There is a `Results link` in the table for each model (please scroll this table if you don't see it), which you can **click** and go into model details :+1: :tada:
 
 The performance is presented in the plots:
 
-![AutoML Performance](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/ldb_performance.png)
+![AutoML Performance](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/ldb_performance.png)
 
-![AutoML Performance Boxplot](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/ldb_performance_boxplot.png)
+![AutoML Performance Boxplot](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/ldb_performance_boxplot.png)
 
 ## The `Baseline`
 
@@ -106,7 +106,7 @@ The best model is `34.6%` better than `Baseline`, the usage of ML is justifed an
 
 ## `Decision Tree`
 
-Let's look closer into `Decision Tree` [report](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/2_DecisionTree/README.md).
+Let's look closer into `Decision Tree` [report](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/2_DecisionTree/README.md).
 
 The part of report is below:
 
@@ -150,31 +150,31 @@ There are many metrics and confusion matrix pre-computed.
 
 Additionally, there is a `Decision Tree` visualization:
 
-![Decision Tree visualization](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/1295c77b6ac617b8d91ea7d8fffc6cd4c2605701/Titanic_Classification/AutoML_3/2_DecisionTree/learner_1_tree.svg)
+![Decision Tree visualization](https://raw.githubusercontent.com/mljar/mljar-examples/1295c77b6ac617b8d91ea7d8fffc6cd4c2605701/Titanic_Classification/AutoML_3/2_DecisionTree/learner_1_tree.svg)
 
 There are created many explanations for each model. Let's check how they look like for `Xgboost` (the best single model).
 
 ## The `Xgboost` model
 
-You can check details of `Xgboost` model in the Markdown [report](https://github.com/jianzhnie/jianzhnie-examples/tree/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/README.md). Here I will show some parts of the report with short comment.
+You can check details of `Xgboost` model in the Markdown [report](https://github.com/mljar/mljar-examples/tree/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/README.md). Here I will show some parts of the report with short comment.
 
 ### Learning curves
 
 The vertical line indicates the optimal number of trees in the `Xgboost` (found with early stopping). This number of trees will be used during computning predictions.
 
-![Xgboost learning curve](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/learning_curves.png)
+![Xgboost learning curve](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/learning_curves.png)
 
 ### Feature Importance
 
 The permutation-based feature importance:
 
-![Permutation based feature importance](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/permutation_importance.png)
+![Permutation based feature importance](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/permutation_importance.png)
 
 From the plot you can see that the most used feature is `Name_mr`. There wasn't such feature in the training data. There was `Name` feature. The `AutoML` used `TF-IDF` transformation (scikit-learn [`TfidfVectorizer`](https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html)) to construct new features from `Name` text feature.
 
 ### SHAP dependence plots
 
-![SHAP dependece plots](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/learner_1_shap_dependence.png)
+![SHAP dependece plots](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/learner_1_shap_dependence.png)
 
 
 ## The test accuracy

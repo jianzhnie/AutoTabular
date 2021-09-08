@@ -1,6 +1,6 @@
 # Explainability in AutoML
 
-There are three modes of explanations available in [`AutoTabular`](https://github.com/jianzhnie/AutoTabular). The explanations are controlled by `explain_level` parameter in `AutoML` constructor.
+There are three modes of explanations available in [`mljar-supervised`](https://github.com/mljar/mljar-supervised). The explanations are controlled by `explain_level` parameter in `AutoML` constructor.
 
 - if `explain_level` is `0` no explanations are produced. Only learning curves are plotted.
 - if `explain_level` is `1` the following explanations are produced: learning curves, importance plot (with permutation method), for decision trees produce tree plots, for linear models save coefficients.
@@ -10,13 +10,13 @@ There are three modes of explanations available in [`AutoTabular`](https://githu
 
 The learning curves show the evaluation metric values in each iteration of the training. The learning curves are plotted for training and validation datasets. The vertical line is used to show the optimal iteration number, which will be later used for computing predictions. Learning curves are always created.
 
-![Learning curves for Xgboost](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/learning_curves.png)
+![Learning curves for Xgboost](https://raw.githubusercontent.com/mljar/mljar-examples/master/Titanic_Classification/AutoML_3/5_Default_Xgboost/learning_curves.png)
 
 ## `Decision Tree` Visualization
 
 The visualization of the `Decision Tree` is created if `explain_level >= 1`. The [`dtreeviz`](https://github.com/parrt/dtreeviz) is used to plot the tree.
 
-![Decision Tree visualization](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/1295c77b6ac617b8d91ea7d8fffc6cd4c2605701/Income_classification/AutoML_1/2_DecisionTree/learner_1_tree.svg)
+![Decision Tree visualization](https://raw.githubusercontent.com/mljar/mljar-examples/1295c77b6ac617b8d91ea7d8fffc6cd4c2605701/Income_classification/AutoML_1/2_DecisionTree/learner_1_tree.svg)
 
 ## `Linear` model coefficients
 
@@ -44,7 +44,7 @@ For the `explain_level >= 1` the coefficents of the `Linear` model are saved in 
 
 The features importance is computed with permutation-based method (using scikit-learn [`permutation_importance`](https://scikit-learn.org/stable/modules/generated/sklearn.inspection.permutation_importance.html)). The features importance can be computed to any algorithm (except of course `Baseline`, which doesnt use import features at all). The importance is presented in the plot (top-25 importance features) and saved to the file `learner_*_importance.csv` for all features. It needs `explain_level >= 1`.
 
-![Permutation Importance](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/permutation_importance.png)
+![Permutation Importance](https://raw.githubusercontent.com/mljar/mljar-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/permutation_importance.png)
 
 ## SHAP plots
 
@@ -56,13 +56,13 @@ The SHAP explanations are not available for `Baseline`, `Neural Network`, `CatBo
 
 The SHAP importance example:
 
-![SHAP importance](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_summary.png)
+![SHAP importance](https://raw.githubusercontent.com/mljar/mljar-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_summary.png)
 
 ### SHAP dependence plots
 
 The SHAP dependence plots example:
 
-![SHAP dependence plots](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_dependence.png)
+![SHAP dependence plots](https://raw.githubusercontent.com/mljar/mljar-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_dependence.png)
 
 ### SHAP decision plots
 
@@ -70,8 +70,8 @@ For SHAP decisions plots there are created the top-10 worst and best predictions
 
 The SHAP decision plots example for the best predictions:
 
-![SHAP best decision plots](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_class_1_best_decisions.png)
+![SHAP best decision plots](https://raw.githubusercontent.com/mljar/mljar-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_class_1_best_decisions.png)
 
 The SHAP decision plots example for the worst predictions:
 
-![SHAP best decision plots](https://raw.githubusercontent.com/jianzhnie/jianzhnie-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_class_1_worst_decisions.png)
+![SHAP best decision plots](https://raw.githubusercontent.com/mljar/mljar-examples/master/Income_classification/AutoML_1/5_Default_Xgboost/learner_1_shap_class_1_worst_decisions.png)

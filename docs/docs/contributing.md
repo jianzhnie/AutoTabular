@@ -2,7 +2,7 @@
 
 Thank you! :tada:
 
-Thank you for your interest in [`AutoTabular`](https://github.com/jianzhnie/AutoTabular) and for willing to contribute! :+1: :smiley:
+Thank you for your interest in [`mljar-supervised`](https://github.com/mljar/mljar-supervised) and for willing to contribute! :+1: :smiley:
 
 ## How can I contribute? :muscle:
 
@@ -38,7 +38,7 @@ I add `vsx` flags to see what's going on.
 
 ## Documentation :scroll:
 
-The project documentation is on GitHub at [jianzhnie/docs](https://github.com/jianzhnie/docs) repository. Deployed docs are available at [https://supervised.jianzhnie.com](https://supervised.jianzhnie.com).
+The project documentation is on GitHub at [mljar/docs](https://github.com/mljar/docs) repository. Deployed docs are available at [https://supervised.mljar.com](https://supervised.mljar.com).
 
 ## Contributor License Agreement :necktie:
 

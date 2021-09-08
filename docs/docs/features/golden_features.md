@@ -1,6 +1,6 @@
 # Golden Features
 
-Golden Features are the features which have great predictive power. They can be constructed based on the original features. The common way to construct them is to try features differences or ratios. The [`AutoTabular`](https://github.com/jianzhnie/AutoTabular) package has built-in step that performs Golden Features search.
+Golden Features are the features which have great predictive power. They can be constructed based on the original features. The common way to construct them is to try features differences or ratios. The [`mljar-superverised`](https://github.com/mljar/mljar-supervised) package has built-in step that performs Golden Features search.
 
 The procedure to find Golden Features:
 

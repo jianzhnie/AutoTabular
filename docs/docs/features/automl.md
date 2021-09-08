@@ -1,6 +1,6 @@
 # Steps of AutoML
 
-The training of `AutoTabular` AutoML is divided into steps. Each step represents the actions that are common in the process of searching for the best performing Machine Learning model in the ML pipeline. Below are described steps of AutoML.
+The training of `mljar-supervised` AutoML is divided into steps. Each step represents the actions that are common in the process of searching for the best performing Machine Learning model in the ML pipeline. Below are described steps of AutoML.
 
 !!! note "Names of steps (`fit_level`)"
     The documentation uses exactly the same names as used in the code to describe each training level.
@@ -71,10 +71,10 @@ There will be trained:
 
 
 !!! tip "Hyperparameters set for algorithm"
-    You can check which hyperparameters will be optimized for each algorithm in `AutoTabular` code.
+    You can check which hyperparameters will be optimized for each algorithm in `mljar-supervised` code.
 
-    - To get list of all algorithms: check [`supervised/algorithms`](https://github.com/jianzhnie/AutoTabular/tree/master/supervised/algorithms) directory
-    - To check hyperparameters for `Xgboost`: check [`supervised/algorithms/xgboost.py`](https://github.com/jianzhnie/AutoTabular/tree/master/supervised/algorithms/xgboost.py#L170). The hyperparameters are defined at the end of the file.
+    - To get list of all algorithms: check [`supervised/algorithms`](https://github.com/mljar/mljar-supervised/tree/master/supervised/algorithms) directory
+    - To check hyperparameters for `Xgboost`: check [`supervised/algorithms/xgboost.py`](https://github.com/mljar/mljar-supervised/tree/master/supervised/algorithms/xgboost.py#L170). The hyperparameters are defined at the end of the file.
 
 
 

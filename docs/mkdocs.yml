@@ -1,4 +1,4 @@
-site_name: AutoTabular
+site_name: AutoML mljar-supervised
 
 theme:
     name: material
@@ -11,8 +11,8 @@ theme:
         primary: blue
 
 
-repo_url: git+https://github.com/jianzhnie/AutoTabular
-repo_name: AutoTabular
+repo_url: https://github.com/mljar/mljar-supervised
+repo_name: mljar-supervised
 
 markdown_extensions:
     - pymdownx.highlight:
@@ -25,8 +25,8 @@ markdown_extensions:
     - admonition
     - pymdownx.details
     - pymdownx.emoji:
-        emoji_index: 
-        emoji_generator:
+        emoji_index: !!python/name:materialx.emoji.twemoji
+        emoji_generator: !!python/name:materialx.emoji.to_svg
     - attr_list
     - def_list
     - pymdownx.tasklist:
@@ -40,20 +40,20 @@ plugins:
 extra:
     social:
         - icon: fontawesome/brands/github
-          link: git+https://github.com/jianzhnie/AutoTabular
+          link: https://github.com/mljar/mljar-supervised
         - icon: fontawesome/brands/slack
-          link: git+https://github.com/jianzhnie/AutoTabular
+          link: https://mljar-supervised.slack.com/join/shared_invite/zt-gkhfsvhw-H6LMKxxV5adeTmn9V7nbZw#/
         - icon: fontawesome/brands/twitter
-          link: git+https://github.com/jianzhnie/AutoTabular
+          link: https://twitter.com/MLJARofficial
         - icon: fontawesome/regular/lightbulb
-          link: git+https://github.com/jianzhnie/AutoTabular
+          link: https://mljar.com
     font:
         - text: 'Ubuntu'
         - code: 'Ubuntu Mono'
 
-edit_uri: git+https://github.com/jianzhnie/AutoTabular/edit/master/docs/
+edit_uri: https://github.com/mljar/docs/edit/master/docs/
 
-copyright: Copyright © AutoTabular, Inc.
+copyright: Copyright © MLJAR, Inc.
 
 extra_css:
   - stylesheets/extra.css

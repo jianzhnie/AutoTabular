@@ -12,9 +12,9 @@ All the results are saved into `README.md` file inside `EDA` folder.
 
 ## Extended Exploratory Data Analysis
 
- jianzhnie additionally provides an `extended_eda` method that is capable of doing bivariate analysis. It takes a data frame and a target feature and provides the bivariate analysis of each feature in the data frame against the target variable.
+ mljar additionally provides an `extended_eda` method that is capable of doing bivariate analysis. It takes a data frame and a target feature and provides the bivariate analysis of each feature in the data frame against the target variable.
 
-- jianzhnie additionally provides an extended_eda method that is capable of doing bivariate analysis. It takes a data frame and a target feature and provides the bivariate analysis of each feature in the data frame against the target variable.
+- mljar additionally provides an extended_eda method that is capable of doing bivariate analysis. It takes a data frame and a target feature and provides the bivariate analysis of each feature in the data frame against the target variable.
 
 - It also provides a heatmap depicting the Pearson correlation of continuous variables in the data frame.
 
