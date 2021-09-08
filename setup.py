@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     if sys.version_info < (3, 7):
         raise ValueError(
-            'Unsupported Python version %d.%d.%d found. Auto-sklearn requires Python '
+            'Unsupported Python version %d.%d.%d found. Auto-tabular requires Python '
             '3.7 or higher.' % (sys.version_info.major, sys.version_info.minor,
                                 sys.version_info.micro))
 

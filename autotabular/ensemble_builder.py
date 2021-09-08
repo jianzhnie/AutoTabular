@@ -615,7 +615,7 @@ class EnsembleBuilder(object):
                         self.logger.error(
                             'Memory Exception -- Unable to further reduce the number of ensemble '
                             'members and can no further limit the number of ensemble members '
-                            'loaded per iteration -- please restart Auto-sklearn with a higher '
+                            'loaded per iteration -- please restart Auto-tabular with a higher '
                             'value for the argument `memory_limit` (current limit is %s MB). '
                             'The ensemble builder will keep running to delete files from disk in '
                             'case this was enabled.', self.memory_limit)
@@ -724,7 +724,7 @@ class EnsembleBuilder(object):
         # train ensemble
         ensemble = self.fit_ensemble(selected_keys=candidate_models)
 
-        # Save the ensemble for later use in the main auto-sklearn module!
+        # Save the ensemble for later use in the main Auto-tabular module!
         if ensemble is not None and self.SAVE2DISC:
             self.backend.save_ensemble(ensemble, iteration, self.seed)
 

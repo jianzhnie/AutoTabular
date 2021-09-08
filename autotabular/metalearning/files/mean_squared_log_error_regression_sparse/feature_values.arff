@@ -1,4 +1,4 @@
-@RELATION auto-sklearn_FEATURE_VALUES
+@RELATION Auto-tabular_FEATURE_VALUES
 
 @ATTRIBUTE instance_id STRING
 @ATTRIBUTE repetition NUMERIC

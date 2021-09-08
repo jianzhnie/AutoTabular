@@ -312,7 +312,7 @@ class TargetValidator(BaseEstimator):
         if not isinstance(y, (np.ndarray, pd.DataFrame, list,
                               pd.Series)) and not scipy.sparse.issparse(y):
             raise ValueError(
-                'Auto-sklearn only supports Numpy arrays, Pandas DataFrames,'
+                'Auto-tabular only supports Numpy arrays, Pandas DataFrames,'
                 ' pd.Series, sparse data and Python Lists as targets, yet, '
                 'the provided input is of type {}'.format(type(y)))
 
@@ -330,7 +330,7 @@ class TargetValidator(BaseEstimator):
             self.data_type = type(y)
         if self.data_type != type(y):
             self.logger.warning(
-                'Auto-sklearn previously received targets of type %s '
+                'Auto-tabular previously received targets of type %s '
                 'yet the current features have type %s. Changing the dtype '
                 'of inputs to an estimator might cause problems' % (
                     str(self.data_type),
@@ -376,7 +376,7 @@ class TargetValidator(BaseEstimator):
         )
         if self.type_of_target not in supported_output_types:
             raise ValueError(
-                'Provided targets are not supported by Auto-Sklearn. '
+                'Provided targets are not supported by Auto-tabular. '
                 'Provided type is {} whereas supported types are {}.'.format(
                     self.type_of_target, supported_output_types))
 

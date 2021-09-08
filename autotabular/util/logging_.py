@@ -21,7 +21,7 @@ def setup_logger(
     logging_config: Optional[Dict] = None,
 ) -> None:
     # logging_config must be a dictionary object specifying the configuration
-    # for the loggers to be used in auto-sklearn.
+    # for the loggers to be used in Auto-tabular.
     if logging_config is None:
         with open(
                 os.path.join(os.path.dirname(__file__), 'logging.yaml'),

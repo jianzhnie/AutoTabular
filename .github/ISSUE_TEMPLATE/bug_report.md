@@ -30,4 +30,4 @@ Please give details about your installation:
 * OS
 * Is your installation in a virtual environment or conda environment?
 * Python version
-* Auto-sklearn version
+* Auto-tabular version

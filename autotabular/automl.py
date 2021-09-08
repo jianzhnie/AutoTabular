@@ -270,7 +270,7 @@ class AutoML(BaseEstimator):
             output_dir=self._backend.temporary_directory,
         )
 
-        # As Auto-sklearn works with distributed process,
+        # As Auto-tabular works with distributed process,
         # we implement a logger server that can receive tcp
         # pickled messages. They are unpickled and processed locally
         # under the above logging configuration setting
@@ -554,7 +554,7 @@ class AutoML(BaseEstimator):
                 raise ValueError('Unable to read requirement: %s' %
                                  requirement)
         self._logger.debug('Done printing environment information')
-        self._logger.debug('Starting to print arguments to auto-sklearn')
+        self._logger.debug('Starting to print arguments to Auto-tabular')
         self._logger.debug('  tmp_folder: %s',
                            self._backend.context._temporary_directory)
         self._logger.debug('  time_left_for_this_task: %f',
@@ -599,7 +599,7 @@ class AutoML(BaseEstimator):
                            str(self._smac_scenario_args))
         self._logger.debug('  logging_config: %s', str(self.logging_config))
         self._logger.debug('  metric: %s', str(self._metric))
-        self._logger.debug('Done printing arguments to auto-sklearn')
+        self._logger.debug('Done printing arguments to Auto-tabular')
         self._logger.debug('Starting to print available components')
         for choice in (
                 ClassifierChoice,
@@ -1074,7 +1074,7 @@ class AutoML(BaseEstimator):
             A configuration object used to define the pipeline steps. If a dictionary is passed,
             a configuration is created based on this dictionary.
         dataset_name: Optional[str]
-            A string to tag and identify the Auto-Sklearn run
+            A string to tag and identify the Auto-tabular run
         is_classification: bool
             Whether the task is for classification or regression. This affects
             how the targets are treated
@@ -1442,17 +1442,17 @@ class AutoML(BaseEstimator):
         results = dict()
 
         # Missing in contrast to scikit-learn
-        # splitX_test_score - auto-sklearn does not store the scores on a split
+        # splitX_test_score - Auto-tabular does not store the scores on a split
         #                     basis
-        # std_test_score - auto-sklearn does not store the scores on a split
+        # std_test_score - Auto-tabular does not store the scores on a split
         #                  basis
-        # splitX_train_score - auto-sklearn does not compute train scores, add
+        # splitX_train_score - Auto-tabular does not compute train scores, add
         #                      flag to compute the train scores
-        # mean_train_score - auto-sklearn does not store the train scores
-        # std_train_score - auto-sklearn does not store the train scores
-        # std_fit_time - auto-sklearn does not store the fit times per split
-        # mean_score_time - auto-sklearn does not store the score time
-        # std_score_time - auto-sklearn does not store the score time
+        # mean_train_score - Auto-tabular does not store the train scores
+        # std_train_score - Auto-tabular does not store the train scores
+        # std_fit_time - Auto-tabular does not store the fit times per split
+        # mean_score_time - Auto-tabular does not store the score time
+        # std_score_time - Auto-tabular does not store the score time
         # TODO: add those arguments
 
         # TODO remove this restriction!
@@ -1565,7 +1565,7 @@ class AutoML(BaseEstimator):
     def sprint_statistics(self):
         cv_results = self.cv_results_
         sio = io.StringIO()
-        sio.write('auto-sklearn results:\n')
+        sio.write('Auto-tabular results:\n')
         sio.write('  Dataset name: %s\n' % self._dataset_name)
         sio.write('  Metric: %s\n' % self._metric)
         idx_success = np.where(

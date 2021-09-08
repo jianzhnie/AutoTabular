@@ -1,0 +1,79 @@
+site_name: AutoTabular
+
+theme:
+    name: material
+    #custom_dir: overrides
+    favicon: images/favicon.png
+    icon:
+        repo: fontawesome/brands/github-square
+        logo: fontawesome/solid/book-open
+    palette:
+        primary: blue
+
+
+repo_url: git+https://github.com/jianzhnie/AutoTabular
+repo_name: AutoTabular
+
+markdown_extensions:
+    - pymdownx.highlight:
+        use_pygments: true
+    - toc:
+        permalink: true
+    - codehilite
+    - pymdownx.tabbed
+    - pymdownx.superfences
+    - admonition
+    - pymdownx.details
+    - pymdownx.emoji:
+        emoji_index: 
+        emoji_generator:
+    - attr_list
+    - def_list
+    - pymdownx.tasklist:
+        custom_checkbox: true
+    - footnotes
+
+plugins:
+  - search
+  - mkdocstrings
+
+extra:
+    social:
+        - icon: fontawesome/brands/github
+          link: git+https://github.com/jianzhnie/AutoTabular
+        - icon: fontawesome/brands/slack
+          link: git+https://github.com/jianzhnie/AutoTabular
+        - icon: fontawesome/brands/twitter
+          link: git+https://github.com/jianzhnie/AutoTabular
+        - icon: fontawesome/regular/lightbulb
+          link: git+https://github.com/jianzhnie/AutoTabular
+    font:
+        - text: 'Ubuntu'
+        - code: 'Ubuntu Mono'
+
+edit_uri: git+https://github.com/jianzhnie/AutoTabular/edit/master/docs/
+
+copyright: Copyright © AutoTabular, Inc.
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Get started: index.md
+  - Features:
+    - Steps of AutoML: features/automl.md
+    - AutoML modes: features/modes.md
+    - Golden Features: features/golden_features.md
+    - Features Selection: features/features_selection.md
+    - Algorithms: features/algorithms.md
+    - Automated EDA: features/eda.md
+    - Explainability: features/explain.md
+
+  - Get help: get_help.md
+  - How can you help?: help.md
+  - Contributing: contributing.md
+  - AutoML API: api.md
+  - Roadmap: roadmap.md
+  - Tutorials:
+    - Classify Titanic Passangers: tutorials/titanic.md
+    - Classify Random Data: tutorials/random.md
