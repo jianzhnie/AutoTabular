@@ -197,3 +197,116 @@ predictions = automl.predict(test)
 print(predictions)
 print(f"Accuracy: {accuracy_score(test['Survived'], predictions)*100.0:.2f}%")
 ```
+
+
+## Algorithms and AlgorithmsRegistry
+
+在每个算法定义完成之后, 会通过 `AlgorithmsRegistry` 类对 Algorithms 信息进行注册. 例如
+
+```python
+def test_add_to_registry(self):
+    class Model1:
+        algorithm_short_name = ""
+
+    model1 = {
+        "task_name": "binary_classification",
+        "model_class": Model1,
+        "model_params": {},
+        "required_preprocessing": {},
+        "additional": {},
+        "default_params": {},
+    }
+
+    AlgorithmsRegistry.add(**model1)
+```
+
+#### 调用 AlgorithmsRegistry 
+
+```python
+from supervised.algorithms.registry import AlgorithmsRegistry
+model_info = AlgorithmsRegistry.registry["binary_classification"]["Xgboost"]
+print(model_info)
+
+{
+'class': <class 'supervised.algorithms.xgboost.XgbAlgorithm'>, 
+
+'params': {'objective': ['binary:logistic'], 'eta': [0.05, 0.075, 0.1, 0.15], 'max_depth': [4, 5, 6, 7, 8, 9], 'min_child_weight': [1, 5, 10, 25, 50], 'subsample': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0], 'colsample_bytree': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}, 'required_preprocessing': ['missing_values_inputation', 'convert_categorical', 'datetime_transform', 'text_transform', 'target_as_integer'], }, 
+
+'additional': {'max_rounds': 10000, 'early_stopping_rounds': 50, 'max_rows_limit': None, 'max_cols_limit': None}, 
+
+'default_params': {'objective': 'binary:logistic', 'eta': 0.075, 'max_depth': 6, 'min_child_weight': 1, 'subsample': 1.0, 'colsample_bytree': 1.0}
+
+}
+
+```
+
+#### 在 [MljarTuner](../supervised/tuner/mljar_tuner.py) 中调用 AlgorithmsRegistry
+
+```python
+## line 959
+def _get_model_params(self, model_type, seed, params_type="random"):
+    model_info = AlgorithmsRegistry.registry[self._ml_task][model_type]
+
+    model_params = None
+    if params_type == "default":
+
+        model_params = model_info["default_params"]
+        model_params["seed"] = seed
+
+    else:
+        model_params = RandomParameters.get(model_info["params"], seed + self._seed)
+    if model_params is None:
+        return None
+
+    # set eval metric
+    if model_info["class"].algorithm_short_name == "Xgboost":
+        model_params["eval_metric"] = xgboost_eval_metric(
+            self._ml_task, self._eval_metric
+        )
+    if model_info["class"].algorithm_short_name == "LightGBM":
+        metric, custom_metric = lightgbm_eval_metric(
+            self._ml_task, self._eval_metric
+        )
+        model_params["metric"] = metric
+        model_params["custom_eval_metric_name"] = custom_metric
+    if model_info["class"].algorithm_short_name == "CatBoost":
+        model_params["eval_metric"] = catboost_eval_metric(
+            self._ml_task, self._eval_metric
+        )
+    elif model_info["class"].algorithm_short_name in [
+        "Random Forest",
+        "Extra Trees",
+    ]:
+        model_params["eval_metric_name"] = self._eval_metric
+        model_params["ml_task"] = self._ml_task
+
+    required_preprocessing = model_info["required_preprocessing"]
+    model_additional = model_info["additional"]
+    preprocessing_params = PreprocessingTuner.get(
+        required_preprocessing, self._data_info, self._ml_task
+    )
+
+    model_params = {
+        "additional": model_additional,
+        "preprocessing": preprocessing_params,
+        "validation_strategy": self._validation_strategy,
+        "learner": {
+            "model_type": model_info["class"].algorithm_short_name,
+            "ml_task": self._ml_task,
+            "n_jobs": self._n_jobs,
+            **model_params,
+        },
+        "automl_random_state": self._seed,
+    }
+
+    if self._data_info.get("num_class") is not None:
+        model_params["learner"]["num_class"] = self._data_info.get("num_class")
+
+    model_params["ml_task"] = self._ml_task
+    model_params["explain_level"] = self._explain_level
+
+    return model_params
+```
+
+通过  `model_info = AlgorithmsRegistry.registry[self._ml_task][model_type]` 可以获得每个模型的相关信息
+
