@@ -458,6 +458,9 @@ class MljarTuner:
         return generated_params
 
     def get_not_so_random_params(self, models_cnt):
+        """
+        This will use 
+        """
 
         model_types = [
             "Xgboost",
@@ -950,6 +953,111 @@ class MljarTuner:
         return generated_params
 
     def _get_model_params(self, model_type, seed, params_type="random"):
+        """
+        Use AlgorithmsRegistry to get model's params:
+        ---------------------------------------------------------------
+        class AlgorithmsRegistry:
+
+            registry = {
+                BINARY_CLASSIFICATION: {},
+                MULTICLASS_CLASSIFICATION: {},
+                REGRESSION: {},
+            }
+
+            @staticmethod
+            def add(
+                task_name,
+                model_class,
+                model_params,
+                required_preprocessing,
+                additional,
+                default_params,
+            ):
+                model_information = {
+                    "class": model_class,
+                    "params": model_params,
+                    "required_preprocessing": required_preprocessing,
+                    "additional": additional,
+                    "default_params": default_params,
+                }
+                AlgorithmsRegistry.registry[task_name][
+                    model_class.algorithm_short_name
+                ] = model_information
+
+        ---------------------------------------------------------------
+        model =  XgbAlgorithm()
+
+        xgb_bin_class_params = {
+            "objective": ["binary:logistic"],
+            "eta": [0.05, 0.075, 0.1, 0.15],
+            "max_depth": [4, 5, 6, 7, 8, 9],
+            "min_child_weight": [1, 5, 10, 25, 50],
+            "subsample": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            "colsample_bytree": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        }
+        BINARY_CLASSIFICATION = "binary_classification"
+
+        additional = {
+            "max_rounds": 10000,
+            "early_stopping_rounds": 50,
+            "max_rows_limit": None,
+            "max_cols_limit": None,
+        }
+
+        required_preprocessing = [
+            "missing_values_inputation",
+            "convert_categorical",
+            "datetime_transform",
+            "text_transform",
+            "target_as_integer",
+        ]
+
+        AlgorithmsRegistry.add(
+            BINARY_CLASSIFICATION,
+            XgbAlgorithm,
+            xgb_bin_class_params,
+            required_preprocessing,
+            additional,
+            classification_bin_default_params,
+        )
+
+        then: model_info = AlgorithmsRegistry.registry[self._ml_task][model_type]
+        will return:
+
+        model_info = {
+            task_name = "binary_classification",
+            model_class = XgbAlgorithm(),
+            model_params = {
+                "objective": ["binary:logistic"],
+                "eta": [0.05, 0.075, 0.1, 0.15],
+                "max_depth": [4, 5, 6, 7, 8, 9],
+                "min_child_weight": [1, 5, 10, 25, 50],
+                "subsample": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                "colsample_bytree": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            },
+            required_preprocessing= [
+                "missing_values_inputation",
+                "convert_categorical",
+                "datetime_transform",
+                "text_transform",
+                "target_as_integer",
+            ],
+            additional=  {
+                "max_rounds": 10000,
+                "early_stopping_rounds": 50,
+                "max_rows_limit": None,
+                "max_cols_limit": None,
+            },
+            default_params = {
+                "objective": "binary:logistic",
+                "eta": 0.075,
+                "max_depth": 6,
+                "min_child_weight": 1,
+                "subsample": 1.0,
+                "colsample_bytree": 1.0,
+            },
+        }
+        """
         model_info = AlgorithmsRegistry.registry[self._ml_task][model_type]
 
         model_params = None
