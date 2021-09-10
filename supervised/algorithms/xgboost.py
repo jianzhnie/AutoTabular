@@ -348,7 +348,7 @@ regression_default_params = {
 
 additional = {
     "max_rounds": 10000,
-    "early_stopping_rounds": 50,
+    "early_stopping_rounds": 20,
     "max_rows_limit": None,
     "max_cols_limit": None,
 }
