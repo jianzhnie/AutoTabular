@@ -4,7 +4,7 @@
 ## 1. 自定义  data_preprocressing
 
 以自定义一个 `labellencoder` 为例:
-- 定义一个 类 `LabelEncoder` 并进行初始化
+- 定义一个类 `LabelEncoder` 并进行初始化
 - 定义 fit() 函数
 - 定义 transform() 函数
 - 定义 inverse_transform 函数
