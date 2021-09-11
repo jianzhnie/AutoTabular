@@ -1,3 +1,154 @@
+# mljar-supervised 执行步骤
+
+mljar-supervised 的AutoML的训练分为几个步骤。每个步骤表示在ML Pipeline 搜索性能最佳的机器学习模型的过程中常见的操作.
+
+1. ==**simple_algorithms**==
+2. ==**default_algorithms**==
+3. ==**not_so_random**==
+4. ==**golden_features**==
+5. ==**features_selection**==
+6. ==**hill_climbing**==
+7. ==**ensemble**==
+8. ==**stack**==
+9. ==**ensemble_stacked**==
+
+
+```python
+def steps(self):
+
+    all_steps = []
+    if self._adjust_validation:
+        all_steps += ["adjust_validation"]
+
+    all_steps += ["simple_algorithms", "default_algorithms"]
+
+    if self._start_random_models > 1:
+        all_steps += ["not_so_random"]
+
+    categorical_strategies = self._apply_categorical_strategies()
+    if PreprocessingTuner.CATEGORICALS_MIX in categorical_strategies:
+        all_steps += ["mix_encoding"]
+    if PreprocessingTuner.CATEGORICALS_LOO in categorical_strategies:
+        all_steps += ["loo_encoding"]
+    if self._golden_features and self._can_apply_golden_features():
+        all_steps += ["golden_features"]
+    if self._kmeans_features and self._can_apply_kmeans_features():
+        all_steps += ["kmeans_features"]
+    if self._features_selection:
+        all_steps += ["insert_random_feature"]
+        all_steps += ["features_selection"]
+    for i in range(self._hill_climbing_steps):
+        all_steps += [f"hill_climbing_{i+1}"]
+    if self._boost_on_errors:
+        all_steps += ["boost_on_errors"]
+    if self._train_ensemble:
+        all_steps += ["ensemble"]
+    if self._stack_models:
+        all_steps += ["stack"]
+        if self._train_ensemble:
+            all_steps += ["ensemble_stacked"]
+    return all_steps
+```
+
+
+# mljar-supervised 中的 [AutoML Modes](https://supervised.mljar.com/features/modes/#automl-modes)
+
+There are 3 built-in modes available in AutoML:
+
+- Explain - to be used when the user wants to explain and understand the data.
+- Perform - to be used when the user wants to train a model that will be used in real-life use cases.
+- Compete - To be used for machine learning competitions (maximum performance!).
+
+
+## Custom modes
+User can define his own modes by setting the parameters in AutoML constructor [AutoML API](https://supervised.mljar.com/features/modes/)
+
+```python
+AutoML(
+    results_path=None,
+    total_time_limit=60 * 60,
+    mode="Explain",
+    ml_task="auto",
+    model_time_limit=None,
+    algorithms="auto",
+    train_ensemble=True,
+    stack_models="auto",
+    eval_metric="auto",
+    validation_strategy="auto",
+    explain_level="auto",
+    golden_features="auto",
+    features_selection="auto",
+    start_random_models="auto",
+    hill_climbing_steps="auto",
+    top_models_to_improve="auto",
+    boost_on_errors="auto",
+    kmeans_features="auto",
+    mix_encoding="auto",
+    max_single_prediction_time=None,
+    optuna_time_budget=None,
+    optuna_init_params={},
+    optuna_verbose=True,
+    n_jobs=-1,
+    verbose=1)
+```
+
+### 使用实例
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.metrics import accuracy_score
+from supervised import AutoML
+
+train = pd.read_csv(
+    "https://raw.githubusercontent.com/pplonski/datasets-for-start/master/Titanic/train.csv"
+)
+print(train.head())
+
+X = train[train.columns[2:]]
+y = train["Survived"]
+
+automl = AutoML(
+    algorithms=["CatBoost", "Xgboost", "LightGBM"],
+    model_time_limit=30*60,
+    start_random_models=10,
+    hill_climbing_steps=3,
+    top_models_to_improve=3,
+    golden_features=True,
+    features_selection=False,
+    stack_models=True,
+    train_ensemble=True,
+    explain_level=0,
+    validation_strategy={
+        "validation_type": "kfold",
+        "k_folds": 4,
+        "shuffle": False,
+        "stratify": True,
+    }
+)
+
+automl.fit(X, y)
+test = pd.read_csv(
+    "https://raw.githubusercontent.com/pplonski/datasets-for-start/master/Titanic/test_with_Survived.csv"
+)
+predictions = automl.predict(test)
+print(predictions)
+print(f"Accuracy: {accuracy_score(test['Survived'], predictions)*100.0:.2f}%")
+```
+- It will train models with CatBoost, Xgboost and LightGBM algorithms.
+- Each model will be trained for 30 minutes (30*60 seconds). total_time_limit is not set.
+- There will be trained about 10+ 3 * 3 * 2 = 28 unstacked models for each algorithm。
+> 10 个 随机搜索的模型
+> hill_climbing_steps *  top_models_to_improve *  golden_features or not = 3 * 3 * 2
+
+- There will be trained about  10 stacked models for each algorithm. (There is stacked up to 10 models for each algorithm)
+
+There will trained Ensemble based on unstacked models and Ensemble_Stacked from unstacked and stackd models.
+
+In total there will be about 3*28+2=86 models trained.
+
+explain_level=0 means that there will be only learning curves saved. No other explanations will be computed.
+
 
 #  mljar-supervised 自定义算法
 
@@ -8,7 +159,6 @@
 - 定义 fit() 函数
 - 定义 transform() 函数
 - 定义 inverse_transform 函数
-  
 
 
 ```python
@@ -121,82 +271,6 @@ class Preprocessing(object):
 
 
 最后在 [ModelFramework](../supervised/model_framework.py) 中完成对数据预处理的调用
-
-### AutoML api 调用, 参考 [AutoML](https://supervised.mljar.com/features/modes/)
-
-```python
-AutoML(
-    results_path=None,
-    total_time_limit=60 * 60,
-    mode="Explain",
-    ml_task="auto",
-    model_time_limit=None,
-    algorithms="auto",
-    train_ensemble=True,
-    stack_models="auto",
-    eval_metric="auto",
-    validation_strategy="auto",
-    explain_level="auto",
-    golden_features="auto",
-    features_selection="auto",
-    start_random_models="auto",
-    hill_climbing_steps="auto",
-    top_models_to_improve="auto",
-    boost_on_errors="auto",
-    kmeans_features="auto",
-    mix_encoding="auto",
-    max_single_prediction_time=None,
-    optuna_time_budget=None,
-    optuna_init_params={},
-    optuna_verbose=True,
-    n_jobs=-1,
-    verbose=1)
-```
-
-### 使用实例
-
-```python
-import pandas as pd
-import numpy as np
-from sklearn.metrics import accuracy_score
-from supervised import AutoML
-
-train = pd.read_csv(
-    "https://raw.githubusercontent.com/pplonski/datasets-for-start/master/Titanic/train.csv"
-)
-print(train.head())
-
-X = train[train.columns[2:]]
-y = train["Survived"]
-
-# automl = AutoML(mode="Compete") # default mode is Explain
-automl = AutoML(
-    algorithms=["CatBoost", "Xgboost", "LightGBM"],
-    model_time_limit=30*60,
-    start_random_models=10,
-    hill_climbing_steps=3,
-    top_models_to_improve=3,
-    golden_features=True,
-    features_selection=False,
-    stack_models=True,
-    train_ensemble=True,
-    explain_level=0,
-    validation_strategy={
-        "validation_type": "kfold",
-        "k_folds": 2,
-        "shuffle": False,
-        "stratify": True,
-    }
-)
-
-automl.fit(X, y)
-test = pd.read_csv(
-    "https://raw.githubusercontent.com/pplonski/datasets-for-start/master/Titanic/test_with_Survived.csv"
-)
-predictions = automl.predict(test)
-print(predictions)
-print(f"Accuracy: {accuracy_score(test['Survived'], predictions)*100.0:.2f}%")
-```
 
 
 ## Algorithms and AlgorithmsRegistry

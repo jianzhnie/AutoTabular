@@ -459,7 +459,7 @@ class MljarTuner:
 
     def get_not_so_random_params(self, models_cnt):
         """
-        This will use 
+        This will use  _get_model_params（） method to generate random params
         """
 
         model_types = [
@@ -549,6 +549,13 @@ class MljarTuner:
         return return_params
 
     def get_hill_climbing_params(self, current_models):
+        """
+        此过程在：
+            1: golden_features
+            2: kmans_features
+            3: feature_selection
+        几个步骤之后进一步用于提升模型性能
+        """
         df_models, algorithms = self.df_models_algorithms(current_models)
         generated_params = []
         counts = {model_type: 0 for model_type in algorithms}
