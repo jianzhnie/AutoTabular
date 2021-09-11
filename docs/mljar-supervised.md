@@ -1,3 +1,5 @@
+
+
 # mljar-supervised 执行步骤
 
 mljar-supervised 的AutoML的训练分为几个步骤。每个步骤表示在ML Pipeline 搜索性能最佳的机器学习模型的过程中常见的操作.
@@ -50,7 +52,6 @@ def steps(self):
     return all_steps
 ```
 
-
 # mljar-supervised 中的 [AutoML Modes](https://supervised.mljar.com/features/modes/#automl-modes)
 
 There are 3 built-in modes available in AutoML:
@@ -58,6 +59,45 @@ There are 3 built-in modes available in AutoML:
 - Explain - to be used when the user wants to explain and understand the data.
 - Perform - to be used when the user wants to train a model that will be used in real-life use cases.
 - Compete - To be used for machine learning competitions (maximum performance!).
+
+| | |**AutoML Modes**| |
+|--- |:-: |:-: |:-: |
+||**Explain**|**Perform**|**Compete**|
+|Baseline|Y |||
+|Linear|Y |Y ||
+|Decision Tree|Y ||Y |
+|Random Forest|Y |Y |Y |
+|Extra Trees|||Y |
+|XGBoost|Y |Y |Y |
+|LightGBM||Y |Y|
+|CatBoost||Y |Y |
+|Neural Network|Y |Y |Y |
+|Nearest Neighbors|||Y |
+|Ensemble|Y |Y |Y |
+|Stacking|||Y |
+
+# mljar-supervised 不同 mode 下的 steps
+
+||**Explain**|**Perform**|**Compete**|
+|--- |:-: |:-: |:-: |
+| | |***Tuning***|***Tuning***|
+|Parameters |`start_random_models=1`, `hill_climbing_steps=0`, `top_models_to_improve=0` |`start_random_models=5`, `hill_climbing_steps=2`, `top_models_to_improve=2`|`start_random_models=10`, `hill_climbing_steps=2`, `top_models_to_improve=3`|
+|Models with default hyperparemeters | `1`|`1`|`1`|
+|Models with **not_so_random** hyperparemeters | `0` |`4`|`9`|
+|`hill_climbing` steps | `0`|`2`|`2`|
+|Top models imporoved in each `hill_climbing` step | `0`|`2`|`3`|
+|**Total models** tuned for each algorithm[^1] | `1`|about `9`[^2]|about `16`[^2]|
+
+- Explain 模式下，每个算法仅训练一次
+- Perform 模式下，每个算法训练： 1 + 4 + 2 * 2  = 9 次
+- Compete 模式下，每个算法训练： 1 + 9 + 2 * 3 = 16 次
+
+
+
+[^1]: Not every algorithm is tuned. Models which are not tuned: `Baseline`, `Decision Tree`, `Linear`, `Nearest Neighbors`.
+[^2]:
+    The exact number cannot be given, because sometimes the newly generated hyperparameters are rejected
+    during `not_so_random` or `hill_climbing` steps because of model duplicates or invalid hyperparameters set.
 
 
 ## Custom modes
@@ -137,9 +177,9 @@ print(f"Accuracy: {accuracy_score(test['Survived'], predictions)*100.0:.2f}%")
 ```
 - It will train models with CatBoost, Xgboost and LightGBM algorithms.
 - Each model will be trained for 30 minutes (30*60 seconds). total_time_limit is not set.
-- There will be trained about 10+ 3 * 3 * 2 = 28 unstacked models for each algorithm。
+- There will be trained about 10 + 3 * 3 * 2 = 28 unstacked models for each algorithm。
 > 10 个 随机搜索的模型
-> hill_climbing_steps *  top_models_to_improve *  golden_features or not = 3 * 3 * 2
+> hill_climbing_steps *  top_models_to_improve *  golden_features or not = 3 * 3 * 2 = 18 
 
 - There will be trained about  10 stacked models for each algorithm. (There is stacked up to 10 models for each algorithm)
 
