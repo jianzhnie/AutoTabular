@@ -69,7 +69,59 @@ AutoML服务旨在自动化机器学习过程的部分或所有步骤，包括�
 
 # 特征工程
 
-特征工程是将原始数据转换为有用特征的过程。现实世界的数据几乎总是杂乱无章的。在部署机器学习算法进行处理之前，必须将原始数据转换为合适的形式。这称为数据预处理，特征工程是该过程的一个最为重要的组成部分。根据 Anaconda 2020年的一项 [调查结果](https://www.anaconda.com/state-of-data-science-2020 ), 数据科学家平均要花费 80% 的时间处理数据。
+## 背景
+
+当前， 机器学习技术广泛应用于各个领域， 例如 推荐系统[^1-3] ,  欺诈检测[^4-6], 广告推荐， 癌症诊断等， 在机器学习技术的帮助下，这些领域取得了显著的提升。
+
+一般来说，要构建一个机器学习系统，通常需要一个专业而复杂的ML流程，它通常包括数据准备、特征工程、模型生成和模型评估等。人们普遍认为，机器学习方法的性能在很大程度上取决于特征的质量，生成良好的特征集成为追求高性能的关键步骤。因此，大多数机器学习工程师在构建机器学习系统时都会花费大量精力来获取有用的特征。特征工程是将原始数据转换为有用特征的过程。现实世界的数据几乎总是杂乱无章的。在部署机器学习算法进行处理之前，必须将原始数据转换为合适的形式。这称为数据预处理，特征工程是该过程的一个最为重要的组成部分。根据 Anaconda 2020年的一项 [调查结果](https://www.anaconda.com/state-of-data-science-2020 ), 数据科学家平均要花费 80% 的时间处理数据。
+
+然而，令人沮丧的是，特征工程通常是人工干预ML流程中最不可或缺的部分，因为人类的直觉和经验是非常必要的，因此，它变得单调乏味、任务相关且具有挑战性，因此非常耗时。另一方面，随着工业任务中对ML技术需求的不断增长，在所有领域中手动执行特征工程变得不切实际。这促进了自动特征工程的诞生，这是自动机器学习（AutoML）[13]–[16]的一个重要主题。自动特征工程的发展不仅可以将机器学习工程师从繁重乏味的过程中解放出来，而且为机器学习技术在越来越多的应用提供了动力。
+
+对于一个常规的有监督学习任务，问题可以表述为使用训练示例来寻找函数F:X→ Y，定义为返回获得最高分数的Y值：F（x）=arg max S（x，Y），其中x是输入空间，Y是输出空间，S: x×Y→ R是评分函数。自动特征工程的目标是学习特征表示ψ：X→ Z、 在原有特征x的基础上构造新的特征表示Z，以尽可能提高后续机器学习工具的性能。
+
+目前，已经就这一方法进行了几项研究。举几个例子，一些方法使用基于强化学习的策略来执行自动特征工程[17]–[19]。这些方法需要多次尝试，并且有必要生成一个新的特征集，并在每一轮中对其进行评估，使其在工业任务中不可行。基于迁移学习或元学习的策略也被用于自动特征工程[20]，[21]。然而，为了训练这些方法，需要在不同的数据集上进行大量的实验，并且很难引入新的算子或增加父特征的数量。一些方法遵循生成选择程序[22]–[24]进行自动特征工程。然而，这些方法始终在特征生成阶段生成所有合法特征，然后从中选择一个子集特征，因此时间和空间复杂度极高，不适用于数据量大或特征维度高的任务。
+
+在工业任务中，真实业务数据的大小总是非常巨大，这对空间和时间复杂性提出了极高的要求。同时，由于业务的快速变化，对算法的灵活性和可扩展性也提出了很高的要求。此外，还有更多的要求需要解决。
+
+在完整的机器学习 Pipeline 中，特征工程通常占据了数据科学家很大一部分的精力，一方面是因为特征工程能够显著提升模型性能，高质量的特征能够大大简化模型复杂度，让模型变得高效且易理解、易维护，如果没有具有代表性的特征，即使有最佳的超参数，模型性能也会十分糟糕；另一方面因为扎实的特征工程不仅要求数据科学家拥有坚实的数据挖掘和统计背景，还要求具有相关的领域知识，这对数据科学家提出了很高的要求。因此，自动化特征工程(Automated Feature Engineering, AutoFE)的概念应运而生，特征工程的自动化旨在减少数据科学家反复试错带来的时间成本，辅助他们更高效地尝试想法与排除错误，扩大特征空间的搜索广度和深度，改善模型表现。
+
+AutoFE可以看作自动化机器学习技术(Automated Machine Learning, AutoML)的一环，AutoML主要包括自动化特征工程、自动化模型选择、自动化超参调优三块，根据侧重点的不同，AutoML又分为传统AutoML和深度AutoML，在数据挖掘领域，AutoML偏向于特征工程和模型选择(如Auto-sklearn)，而在深度学习领域，AutoML偏向于超参优化和神经架构搜索(如Auto-Keras)。这样的差异很大程度与深度学习方法强大的特征融合能力有关，实际上深度学习也被称为无监督特征学习(Unsupervised Feature Learning)，但是深度学习仅仅是AutoFE的一种可能的解决方案，深度学习虽然避免了繁琐的特征工程，但又带来了大量的超参调优工作，因此深度学习工程师常被戏称为“调参工程师”。
+
+- 适用性强：适应性强的工具意味着用户友好且易于使用。自动特征工程算法的性能不应依赖于大量的超参数，或者其超参数配置之一可以应用于不同的数据集。
+- 分布式计算：实际业务任务中的样本和功能数量相当大，这使得分布式计算成为必要。自动特征工程算法的大部分部分应该能够并行计算。
+- 实时推理：实时推理涉及许多实际业务。在这种情况下，一旦输入了一个实例，就应该立即生成特征，并随后执行预测。
+
+在本文中，我们从典型的两阶段的角度来研究这个问题，并提出了一种称为SAFE（Scalable Automatic Feature Engineering）的方法来执行有效的自动特征工程，该方法包括特征生成阶段和特征选择阶段。我们保证计算效率、可扩展性和上述要求。
+本文的主要贡献总结如下：
+
+- 在特征生成阶段，与以往的方法不同，以往的方法侧重于使用什么操作员或如何生成所有合法特征，我们侧重于挖掘原始特征对，以更高的概率生成更有效的新特征，以提高效率。
+- 在特征选择阶段，我们提出了一个特征选择 pipeline ，考虑了单个特征的能力、特征对的冗余度以及通过典型树模型评估的特征重要性。它适用于多个不同的业务数据集和各种机器学习算法。
+- 我们已经在大数据集和多分类器上实验证明了我们的算法的优势。与原始特征空间相比，预测精度平均提高了6.50%．
+
+## 相关研究
+
+## 工业界--- AutoML 开源工具箱
+
+AutoFE作为AutoML的一环，常被集成在大型AutoML平台中，国外的知名互联网公司均在AutoML领域有所投入，其中最有代表性也最成熟的产品是谷歌的Cloud AutoML，不过该平台主要致力于深度AutoML，面向传统AutoML的平台有微软的NNI平台和AML平台，其中NNI内置了基于梯度和决策树的自动特征选择算法，其次是一些专注于AutoML的AI创业公司，比如H2O.ai开源的H2O AutoML是一个Java实现的AutoML平台，H2O支持常见的机器学习模型的自动化构建，其中AutoFE被转化为了超参优化的问题，即统一采用启发式搜索的方式搜索最优的特征、模型和超参数，同时还支持训练指标的可视化。
+
+除了这些大型平台，也有一些具有针对性的低阶AutoML工具包被研发出来，最早的AutoML库是发布于2013年的AutoWEKA，它实现了模型选择，超参搜索等基本功能。依赖于著名机器学习工具包sklearn的Auto-sklearn是目前最成熟且功能相对完备的AutoML框架之一，Auto-sklearn集成了16种分类模型、13种回归模型、18种特征预处理方法和5种数据预处理方法，共组合产生了超过110个超参数的结构化假设空间，并采用基于序列模型的贝叶斯优化器搜索最优模型。宾夕法尼亚大学研发的TPOT也是一个优秀的基于sklearn的AutoFE工具包，TPOT首先会分析数据的多项式特征和主成分特征，然后通过遗传算法迭代搜索交叉熵最小的特征子集，最后建立随机森林模型。
+
+专门面向AutoFE的工具包还比较少，其中最为著名的是麻省理工学院开发的FeatureTools，FeatureTools主要实现了关系型数据库的多表特征自动融合，FeatureTools使用了一种叫做深度特征合成(Deep Feature Synthesis, DFS)的算法，该算法能遍历通过关系数据库中模式描述的关系路径，当DFS遍历这些路径时，它通过数据操作(如求和、取平均值、计数等)生成合成特征，IBM也研发出了面向关系型数据库的自动特征融合工具OneBM，OneBM通过基于深度优先搜索的复杂关系图挖掘方法，实现了关系数据库特征工程的自动化以及高阶特征的自动合成和抽取等功能。除此之外，还存在一些Boruta-py、Tsfresh这类单独实现某种AutoFE算法的工具包。但目前这些落地的AutoFE工具包主要面向的特定场景下的关系型数据库，适用范围并不是特别广泛。
+
+除了AutoFE算法的研究，以众包的方式实现AutoFE也是值得思考的方式，如麻省理工学院建立的用于管理数据科学协作的FeatureHub平台使得数据科学家能在特征工程开发过程中互相协作，这个系统能自动对生成特征评分，以确定当前模型的总体价值，这种以众包方式进行特征工程和机器学习的方法在测试时取得了不错的效果。
+
+
+
+## 学术界--- AutoML 相关研究论文
+
+在学术界，AutoFE的研究也主要集中于基于特征枚举与评估的启发式算法(Heuristic)，比如IBM提出的Cognito是面向监督学习的AutoFE算法，它递归地在特征集上应用预先定义的数学变换获取新特征，并采用指定的特征选择策略移除冗余特征，避免特征数量的指数级增长。伯克利大学提出的ExploreKit框架放弃了采用模型评估的方式来评估候选特征的质量，而是生成所有可能的候选特征后使用一个学习到的排序函数对它们进行排序，大大降低了AutoFE固有的计算复杂度。不过基于启发式算法的AutoFE常常具有很高的计算成本，简单的特征生成方法也常常导致模型的过拟合，虽然深度学习是一个很好的特征学习方式，但由于其缺乏解释性以及过参数化的特性，导致深度学习在许多应用领域都不够有效。近几年，基于元学习(Meta Learing)的AutoFE得到了越来越多的研究，比如IBM提出的LFE(Learning Feature Engineering)构建了一个AutoFE模型，该模型可以从过去的特征工程经验中学习概括出不同的特征变换对模型性能的影响模式，从而自动完成具有可解释性的特征工程，但LFE只支持分类任务下的特征转换，不支持特征融合。基于强化学习的AutoFE也得到了一些研究，比如IBM提出的基于Q-Learning的TransGraph，但其同样会遇到特征组合爆炸的问题。
+
+总体来说，目前的AutoFE技术和AutoML技术大多都面向于非常成熟的应用场景，也就是说如果一个机器学习项目的解决方案是明确的，但特征工程、模型选择和超参调整等步骤的人力成本过高，就可以考虑借助AutoML技术，通过科学化的建模算法来有效地提高建模的效率及质量，减少人力成本。不过目前AutoML技术的效率还无法替代初级的模型调参人员，但对于毫无调参经验的业务人员来说，AutoML技术依旧是很有帮助的。
+
+作为自动机器学习[13]-[16]中一个不容忽视的问题，自动特征工程近年来受到了广泛关注，并从不同角度提出了许多方法来解决这一任务[17]-[24]，[26]-[28]。在这一部分中，我们主要讨论了三种典型的策略，包括生成选择策略、基于强化学习的策略和基于迁移学习的策略。给定一个有监督的学习数据集，自动特征工程的典型方法是遵循生成-选择过程。FICUS算法[26]通过构造一组候选特征进行初始化，并迭代改进，直到计算预算耗尽。在每次迭代过程中，它执行波束搜索来构造新特征，并通常使用基于决策树中信息增益的启发式度量来选择特征。TFC[27]还通过迭代框架解决了这一任务。在每次迭代中，它基于当前特征库和所有可用的操作符生成所有合法特征，然后使用信息增益从所有候选特征中选择最佳特征，并将其保留为新特征库。有了这个框架，随着迭代的进行，可以获得更高阶的特征组合。然而，每次迭代中的穷举搜索会导致特征空间的组合爆炸，从而导致这种方法不可扩展。为了避免穷举搜索，提出了基于学习的方法，如FCTree算法[28]。FCTree通过对原始特征应用多个顺序变换来训练决策树并执行特征生成，并根据决策树每个节点上的信息增益选择特征。一旦建立了一棵树，在内部决策节点上选择的特征就会被删除用于获取构造的特征。[24]是一种基于回归的算法，它通过挖掘成对特征关联、识别每对特征之间的线性或非线性关系、应用回归并选择稳定的关系和提高预测性能来学习表示。由于时间的消耗，这些算法总是遇到性能和可伸缩性瓶颈如果没有巧妙的设计，特征生成和选择过程中的资源可能非常不令人满意。
+
+本文还探讨了强化学习策略。
+[17] 将特征选择形式化为强化学习问题，并引入蒙特卡罗树搜索的适应性。这里，选择可用功能子集的问题被转换为单人游戏，其状态都是功能的可能子集，操作包括选择功能并将其添加到子集。[18] 处理这个问题的方法是在一个有向无环图上进行探索，该图表示不同转换版本的并通过Qlearning学习在给定预算下探索可用特征工程选择的有效策略。[19] 将此任务形式化为异构转换图（HTG）上的优化问题。它在HTG上提出了一个深度Q学习，以支持细粒度和广义FE策略的有效学习，这些策略可以从集合中传递工程“良好”特性的知识将数据集转换为其他看不见的数据集。
 
 ## 特征工程的主要步骤
 
@@ -120,47 +172,6 @@ AutoML服务旨在自动化机器学习过程的部分或所有步骤，包括�
 
 
 
-## 背景
-
-当前， 机器学习技术广泛应用于各个领域， 例如 推荐系统[^1-3] ,  欺诈检测[^4-6], 广告推荐， 癌症诊断等， 在机器学习技术的帮助下，这些领域取得了显著的提升。
-
-一般来说，要构建一个机器学习系统，通常需要一个专业而复杂的ML流程，它通常包括数据准备、特征工程、模型生成和模型评估等。人们普遍认为，机器学习方法的性能在很大程度上取决于特征的质量，生成良好的特征集成为追求高性能的关键步骤。因此，大多数机器学习工程师在构建机器学习系统时都会花费大量精力来获取有用的特征。
-
-然而，令人沮丧的是，特征工程通常是人工干预ML流程中最不可或缺的部分，因为人类的直觉和经验是非常必要的，因此，它变得单调乏味、任务相关且具有挑战性，因此非常耗时。另一方面，随着工业任务中对ML技术需求的不断增长，在所有领域中手动执行特征工程变得不切实际。这促进了自动特征工程的诞生，这是自动机器学习（AutoML）[13]–[16]的一个重要主题。自动特征工程的发展不仅可以将机器学习工程师从繁重乏味的过程中解放出来，而且为机器学习技术在越来越多的应用提供了动力。
-
-对于一个常规的有监督学习任务，问题可以表述为使用训练示例来寻找函数F:X→ Y，定义为返回获得最高分数的Y值：F（x）=arg max S（x，Y），其中x是输入空间，Y是输出空间，S: x×Y→ R是评分函数。自动特征工程的目标是学习特征表示ψ：X→ Z、 在原有特征x的基础上构造新的特征表示Z，以尽可能提高后续机器学习工具的性能。
-
-目前，已经就这一方法进行了几项研究。举几个例子，一些方法使用基于强化学习的策略来执行自动特征工程[17]–[19]。这些方法需要多次尝试，并且有必要生成一个新的特征集，并在每一轮中对其进行评估，使其在工业任务中不可行。基于迁移学习或元学习的策略也被用于自动特征工程[20]，[21]。然而，为了训练这些方法，需要在不同的数据集上进行大量的实验，并且很难引入新的算子或增加父特征的数量。一些方法遵循生成选择程序[22]–[24]进行自动特征工程。然而，这些方法始终在特征生成阶段生成所有合法特征，然后从中选择一个子集特征，因此时间和空间复杂度极高，不适用于数据量大或特征维度高的任务。
-
-在工业任务中，真实业务数据的大小总是非常巨大，这对空间和时间复杂性提出了极高的要求。同时，由于业务的快速变化，对算法的灵活性和可扩展性也提出了很高的要求。此外，还有更多的要求需要解决。
-
-
-
-- 适用性强：适应性强的工具意味着用户友好且易于使用。自动特征工程算法的性能不应依赖于大量的超参数，或者其超参数配置之一可以应用于不同的数据集。
-- 分布式计算：实际业务任务中的样本和功能数量相当大，这使得分布式计算成为必要。自动特征工程算法的大部分部分应该能够并行计算。
-- 实时推理：实时推理涉及许多实际业务。在这种情况下，一旦输入了一个实例，就应该立即生成特征，并随后执行预测。
-
-在本文中，我们从典型的两阶段的角度来研究这个问题，并提出了一种称为SAFE（Scalable Automatic Feature Engineering）的方法来执行有效的自动特征工程，该方法包括特征生成阶段和特征选择阶段。我们保证计算效率、可扩展性和上述要求。
-本文的主要贡献总结如下：
-
-- 在特征生成阶段，与以往的方法不同，以往的方法侧重于使用什么操作员或如何生成所有合法特征，我们侧重于挖掘原始特征对，以更高的概率生成更有效的新特征，以提高效率。
-- 在特征选择阶段，我们提出了一个特征选择 pipeline ，考虑了单个特征的能力、特征对的冗余度以及通过典型树模型评估的特征重要性。它适用于多个不同的业务数据集和各种机器学习算法。
-- 我们已经在大数据集和多分类器上实验证明了我们的算法的优势。与原始特征空间相比，预测精度平均提高了6.50%．
-
-
-
-## 相关研究
-
-作为自动机器学习[13]-[16]中一个不容忽视的问题，自动特征工程近年来受到了广泛关注，并从不同角度提出了许多方法来解决这一任务[17]-[24]，[26]-[28]。在这一部分中，我们主要讨论了三种典型的策略，包括生成选择策略、基于强化学习的策略和基于迁移学习的策略。给定一个有监督的学习数据集，自动特征工程的典型方法是遵循生成-选择过程。FICUS算法[26]通过构造一组候选特征进行初始化，并迭代改进，直到计算预算耗尽。在每次迭代过程中，它执行波束搜索来构造新特征，并通常使用基于决策树中信息增益的启发式度量来选择特征。TFC[27]还通过迭代框架解决了这一任务。在每次迭代中，它基于当前特征库和所有可用的操作符生成所有合法特征，然后使用信息增益从所有候选特征中选择最佳特征，并将其保留为新特征库。有了这个框架，随着迭代的进行，可以获得更高阶的特征组合。然而，每次迭代中的穷举搜索会导致特征空间的组合爆炸，从而导致这种方法不可扩展。为了避免穷举搜索，提出了基于学习的方法，如FCTree算法[28]。FCTree通过对原始特征应用多个顺序变换来训练决策树并执行特征生成，并根据决策树每个节点上的信息增益选择特征。一旦建立了一棵树，在内部决策节点上选择的特征就会被删除用于获取构造的特征。[24]是一种基于回归的算法，它通过挖掘成对特征关联、识别每对特征之间的线性或非线性关系、应用回归并选择稳定的关系和提高预测性能来学习表示。由于时间的消耗，这些算法总是遇到性能和可伸缩性瓶颈如果没有巧妙的设计，特征生成和选择过程中的资源可能非常不令人满意。
-
-本文还探讨了强化学习策略。
-[17] 将特征选择形式化为强化学习问题，并引入蒙特卡罗树搜索的适应性。这里，选择可用功能子集的问题被转换为单人游戏，其状态都是功能的可能子集，操作包括选择功能并将其添加到子集。[18] 处理这个问题的方法是在一个有向无环图上进行探索，该图表示不同转换版本的并通过Qlearning学习在给定预算下探索可用特征工程选择的有效策略。[19] 将此任务形式化为异构转换图（HTG）上的优化问题。它在HTG上提出了一个深度Q学习，以支持细粒度和广义FE策略的有效学习，这些策略可以从集合中传递工程“良好”特性的知识将数据集转换为其他看不见的数据集。
-
-参考：
-
-[^1]: J. Davidson, B. Liebald, J. Liu, P. Nandy, T. V. Vleet, U. Gargi, S. Gupta, Y. He, M. Lambert, B. Livingston, and D. Sampath, “The youtube video recommendation system,” in Proceedings of the 2010 ACM Conference on Recommender Systems, RecSys 2010, Barcelona, Spain, September 26-30, 2010, 2010, pp. 293–296.
-[^2]: X. He, J. Pan, O. Jin, T. Xu, B. Liu, T. Xu, Y. Shi, A. Atallah, R. Herbrich, S. Bowers, and J. Q. Candela, “Practical lessons from predicting clicks on ads at facebook,” in Proceedings of the Eighth International Workshop on Data Mining for Online Advertising, ADKDD 2014, August 24, 2014, New York City, New York, USA, 2014, pp. 5:1– 5:9.
-
 
 
 ## ExploreKit
@@ -173,37 +184,7 @@ ExploreKit 基于直觉，即信息量大的特征通常来自于对基本特征
 
 ![img](https://miro.medium.com/max/1483/1*cF-MjVs5VDgwPD2FTRXSUg.png)
 
-**Advantages :**
+参考：
 
-· Uses meta learning to rank candidate features rather than running feature selection on all created features which can sometimes be very large.
-
-**Limitations :**
-
-· No open source implementation either in Python or R.
-
-
-
-## **OneBM** 
-
-**OneBM** works directly with multiple raw tables in a database. It joins the tables incrementally, following different paths on the relational graph. It automatically identifies data types of the joint results, including simple data types (numerical or categorical) and complex data types (set of numbers, set of categories, sequences, time series and texts), and applies corresponding pre-defined feature engineering techniques on the given types. In doing so, new feature engineering techniques could be plugged in via an interface with its feature extractor modules to extract desired types of features in specific domain. it supports data scientists by automating the most popular feature engineering techniques on different structured and unstructured data.
-
-Feature selection is used to remove irrelevant features extracted in the prior steps. First, duplicated features are removed. Second, if the training and test data have an implicit order defined by a column, e.g. timestamp, then drift features are detected by comparing the distribution between the value of features in the training and a validation set. If two distributions are different, the feature is identified as a drift feature which may cause over-fitting. Drift features are all removed from the feature set. Besides, we also employ Chi-square hypothesis testing to test whether there exists a dependency between a feature and the target variable. Features that are marginally independent from the target variable are removed.
-
-
-
-**Advantages :**
-
-· Works well with both relational as well as non-relational data.
-
-· Generates simple as well as complex features as compared to FeatureTools.
-
-· Tested in Kaggle competitions where it out performed state of the art models.
-
-· Can be used to create feature for big data also.
-
-
-
-[^1]:
-[^2]:
-[^3]:
-
+[^1]: J. Davidson, B. Liebald, J. Liu, P. Nandy, T. V. Vleet, U. Gargi, S. Gupta, Y. He, M. Lambert, B. Livingston, and D. Sampath, “The youtube video recommendation system,” in Proceedings of the 2010 ACM Conference on Recommender Systems, RecSys 2010, Barcelona, Spain, September 26-30, 2010, 2010, pp. 293–296.
+[^2]: X. He, J. Pan, O. Jin, T. Xu, B. Liu, T. Xu, Y. Shi, A. Atallah, R. Herbrich, S. Bowers, and J. Q. Candela, “Practical lessons from predicting clicks on ads at facebook,” in Proceedings of the Eighth International Workshop on Data Mining for Online Advertising, ADKDD 2014, August 24, 2014, New York City, New York, USA, 2014, pp. 5:1– 5:9.
