@@ -16,7 +16,7 @@ import sklearn.ensemble
 import sklearn.model_selection
 import sklearn.svm
 from autotabular.pipeline.classification import SimpleClassificationPipeline
-from autotabular.pipeline.components.base import autotabularChoice, autotabularClassificationAlgorithm, autotabularComponent, autotabularPreprocessingAlgorithm
+from autotabular.pipeline.components.base import AutotabularChoice, AutotabularClassificationAlgorithm, AutotabularComponent, AutotabularPreprocessingAlgorithm
 from autotabular.pipeline.constants import DENSE, INPUT, PREDICTIONS, SIGNED_DATA, SPARSE, UNSIGNED_DATA
 from autotabular.pipeline.util import get_dataset
 from ConfigSpace.configuration_space import ConfigurationSpace
@@ -26,7 +26,7 @@ from sklearn.base import clone
 from sklearn.utils.validation import check_is_fitted
 
 
-class DummyClassifier(autotabularClassificationAlgorithm):
+class DummyClassifier(AutotabularClassificationAlgorithm):
 
     @staticmethod
     def get_properties(dataset_properties=None):
@@ -49,7 +49,7 @@ class DummyClassifier(autotabularClassificationAlgorithm):
         return cs
 
 
-class DummyPreprocessor(autotabularPreprocessingAlgorithm):
+class DummyPreprocessor(AutotabularPreprocessingAlgorithm):
 
     @staticmethod
     def get_properties(dataset_properties=None):
@@ -72,7 +72,7 @@ class DummyPreprocessor(autotabularPreprocessingAlgorithm):
         return cs
 
 
-class CrashPreprocessor(autotabularPreprocessingAlgorithm):
+class CrashPreprocessor(AutotabularPreprocessingAlgorithm):
 
     def __init__(*args, **kwargs):
         pass
@@ -132,7 +132,7 @@ class SimpleClassificationPipelineTest(unittest.TestCase):
         for key in classifiers:
             if hasattr(classifiers[key], 'get_components'):
                 continue
-            self.assertIn(autotabularClassificationAlgorithm,
+            self.assertIn(AutotabularClassificationAlgorithm,
                           classifiers[key].__bases__)
 
     def test_find_preprocessors(self):
@@ -141,7 +141,7 @@ class SimpleClassificationPipelineTest(unittest.TestCase):
         for key in preprocessors:
             if hasattr(preprocessors[key], 'get_components'):
                 continue
-            self.assertIn(autotabularPreprocessingAlgorithm,
+            self.assertIn(AutotabularPreprocessingAlgorithm,
                           preprocessors[key].__bases__)
 
     def test_default_configuration(self):
@@ -834,14 +834,14 @@ class SimpleClassificationPipelineTest(unittest.TestCase):
                     for data_type, pipeline in to_check.items():
                         for sub_name, sub_step in pipeline.items():
                             # If it is a Choice, make sure it is the correct one!
-                            if isinstance(sub_step, autotabularChoice):
+                            if isinstance(sub_step, AutotabularChoice):
                                 key = 'data_preprocessing:{}:{}:__choice__'.format(
                                     data_type, sub_name)
                                 keys_checked.extend(
                                     self._test_set_hyperparameter_choice(
                                         key, sub_step, config_dict))
                             # If it is a component, make sure it has the correct hyperparams
-                            elif isinstance(sub_step, autotabularComponent):
+                            elif isinstance(sub_step, AutotabularComponent):
                                 keys_checked.extend(
                                     self._test_set_hyperparameter_component(
                                         'data_preprocessing:{}:{}'.format(

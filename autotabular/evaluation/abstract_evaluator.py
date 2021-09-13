@@ -306,7 +306,7 @@ class AbstractEvaluator(object):
         y_hat: np.ndarray,
         scoring_functions: Optional[List[Scorer]] = None
     ) -> Union[float, Dict[str, float]]:
-        """Auto-sklearn follows a minimization goal. The calculate_loss
+        """Auto-tabular follows a minimization goal. The calculate_loss
         internally translate a score function to a minimization problem.
 
         For a dummy prediction, the worst result is assumed.

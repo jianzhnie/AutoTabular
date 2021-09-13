@@ -58,7 +58,7 @@ class BackendContext(object):
         self._temporary_directory = (
             get_randomized_directory_name(
                 temporary_directory=temporary_directory, ))
-        # Auto-Sklearn logs through the use of a PicklableClientLogger
+        # Auto-tabular logs through the use of a PicklableClientLogger
         # For this reason we need a port to communicate with the server
         # When the backend is created, this port is not available
         # When the port is available in the main process, we
@@ -88,9 +88,9 @@ class BackendContext(object):
         if self.delete_tmp_folder_after_terminate or force:
             if self._tmp_dir_created is False:
                 raise ValueError(
-                    'Failed to delete tmp dir: % s because auto-sklearn did not '
+                    'Failed to delete tmp dir: % s because Auto-tabular did not '
                     'create it. Please make sure that the specified tmp dir does not '
-                    'exist when instantiating auto-sklearn.' %
+                    'exist when instantiating Auto-tabular.' %
                     self.temporary_directory)
             try:
                 shutil.rmtree(self.temporary_directory)
@@ -111,7 +111,7 @@ class Backend(object):
     """Utility class to load and save all objects to be persisted.
 
     These are:
-    * start time of auto-sklearn
+    * start time of Auto-tabular
     * true targets of the ensemble
     """
 
@@ -129,7 +129,7 @@ class Backend(object):
             pass
 
         self.internals_directory = os.path.join(self.temporary_directory,
-                                                '.auto-sklearn')
+                                                '.Auto-tabular')
         self._make_internals_directory()
 
     def setup_logger(self, port: int) -> None:

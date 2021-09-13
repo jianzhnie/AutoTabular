@@ -1,7 +1,7 @@
 import os
 import sys
 
-from autotabular.pipeline.components.base import autotabularClassificationAlgorithm
+from autotabular.pipeline.components.base import AutotabularClassificationAlgorithm
 
 # Add the parent directory to the path to import the parent component as
 # dummy_components.dummy_component_2.DummyComponent1
@@ -10,5 +10,5 @@ parent_directory = os.path.abspath(os.path.join(this_directory, '..'))
 sys.path.append(parent_directory)
 
 
-class DummyComponent2(autotabularClassificationAlgorithm):
+class DummyComponent2(AutotabularClassificationAlgorithm):
     pass

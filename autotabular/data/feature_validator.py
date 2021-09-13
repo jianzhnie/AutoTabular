@@ -20,7 +20,7 @@ SUPPORTED_FEAT_TYPES = typing.Union[typing.List, pd.DataFrame, np.ndarray,
 
 
 class FeatureValidator(BaseEstimator):
-    """Checks the input data to Auto-Sklearn.
+    """Checks the input data to Auto-tabular.
 
     It also determines what columns are categorical and which ones are numerical,
     so that the pre-processing pipeline can process this columns accordingly.
@@ -53,7 +53,7 @@ class FeatureValidator(BaseEstimator):
             if isinstance(feat_type, dict):
                 self.feat_type = feat_type
             elif not isinstance(feat_type, list):
-                raise ValueError('Auto-Sklearn expects a list of categorical/'
+                raise ValueError('Auto-tabular expects a list of categorical/'
                                  'numerical feature types, yet a'
                                  ' {} was provided'.format(type(feat_type)))
             else:
@@ -76,7 +76,7 @@ class FeatureValidator(BaseEstimator):
         X_train: SUPPORTED_FEAT_TYPES,
         X_test: typing.Optional[SUPPORTED_FEAT_TYPES] = None,
     ) -> BaseEstimator:
-        """Validates input data to Auto-Sklearn. The supported data types are
+        """Validates input data to Auto-tabular. The supported data types are
         List, numpy arrays and pandas DataFrames. CSR sparse data types are
         also supported.
 
@@ -99,7 +99,7 @@ class FeatureValidator(BaseEstimator):
         if hasattr(X_train, 'iloc'):
             if self.feat_type is not None:
                 raise ValueError(
-                    'When providing a DataFrame to Auto-Sklearn, we extract '
+                    'When providing a DataFrame to Auto-tabular, we extract '
                     'the feature types from the DataFrame.dtypes. That is, '
                     'providing the option feat_type to the fit method is not '
                     'supported when using a Dataframe. Please make sure that the '
@@ -186,7 +186,7 @@ class FeatureValidator(BaseEstimator):
             if not isinstance(X, scipy.sparse.csr_matrix):
                 self.logger.warning(
                     f'Sparse data provided is of type {type(X)} '
-                    'yet Auto-Sklearn only support csr_matrix. Auto-sklearn '
+                    'yet Auto-tabular only support csr_matrix. Auto-tabular '
                     'will convert the provided data to the csr_matrix format.')
                 X = X.tocsr(copy=False)
             if hasattr(X, 'sort_indices'):
@@ -216,7 +216,7 @@ class FeatureValidator(BaseEstimator):
                 X,
             (np.ndarray, pd.DataFrame)) and not scipy.sparse.issparse(X):
             raise ValueError(
-                'Auto-sklearn only supports Numpy arrays, Pandas DataFrames,'
+                'Auto-tabular only supports Numpy arrays, Pandas DataFrames,'
                 ' scipy sparse and Python Lists, yet, the provided input is'
                 ' of type {}'.format(type(X)))
 
@@ -225,7 +225,7 @@ class FeatureValidator(BaseEstimator):
 
         if self.data_type != type(X):
             self.logger.warning(
-                'Auto-sklearn previously received features of type %s '
+                'Auto-tabular previously received features of type %s '
                 'yet the current features have type %s. Changing the dtype '
                 'of inputs to an estimator might cause problems' % (
                     str(self.data_type),
@@ -237,7 +237,7 @@ class FeatureValidator(BaseEstimator):
             if not np.issubdtype(X.dtype.type,
                                  np.number):  # type: ignore[union-attr]
                 raise ValueError(
-                    'When providing a numpy array to Auto-sklearn, the only valid '
+                    'When providing a numpy array to Auto-tabular, the only valid '
                     'dtypes are numerical ones. The provided data type {} is not supported.'
                     ''.format(
                         X.dtype.type,  # type: ignore[union-attr]
@@ -289,7 +289,7 @@ class FeatureValidator(BaseEstimator):
         for i, column in enumerate(X.columns):
             if is_sparse(X[column]):
                 raise ValueError(
-                    'Auto-sklearn does not yet support sparse pandas Series.'
+                    'Auto-tabular does not yet support sparse pandas Series.'
                     f' Please convert {column} to a dense format.')
             elif X[column].dtype.name in ['category', 'bool']:
 
@@ -300,7 +300,7 @@ class FeatureValidator(BaseEstimator):
                 if X[column].dtype.name == 'object':
                     raise ValueError(
                         'Input Column {} has invalid type object. '
-                        'Cast it to a valid dtype before using it in Auto-Sklearn. '
+                        'Cast it to a valid dtype before using it in Auto-tabular. '
                         'Valid types are numerical, categorical or boolean. '
                         'You can cast it to a valid dtype using '
                         'pandas.Series.astype .'
@@ -312,7 +312,7 @@ class FeatureValidator(BaseEstimator):
                 elif pd.core.dtypes.common.is_datetime_or_timedelta_dtype(
                         X[column].dtype):
                     raise ValueError(
-                        'Auto-sklearn does not support time and/or date datatype as given '
+                        'Auto-tabular does not support time and/or date datatype as given '
                         'in column {}. Please convert the time information to a numerical value '
                         'first. One example on how to do this can be found on '
                         'https://stats.stackexchange.com/questions/311494/'.
@@ -322,7 +322,7 @@ class FeatureValidator(BaseEstimator):
                         'Input Column {} has unsupported dtype {}. '
                         'Supported column types are categorical/bool/numerical dtypes. '
                         'Make sure your data is formatted in a correct way, '
-                        'before feeding it to Auto-Sklearn.'.format(
+                        'before feeding it to Auto-tabular.'.format(
                             column,
                             X[column].dtype.name,
                         ))

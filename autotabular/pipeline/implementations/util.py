@@ -25,7 +25,7 @@ def convert_multioutput_multiclass_to_multilabel(probas):
         for i, output in enumerate(probas):
             if output.shape[1] > 2:
                 raise ValueError('Multioutput-Multiclass supported by '
-                                 'scikit-learn, but not by auto-sklearn!')
+                                 'scikit-learn, but not by Auto-tabular!')
             # Only copy the probability of something having class 1
             elif output.shape[1] == 2:
                 multioutput_probas[:, i] = output[:, 1]

@@ -14,7 +14,7 @@ import sklearn.datasets
 import sklearn.decomposition
 import sklearn.ensemble
 import sklearn.svm
-from autotabular.pipeline.components.base import autotabularChoice, autotabularComponent, autotabularPreprocessingAlgorithm, autotabularRegressionAlgorithm
+from autotabular.pipeline.components.base import AutotabularChoice, AutotabularComponent, AutotabularPreprocessingAlgorithm, AutotabularRegressionAlgorithm
 from autotabular.pipeline.constants import DENSE, PREDICTIONS, SIGNED_DATA, SPARSE, UNSIGNED_DATA
 from autotabular.pipeline.regression import SimpleRegressionPipeline
 from autotabular.pipeline.util import get_dataset
@@ -60,7 +60,7 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
         for key in regressors:
             if hasattr(regressors[key], 'get_components'):
                 continue
-            self.assertIn(autotabularRegressionAlgorithm,
+            self.assertIn(AutotabularRegressionAlgorithm,
                           regressors[key].__bases__)
 
     def test_find_preprocessors(self):
@@ -69,7 +69,7 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
         for key in preprocessors:
             if hasattr(preprocessors[key], 'get_components'):
                 continue
-            self.assertIn(autotabularPreprocessingAlgorithm,
+            self.assertIn(AutotabularPreprocessingAlgorithm,
                           preprocessors[key].__bases__)
 
     def test_configurations(self):
@@ -564,14 +564,14 @@ class SimpleRegressionPipelineTest(unittest.TestCase):
                     for data_type, pipeline in to_check.items():
                         for sub_name, sub_step in pipeline.items():
                             # If it is a Choice, make sure it is the correct one!
-                            if isinstance(sub_step, autotabularChoice):
+                            if isinstance(sub_step, AutotabularChoice):
                                 key = 'data_preprocessing:{}:{}:__choice__'.format(
                                     data_type, sub_name)
                                 keys_checked.extend(
                                     self._test_set_hyperparameter_choice(
                                         key, sub_step, config_dict))
                             # If it is a component, make sure it has the correct hyperparams
-                            elif isinstance(sub_step, autotabularComponent):
+                            elif isinstance(sub_step, AutotabularComponent):
                                 keys_checked.extend(
                                     self._test_set_hyperparameter_component(
                                         'data_preprocessing:{}:{}'.format(

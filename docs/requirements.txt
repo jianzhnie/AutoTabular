@@ -1,0 +1,4 @@
+git+https://github.com/jianzhnie/AutoTabular
+mkdocs-material==5.5.12
+mkdocstrings
+Pygments==2.6.1
