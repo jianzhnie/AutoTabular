@@ -85,39 +85,57 @@ AutoFE可以看作自动化机器学习技术(Automated Machine Learning, AutoML
 
 ## 工业界--- AutoML 开源工具箱
 
-
-
 ### Auto-sklearn
 
-依赖于著名机器学习工具包sklearn的Auto-sklearn是目前最成熟且功能相对完备的AutoML框架之一，Auto-sklearn集成了16种分类模型、13种回归模型、18种特征预处理方法和5种数据预处理方法，共组合产生了超过110个超参数的结构化假设空间，并采用基于序列模型的贝叶斯优化器搜索最优模型。
+Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn开发的自动化机器学习框架，是目前最成熟且功能相对完备的AutoML框架之一。Auto-sklearn集成了16种分类模型、13种回归模型、18种特征预处理方法和5种数据预处理方法，共组合产生了超过110个超参数的结构化假设空间，并采用基于序列模型的贝叶斯优化器搜索最优模型。Auto-Sklearn的使用方法也和scikit-learn库基本一致， 这让熟悉sklearn的开发者很容易切换到Auto-Sklearn。在模型方面，除了sklearn提供的机器学习模型，还加入了xgboost、lightgbm 等算法支持。
 
-auto-sklearn顾名思义应该是和我们常用的scikit-learn有一定的关系，确实对的，auto-sklearn就是基于scikit-learn进行开发的自动化机器学习库，所以如果我们熟悉scikit-learn的使用，那么对于这个auto-sklearn就很好理解了的，不熟悉其实也没有关系，也蛮简单的，后续我拿一些小栗子来说明一下，主要围绕两个核心的分类接口和回归接口API：`AutoSklearnClassifier` 和 `AutoSklearnRegressor` 。
+#### Auto-Sklearn 优点
 
+- Auto-sklearn的最大优势在于它建立在sklearn的生态上，所以具有非常好的可扩展性以及兼容性，毕竟sklearn是目前为止最为流行的机器学习工具。 
+- Auto-skearn 可以极大地减少对于领域专家和算法专家的依赖： 一方面 Auto-skearn 可以自动进行模型选择和参数调优； 另一方面， Auto-skearn 根据单次训练时长和总体训练时间设置，最大化的利用机器性能和时间。
+- Auto-Sklearn支持切分训练/测试集的方式，也支持使用交叉验证。从而减少了训练模型的代码量和程序的复杂程度。另外，Auto-Sklearn支持加入扩展模型以及扩展预测处理方法。
 
+#### Auto-sklearn 缺点
 
+- Auto-sklearn 基于 sklearn库开发，所支持的模型必须有类似 sklearn 的接口， 对于其他的算法库，扩展性较差。
+- Auto-sklearn 目前不支持深度学习模型。
 
-
-`Auto-sklearn` 提供了开箱即用的监督型自动机器学习。从名字可以看出，`auto-sklearn` 是基于机器学习库 `scikit-learn` 构建的，可为新的数据集自动搜索学习算法，并优化其超参数。因此，它将机器学习使用者从繁琐的任务中解放出来，使其有更多时间专注于实际问题。当前版本为 `0.6.0`，具体信息请查看官网 `https://automl.github.io/auto-sklearn/master/`。不管官方介绍怎么写，还是实际拿出来溜溜看看效果。
-
-
-
-
-
-### Auto-Sklearn 优点
-
-通常情况下，我们只能依据个人的经验，基于机器性能、特征多少、数据量大小、算法以及迭代次数来估计模型训练时间，而Auto-Sklearn支持设置单次训练时间和总体训练时间，使得工具既能限制训练时间，又能充分利用时间和算力。
-
-Auto-Sklearn支持切分训练/测试集的方式，也支持使用交叉验证。从而减少了训练模型的代码量和程序的复杂程度。另外，Auto-Sklearn支持加入扩展模型以及扩展预测处理方法，具体用法可参见其源码example中的示例。
-
-### Auto-sklearn 缺点
-
-- 不支持深度学习，但是貌似会有AutoNet出来，像谷歌的cloud AutoML那样
-- 计算时长往往一个小时以上
-- 输出携带的信息较少，如果想进一步训练只能重写代码。
-- 在数据清洗这块还需要人为参与，目前对非数值型数据不友好
-- 
+- Auto-sklearn 的计算很慢，对于一个小数据集，计算时长往往一个小时以上
+- Auto-sklearn 的数据清洗上所包含的方法有限，复杂情况下还需要人为参与，目前对非数值型数据不友好
+- 但相反，对于自然语言处理的数据，缺乏一些有效的工具。
 
 
+
+### TPOT
+
+
+
+![An example TPOT pipeline](https://github.com/EpistasisLab/tpot/raw/master/images/tpot-pipeline-example.png)
+
+
+
+宾夕法尼亚大学研发的TPOT也是一个优秀的基于sklearn的自动化机器学习工具箱。	机器学习 Pipeline 包括 原始数据，到数据清洗，特征工程，模型选择，参数优化，模型验证等过程，整个过程可以有各自各样的组合。基于 **遗传编程**， TPOT 自动地智能地从数以千记的 pipeline 组合中探索出最优的处理流程。 在 TPOT 完成 搜索之后， 将会自动生成最优 Pipeline 的 Python 代码。TPOT 使用的是**遗传编程**的技术。**遗传编程与传统机器学习的区别：**机器学习主要是在一个参数空间上，通过调整参数获得最佳的预测结果，重点在找参数。遗传编程可以理解为一个能构造算法的算法，重点在找算法。TPOT 首先会分析数据的多项式特征和主成分特征，然后通过遗传算法迭代搜索交叉熵最小的特征子集，最后建立随机森林模型。
+
+#### 优点：
+
+- TPOT 基于 sklearn 来构建，能极大的利用 scikit-learn库的优势
+- TPOT 中的特征预处理算子： StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler, RandomizedPCA, Binarizer, and PolynomialFeatures. 
+- TPOT 的特征选择算子：VarianceThreshold, SelectKBest, SelectPercentile, SelectFwe, and Recursive Feature Elimination (RFE). 
+- 可以生成解决方案的代码，可以显示的看到整个  pipeline 
+
+#### 缺点：
+
+- TPOT 实现的 数据预处理和特征工程非常有限
+- 需要手动进行数据预处理工作
+- 缺少对文本特征的处理
+
+### H2O
+
+H2O 是 H2O.ai 公司的完全开源的分布式内存机器学习平台。H2O同时支持 R 和 Python，支持最广泛使用的统计和机器学习算法，包括梯度提升（Gradient Boosting）机器、广义线性模型、深度学习模型等。
+
+H2O 包括一个自动机器学习模块，使用自己的算法来构建管道。它对特征工程方法和模型超参数采用了穷举搜索，优化了管道。
+
+H2O 自动化了一些最复杂的数据科学和机器学习工作，例如特征工程、模型验证、模型调整、模型选择 和 模型部署。除此之外，它还提供了自动可视化以及机器学习的解释能力（MLI）。
 
 
 
