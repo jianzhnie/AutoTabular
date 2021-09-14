@@ -47,7 +47,7 @@ class HelmertEncoderTransformer(AutotabularPreprocessingAlgorithm):
             'handles_multilabel': True,
             'handles_multioutput': True,
             # TODO find out of this is right!
-            'handles_sparse': True,
+            'handles_sparse': False,
             'handles_dense': True,
             'input': (DENSE, SPARSE, UNSIGNED_DATA),
             'output': (INPUT, ),
