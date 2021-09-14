@@ -191,7 +191,7 @@ def make_scorer(name: str,
     """Make a scorer from a performance metric or loss function.
 
     Factory inspired by scikit-learn which wraps scikit-learn scoring functions
-    to be used in auto-sklearn.
+    to be used in Auto-tabular.
 
     Parameters
     ----------
@@ -335,7 +335,7 @@ def calculate_score(
     scoring_functions: Optional[List[Scorer]] = None
 ) -> Union[float, Dict[str, float]]:
     """Returns a score (a magnitude that allows casting the optimization
-    problem as a maximization one) for the given Auto-Sklearn Scorer object.
+    problem as a maximization one) for the given Auto-tabular Scorer object.
 
     Parameters
     ----------
@@ -410,7 +410,7 @@ def calculate_loss(
     scoring_functions: Optional[List[Scorer]] = None
 ) -> Union[float, Dict[str, float]]:
     """Returns a loss (a magnitude that allows casting the optimization problem
-    as a minimization one) for the given Auto-Sklearn Scorer object.
+    as a minimization one) for the given Auto-tabular Scorer object.
 
     Parameters
     ----------
@@ -461,7 +461,7 @@ def calculate_loss(
 
 def calculate_metric(metric: Scorer, prediction: np.ndarray,
                      solution: np.ndarray, task_type: int) -> float:
-    """Returns a metric for the given Auto-Sklearn Scorer object. It's
+    """Returns a metric for the given Auto-tabular Scorer object. It's
     direction is determined by the metric itself.
 
     Parameters
@@ -493,7 +493,7 @@ def calculate_metric(metric: Scorer, prediction: np.ndarray,
 def _compute_scorer(metric: Scorer, prediction: np.ndarray,
                     solution: np.ndarray, task_type: int) -> float:
     """Returns a score (a magnitude that allows casting the optimization
-    problem as a maximization one) for the given Auto-Sklearn Scorer object.
+    problem as a maximization one) for the given Auto-tabular Scorer object.
 
     Parameters
     ----------

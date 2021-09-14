@@ -52,7 +52,7 @@ algorithms_stochastic:
 performance_measures: f1_samples
 performance_type: solution_quality
 
-scenario_id: auto-sklearn
+scenario_id: Auto-tabular
 maximize: false
 algorithm_cutoff_time: 1800
 algorithm_cutoff_memory: 3072

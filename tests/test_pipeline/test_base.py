@@ -119,8 +119,8 @@ class BaseTest(unittest.TestCase):
 
         # Make sure that component irrespective, we check the init params
         for node_type in [
-                autotabular.pipeline.components.base.autotabularComponent,
-                autotabular.pipeline.components.base.autotabularChoice,
+                autotabular.pipeline.components.base.AutotabularComponent,
+                autotabular.pipeline.components.base.AutotabularChoice,
                 autotabular.pipeline.base.BasePipeline,
         ]:
 
@@ -135,7 +135,7 @@ class BaseTest(unittest.TestCase):
                 }),
             ]:
                 node = unittest.mock.Mock(spec=autotabular.pipeline.components.
-                                          base.autotabularComponent)
+                                          base.AutotabularComponent)
                 node.get_hyperparameter_search_space.return_value = cs
                 node.key = 'value'
                 base.steps = [('M', node)]
@@ -147,7 +147,7 @@ class BaseTest(unittest.TestCase):
 
             # Check for proper exception raising
             node = unittest.mock.Mock(
-                spec=autotabular.pipeline.components.base.autotabularComponent)
+                spec=autotabular.pipeline.components.base.AutotabularComponent)
             node.get_hyperparameter_search_space.return_value = cs
             base.steps = [('M', node)]
             with self.assertRaisesRegex(ValueError,

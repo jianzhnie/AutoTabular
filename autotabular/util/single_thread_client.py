@@ -28,7 +28,7 @@ class DummyFuture(dask.distributed.Future):
 
 
 class SingleThreadedClient(dask.distributed.Client):
-    """A class to Mock the Distributed Client class, in case Auto-Sklearn is
+    """A class to Mock the Distributed Client class, in case Auto-tabular is
     meant to run in the current Thread."""
 
     def __init__(self) -> None:

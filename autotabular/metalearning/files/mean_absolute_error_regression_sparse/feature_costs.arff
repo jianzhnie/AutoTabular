@@ -1,4 +1,4 @@
-@RELATION auto-sklearn_FEATURE_COSTS
+@RELATION Auto-tabular_FEATURE_COSTS
 
 @ATTRIBUTE instance_id STRING
 @ATTRIBUTE repetition NUMERIC
