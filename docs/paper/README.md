@@ -18,6 +18,8 @@
 
 ##　自动机器学习步骤
 
+![img](https://img2018.cnblogs.com/blog/1473228/201902/1473228-20190214212402566-383152380.png)
+
 AutoML服务旨在自动化机器学习过程的部分或所有步骤，包括：
 
 - 数据预处理：此过程包括提高数据质量，并使用数据清理、数据集成、数据转换等方法将非结构化原始数据转换为结构化格式。
@@ -25,10 +27,6 @@ AutoML服务旨在自动化机器学习过程的部分或所有步骤，包括�
 - 特征提取：此过程包括组合不同的特征或数据集，以生成新的特征，从而实现更准确的结果并减少正在处理的数据的大小。
 - 特征选择：AutoML可以自动选择有用特征。
 - 算法选择和超参数优化：AutoML工具可以选择最佳的超参数和算法，无需人工干预。
-
-
-
-![img](https://research.aimultiple.com/wp-content/uploads/2018/06/Datarobot_AutoML_Processes-800x972.png)
 
 
 
@@ -235,7 +233,7 @@ AutoFE作为AutoML的一环，常被集成在大型AutoML平台中，国外的�
 
 除了AutoFE算法的研究，以众包的方式实现AutoFE也是值得思考的方式，如麻省理工学院建立的用于管理数据科学协作的FeatureHub平台使得数据科学家能在特征工程开发过程中互相协作，这个系统能自动对生成特征评分，以确定当前模型的总体价值，这种以众包方式进行特征工程和机器学习的方法在测试时取得了不错的效果。
 
-## **国内研究**
+## 国内研究
 
 与国外研究现状相似的是，AutoML相关技术的研究以互联网大公司为主导，比如阿里巴巴于2018年推出了商业化云端机器学习平台PAI，PAI包括了整套AutoML引擎，致力于在最大限度上减少机器学习业务的搭建成本，PAI包含了从数据预处理、特征工程到算法训练和模型评估的整套自动化处理流程。百度也推出了基于PaddlePaddle的EasyDL平台，主要支持自动模型搜索、迁移学习、神经架构搜索、模型部署的自动化，基本实现了零算法训练模型的效果。华为的NAIE AutoML平台是以华为诺亚实验室Vega AutoML为原型开发的工具包，其中涵盖了AutoML框架中的数据预处理、特征工程、算法模型、超参优化、集成学习五个模块，其中数据预处理、特征工程、算法模型均被视为超参优化模块的调优对象。除此之外，一些AI创业公司也在AutoML技术上有所投入，比如第四范式发布的自动机器学习平台AI Prophet AutoML和探智立方发布的DarwinML 2.0，这些平台在不同程度上都支持AutoFE。
 
@@ -349,17 +347,43 @@ AutoFE可以看作自动化机器学习技术(Automated Machine Learning, AutoML
 
 ### GBDT+LR：利用树模型自动化特征工程
 
-![img](https://ask.qcloudimg.com/developer-images/article/5469577/ed0dmbgmjd.png?imageView2/2/w/1620)
-
-![]()
-
-在FM/FFM之外，2014年Facebook提出的GBDT+LR 是实现用模型自动化特征工程的一项经典之作。GBDT+LR是级联模型，主要思路是先训练一个GBDT模型，然后利用训练好的GBDT对输入样本进行特征变换，最后把变换得到的特征向量作为LR模型的输入，对LR模型进行训练。
-
-举个具体例子，上图是由两颗子树构成的GBDT，将样本x输入，假设经过自上而下的节点判别，左边子树落入到第二个叶子节点，右边子树落入到第一个叶子节点，那么两颗子树分别得到向量[0, 1, 0]和[1, 0]，将各子树的输出向量进行concat，得到的[0, 1, 0, 1, 0]就是由GBDT变换得到的特征向量，最后将此向量作为LR模型的输入，训练LR的权重w0, w1，...。在此过程中，从根节点到叶子节点的遍历路径，就是一种特征组合，LR模型参数wi，对应一种特征组合的权重。
+![img](https://pic2.zhimg.com/80/v2-e26ce7bd3df33a61010189049cb856c5_1440w.jpg)
 
 
 
-## ExploreKit
+在FM/FFM之外，2014年Facebook提出的GBDT+LR 是实现用模型自动化特征工程的一项经典之作， 其本质上是通过Boosting Tree模型本身的特征组合能力来替代原先算法工程师们手动组合特征的过程。GBDT等这类Boosting Tree模型本身具备了特征筛选能力（每次分裂选取增益最大的分裂特征与分裂点）以及高阶特征组合能力（树模型天然优势），因此通过GBDT来自动生成特征向量就成了一个非常自然的思路。
+
+GBDT+LR是级联模型，主要思路是先训练一个GBDT模型，然后利用训练好的GBDT对输入样本进行特征变换，最后把变换得到的特征向量作为LR模型的输入，对LR模型进行训练。
+
+举个具体例子，上图是由两颗子树构成的GBDT，将样本x输入，假设经过自上而下的节点判别，左边子树落入到第二个叶子节点，右边子树落入到第一个叶子节点，那么两颗子树分别得到向量[1, 0, 0]和[0, 1]，将各子树的输出向量进行concat，得到的[1, 0, 0, 1, 0]就是由GBDT变换得到的特征向量，最后将此向量作为LR模型的输入，训练LR的权重w0, w1，...。在此过程中，从根节点到叶子节点的遍历路径，就是一种特征组合，LR模型参数wi，对应一种特征组合的权重。
+
+
+
+### tsfresh 构建时间序列特征
+
+tsfresh是基于可伸缩假设检验的时间序列特征提取工具。该包包含多种特征提取方法和鲁棒特征选择算法。
+
+tsfresh可以自动地从时间序列中提取100多个特征。这些特征描述了时间序列的基本特征，如峰值数量、平均值或最大值，或更复杂的特征，如时间反转对称性统计量等。
+
+ ![img](https://img2018.cnblogs.com/blog/1473228/201902/1473228-20190214204914311-1113301258.png)
+
+这组特征可以用来在时间序列上构建统计或机器学习模型，例如在回归或分类任务中使用。
+
+时间序列通常包含噪声、冗余或无关信息。因此，大部分提取出来的特征对当前的机器学习任务没有用处。为了避免提取不相关的特性，tsfresh包有一个内置的过滤过程。这个过滤过程评估每个特征对于手头的回归或分类任务的解释能力和重要性。它建立在完善的假设检验理论的基础上，采用了多种检验方法。
+
+需要注意的是，在使用tsfresh提取特征时，需要提前把结构进行转换，一般上需转换为(None,2)的结构，例如下图所示：
+
+![img](https://img2018.cnblogs.com/blog/1473228/201902/1473228-20190214204948088-1936775105.png)
+
+
+
+
+
+### Featuretools 提取关联数据表特征
+
+Featuretools使用一种称为深度特征合成（Deep Feature Synthesis，DFS）的算法，该算法遍历通过关系[数据库](https://cloud.tencent.com/solution/database?from=10680)的模式描述的关系路径。当DFS遍历这些路径时，它通过应用于数据的操作（包括和、平均值和计数）生成综合特征。例如，对来自给定字段client_id的事务列表应用sum操作，并将这些事务聚合到一个列中。尽管这是一个深度操作，但该算法可以遍历更深层的特征。Featuretools最大的优点是其可靠性和处理信息泄漏的能力，同时可以用来对时间序列数据进行处理。
+
+
 
 **ExploreKit** is based on the intuition that highly informative features often result from manipulations of elementary ones, they identify common operators to transform each feature individually or combine several of them together. it uses these operators to generate many candidate features, and chooses the subset to add based on the empirical performance of models trained with candidate features added.
 
