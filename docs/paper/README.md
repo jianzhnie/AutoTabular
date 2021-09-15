@@ -2,6 +2,8 @@
 
 # 应用于工业场景的大规模自动化特征工程技术
 
+
+
 [TOC]
 
 # 摘要
@@ -85,6 +87,118 @@ AutoFE可以看作自动化机器学习技术(Automated Machine Learning, AutoML
 
 ## 工业界--- AutoML 开源工具箱
 
+### AutoTabular 和其他框架对比
+
+|              | Classificaton | Regression | Clustering | Rank | Time-Series | Anomly Detection | Text-Transformer |      |
+| ------------ | ------------- | ---------- | ---------- | ---- | ----------- | ---------------- | ---------------- | ---- |
+| AutoGluon    | Yes | Yes |            |      |             |                  | Yes |      |
+| Auto-sklearn | Yes | Yes |            |      |             |                  |                  |      |
+| H2O-AutoML   | Yes | Yes |            |      |             |                  | Yes |      |
+| TPOT         | Yes | Yes |            |      |             |                  |                  |      |
+| AutoTabular | Yes | Yes | Yes | Yes | Yes | Yes | Yes | |
+
+
+
+#### Classification Example
+
+```python
+from autotabular import AutoML
+from sklearn.datasets import load_iris
+# Initialize an AutoML instance
+automl = AutoML()
+# Specify automl goal and constraint
+automl_settings = {
+    "time_budget": 10,  # in seconds
+    "metric": 'accuracy',
+    "task": 'classification',
+    "log_file_name": "test/iris.log",
+}
+X_train, y_train = load_iris(return_X_y=True)
+# Train with labeled input data
+automl.fit(X_train=X_train, y_train=y_train,
+           **automl_settings)
+# Predict
+print(automl.predict_proba(X_train))
+# Export the best model
+print(automl.model)
+```
+
+#### Regression
+
+```python
+from autotabular import AutoML
+from sklearn.datasets import load_boston
+# Initialize an AutoML instance
+automl = AutoML()
+# Specify automl goal and constraint
+automl_settings = {
+    "time_budget": 10,  # in seconds
+    "metric": 'r2',
+    "task": 'regression',
+    "log_file_name": "test/boston.log",
+}
+X_train, y_train = load_boston(return_X_y=True)
+# Train with labeled input data
+automl.fit(X_train=X_train, y_train=y_train,
+           **automl_settings)
+# Predict
+print(automl.predict(X_train))
+# Export the best model
+print(automl.model)
+```
+
+#### Time-Series
+
+```python
+import numpy as np
+from autotabular import AutoML
+X_train = np.arange('2014-01', '2021-08', dtype='datetime64[M]')
+y_train = np.random.random(size=72)
+automl = AutoML()
+automl.fit(X_train=X_train[:72],  # a single column of timestamp
+           y_train=y_train,  # value for each timestamp
+           period=12,  # time horizon to forecast, e.g., 12 months
+           task='forecast', time_budget=15,  # time budget in seconds
+           log_file_name="test/forecast.log",
+          )
+print(automl.predict(X_train[72:]))
+```
+
+####  Clustering
+
+```python
+from sklearn.datasets import fetch_openml
+from autotabular import AutoML
+
+n_samples = 1500
+random_state = 170
+X, y = make_blobs(n_samples=n_samples, random_state=random_state)
+
+automl = AutoML()
+automl.fit(
+    X_train, n_clusters=3,
+    task='clustering', time_budget=10,    # in seconds
+)
+# Incorrect number of clusters
+y_pred =automl.predict(X)
+```
+
+####  Rank
+
+```python
+from sklearn.datasets import fetch_openml
+from autotabular import AutoML
+X_train, y_train = fetch_openml(name="credit-g", return_X_y=True, as_frame=False)
+y_train = y_train.cat.codes
+# not a real learning to rank dataaset
+groups = [200] * 4 + [100] * 2    # group counts
+automl = AutoML()
+automl.fit(
+    X_train, y_train, groups=groups,
+    task='rank', time_budget=10,    # in seconds
+)
+```
+
 ### Auto-sklearn
 
 Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn开发的自动化机器学习框架，是目前最成熟且功能相对完备的AutoML框架之一。Auto-sklearn集成了16种分类模型、13种回归模型、18种特征预处理方法和5种数据预处理方法，共组合产生了超过110个超参数的结构化假设空间，并采用基于序列模型的贝叶斯优化器搜索最优模型。Auto-Sklearn的使用方法也和scikit-learn库基本一致， 这让熟悉sklearn的开发者很容易切换到Auto-Sklearn。在模型方面，除了sklearn提供的机器学习模型，还加入了xgboost、lightgbm 等算法支持。
@@ -95,7 +209,7 @@ Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn�
 - Auto-skearn 可以极大地减少对于领域专家和算法专家的依赖： 一方面 Auto-skearn 可以自动进行模型选择和参数调优； 另一方面， Auto-skearn 根据单次训练时长和总体训练时间设置，最大化的利用机器性能和时间。
 - Auto-Sklearn支持切分训练/测试集的方式，也支持使用交叉验证。从而减少了训练模型的代码量和程序的复杂程度。另外，Auto-Sklearn支持加入扩展模型以及扩展预测处理方法。
 
-#### Auto-sklearn 缺点
+#### Auto-Sklearn 缺点
 
 - Auto-sklearn 基于 sklearn库开发，所支持的模型必须有类似 sklearn 的接口， 对于其他的算法库，扩展性较差。
 - Auto-sklearn 目前不支持深度学习模型。
@@ -118,16 +232,20 @@ Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn�
 
 #### 优点：
 
+- TPOT 使用遗传算法进行优化， 优势是 pipeline 的长度和结构可以是非常灵活的，而传统的优化方法一般都是在一个固定的 pipeline 结构上做参数优化。
+
 - TPOT 基于 sklearn 来构建，能极大的利用 scikit-learn库的优势
 - TPOT 中的特征预处理算子： StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler, RandomizedPCA, Binarizer, and PolynomialFeatures. 
 - TPOT 的特征选择算子：VarianceThreshold, SelectKBest, SelectPercentile, SelectFwe, and Recursive Feature Elimination (RFE). 
-- 可以生成解决方案的代码，可以显示的看到整个  pipeline 
+- TPOT 在 pipeline 优化完成后, 可以生成解决方案的Python代码，可以显示的看到整个 pipeline , 用户可以在此基础上进一步做分析与优化。
 
 #### 缺点：
 
 - TPOT 实现的 数据预处理和特征工程非常有限
 - 需要手动进行数据预处理工作
 - 缺少对文本特征的处理
+
+
 
 ### H2O
 
@@ -137,7 +255,9 @@ H2O 包括一个自动机器学习模块，使用自己的算法来构建管道�
 
 H2O 自动化了一些最复杂的数据科学和机器学习工作，例如特征工程、模型验证、模型调整、模型选择 和 模型部署。除此之外，它还提供了自动可视化以及机器学习的解释能力（MLI）。
 
+H2O AutoML H2O（H2O.ai，2019）是一个分布式ML框架，用于协助数据科学家。在本文中，仅考虑H2O AutoML组件。H2O AutoML能够选择和调整分类算法，而无需自动预处理。可用的算法以专家定义的固定顺序或通过随机网格搜索选定的超参数进行测试。最后，对性能最佳的配置进行聚合，以创建一个集成。与所有其他经过评估的框架相比，H2O是在Java中使用Python绑定开发的，不使用scikit learn。
 
+------------------
 
 AutoFE作为AutoML的一环，常被集成在大型AutoML平台中，国外的知名互联网公司均在AutoML领域有所投入，其中最有代表性也最成熟的产品是谷歌的Cloud AutoML，不过该平台主要致力于深度AutoML，面向传统AutoML的平台有微软的NNI平台和AML平台，其中NNI内置了基于梯度和决策树的自动特征选择算法，其次是一些专注于AutoML的AI创业公司，比如H2O.ai开源的H2O AutoML是一个Java实现的AutoML平台，H2O支持常见的机器学习模型的自动化构建，其中AutoFE被转化为了超参优化的问题，即统一采用启发式搜索的方式搜索最优的特征、模型和超参数，同时还支持训练指标的可视化。
 
@@ -212,10 +332,6 @@ AutoFE作为AutoML的一环，常被集成在大型AutoML平台中，国外的�
 -　使用ML算法捕获数据结构并相应地填充缺失值。
 -　如果有关于数据的领域知识，可以根据经验预测缺少的值。
 -　删除丢失的观察结果。
-
-
-
-
 
 ## ExploreKit
 
