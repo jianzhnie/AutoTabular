@@ -1,6 +1,6 @@
 
 
-# 应用于工业场景的大规模自动化特征工程技术
+# 应用于工业场景的大规模自动化特征工程
 
 
 
@@ -179,7 +179,7 @@ Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn�
 
 #### Auto-Sklearn 优点
 
-- Auto-sklearn的最大优势在于它建立在sklearn的生态上，所以具有非常好的可扩展性以及兼容性，毕竟sklearn是目前为止最为流行的机器学习工具。 
+- Auto-sklearn的最大优势在于它建立在sklearn的生态上，所以具有非常好的可扩展性以及兼容性，毕竟sklearn是目前为止最为流行的机器学习工具。
 - Auto-skearn 可以极大地减少对于领域专家和算法专家的依赖： 一方面 Auto-skearn 可以自动进行模型选择和参数调优； 另一方面， Auto-skearn 根据单次训练时长和总体训练时间设置，最大化的利用机器性能和时间。
 - Auto-Sklearn支持切分训练/测试集的方式，也支持使用交叉验证。从而减少了训练模型的代码量和程序的复杂程度。另外，Auto-Sklearn支持加入扩展模型以及扩展预测处理方法。
 
@@ -203,8 +203,8 @@ Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn�
 - TPOT 使用遗传算法进行优化， 优势是 pipeline 的长度和结构可以是非常灵活的，而传统的优化方法一般都是在一个固定的 pipeline 结构上做参数优化。
 
 - TPOT 基于 sklearn 来构建，能极大的利用 scikit-learn库的优势
-- TPOT 中的特征预处理算子： StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler, RandomizedPCA, Binarizer, and PolynomialFeatures. 
-- TPOT 的特征选择算子：VarianceThreshold, SelectKBest, SelectPercentile, SelectFwe, and Recursive Feature Elimination (RFE). 
+- TPOT 中的特征预处理算子： StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler, RandomizedPCA, Binarizer, and PolynomialFeatures.
+- TPOT 的特征选择算子：VarianceThreshold, SelectKBest, SelectPercentile, SelectFwe, and Recursive Feature Elimination (RFE).
 - TPOT 在 pipeline 优化完成后, 可以生成解决方案的Python代码，可以显示的看到整个 pipeline , 用户可以在此基础上进一步做分析与优化。
 
 #### 缺点：
@@ -328,6 +328,10 @@ AutoFE可以看作自动化机器学习技术(Automated Machine Learning, AutoML
 
 
 ## 自动化特征工程
+
+### 摘要
+
+特征生成是指利用已有特征衍生对模型有用的特征，是特征工程中的重要组成部分。衍生的特征可分为低阶特征和高阶特征，二者结合更有利于提升模型效果。现有的自动机器学习（AutoML）工具大多只包含单列特征变换和低阶特征生成，忽视了特征交互和高阶特征的重要性。针对这一现状，提出了新的AutoML框架Auto-Tabular，通过特征交叉组合和聚合操作进行特征交互，通过神经网络生成高阶特征，合并低阶和高阶特征，有效提升模型效果。在Kaggle和OpenML的数据集进行实验，结果表明，与Auto-Sklearn、mljar和 AutoGluon-Tabular等框架相比，Auto-Tabular具有更优异的性能。
 
 自动化特征工程(Automated Feature Engineering, AutoFE)主要涉及了feature extraction和feature selection两个子问题. 目前feature selection已经有较多的解决方案, 所以主要谈谈feature extraction.
 
