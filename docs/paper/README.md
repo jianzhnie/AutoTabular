@@ -1,6 +1,6 @@
 
 
-# 应用于工业场景的大规模自动化特征工程技术
+# 应用于工业场景的大规模自动化特征工程
 
 
 
@@ -179,7 +179,7 @@ Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn�
 
 #### Auto-Sklearn 优点
 
-- Auto-sklearn的最大优势在于它建立在sklearn的生态上，所以具有非常好的可扩展性以及兼容性，毕竟sklearn是目前为止最为流行的机器学习工具。 
+- Auto-sklearn的最大优势在于它建立在sklearn的生态上，所以具有非常好的可扩展性以及兼容性，毕竟sklearn是目前为止最为流行的机器学习工具。
 - Auto-skearn 可以极大地减少对于领域专家和算法专家的依赖： 一方面 Auto-skearn 可以自动进行模型选择和参数调优； 另一方面， Auto-skearn 根据单次训练时长和总体训练时间设置，最大化的利用机器性能和时间。
 - Auto-Sklearn支持切分训练/测试集的方式，也支持使用交叉验证。从而减少了训练模型的代码量和程序的复杂程度。另外，Auto-Sklearn支持加入扩展模型以及扩展预测处理方法。
 
@@ -203,8 +203,8 @@ Auto-sklearn 是由德国 AutoML 团队基于著名机器学习工具包sklearn�
 - TPOT 使用遗传算法进行优化， 优势是 pipeline 的长度和结构可以是非常灵活的，而传统的优化方法一般都是在一个固定的 pipeline 结构上做参数优化。
 
 - TPOT 基于 sklearn 来构建，能极大的利用 scikit-learn库的优势
-- TPOT 中的特征预处理算子： StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler, RandomizedPCA, Binarizer, and PolynomialFeatures. 
-- TPOT 的特征选择算子：VarianceThreshold, SelectKBest, SelectPercentile, SelectFwe, and Recursive Feature Elimination (RFE). 
+- TPOT 中的特征预处理算子： StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler, RandomizedPCA, Binarizer, and PolynomialFeatures.
+- TPOT 的特征选择算子：VarianceThreshold, SelectKBest, SelectPercentile, SelectFwe, and Recursive Feature Elimination (RFE).
 - TPOT 在 pipeline 优化完成后, 可以生成解决方案的Python代码，可以显示的看到整个 pipeline , 用户可以在此基础上进一步做分析与优化。
 
 #### 缺点：
@@ -251,6 +251,46 @@ AutoFE作为AutoML的一环，常被集成在大型AutoML平台中，国外的�
 
 本文还探讨了强化学习策略。
 [17] 将特征选择形式化为强化学习问题，并引入蒙特卡罗树搜索的适应性。这里，选择可用功能子集的问题被转换为单人游戏，其状态都是功能的可能子集，操作包括选择功能并将其添加到子集。[18] 处理这个问题的方法是在一个有向无环图上进行探索，该图表示不同转换版本的并通过Qlearning学习在给定预算下探索可用特征工程选择的有效策略。[19] 将此任务形式化为异构转换图（HTG）上的优化问题。它在HTG上提出了一个深度Q学习，以支持细粒度和广义FE策略的有效学习，这些策略可以从集合中传递工程“良好”特性的知识将数据集转换为其他看不见的数据集。
+
+
+
+#  交互式AutoML
+
+## Alpine Meadow
+
+- Alpine Meadow : A System for Interactive AutoML
+
+AutoML已被没有机器学习知识的领域专家广泛用于从数据中提取可操作的见解。然而，以前的研究只强调最终答案的高准确性，这可能需要几个小时甚至几天才能完成。在本文中，我们介绍了Alpine Meadow，第一个交互式自动机器学习工具。使我们的系统独一无二的不仅仅是对交互性的关注，还有系统和算法设计方法的结合。我们设计了新的AutoML搜索算法，并共同设计了执行运行时，以高效地执行ML工作负载。
+
+我们在300个数据集上评估了我们的系统，并与其他AutoML工具（包括当前的NIPS赢家）以及专家解决方案进行了比较。Alpine Meadow不仅能够显著优于其他AutoML系统，没有交互延迟，而且在80%的情况下，在从未见过的数据集上，我们的系统优于专家解决方案。
+
+**Contributions：**
+
+(1) We present a novel architecture of an AutoML system with interactive responses;
+
+ (2) We show rule-based optimization, can be combined with multi-armed bandits, Bayesian optimization and meta-learning to find more efficiently the best ML pipeline for a given problem. We devise an adaptive pipeline selection algorithm to prune unpromising pipelines early.
+
+(3) We co-design the runtime with the decision process and decouple these two components to achieve better scalability, and devise sampling, caching and scheduling strategies to further promote interactivity.
+
+(4) We show in our evaluation that Alpine Meadow significantly outperforms other AutoML systems while — in contrast to the other systems — provides interactive latencies on over 300 real world datasets.
+
+Furthermore, Alpine Meadow outperforms expert solutions in 80% of the cases for datasets we have never seen before
+
+
+
+![image-20210916173841268](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210916173841268.png)
+
+
+
+![image-20210916173915140](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210916173915140.png)
+
+
+
+![image-20210916174548646](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210916174548646.png)
+
+
+
+
 
 
 
@@ -328,6 +368,10 @@ AutoFE可以看作自动化机器学习技术(Automated Machine Learning, AutoML
 
 
 ## 自动化特征工程
+
+### 摘要
+
+特征生成是指利用已有特征衍生对模型有用的特征，是特征工程中的重要组成部分。衍生的特征可分为低阶特征和高阶特征，二者结合更有利于提升模型效果。现有的自动机器学习（AutoML）工具大多只包含单列特征变换和低阶特征生成，忽视了特征交互和高阶特征的重要性。针对这一现状，提出了新的AutoML框架Auto-Tabular，通过特征交叉组合和聚合操作进行特征交互，通过神经网络生成高阶特征，合并低阶和高阶特征，有效提升模型效果。在Kaggle和OpenML的数据集进行实验，结果表明，与Auto-Sklearn、mljar和 AutoGluon-Tabular等框架相比，Auto-Tabular具有更优异的性能。
 
 自动化特征工程(Automated Feature Engineering, AutoFE)主要涉及了feature extraction和feature selection两个子问题. 目前feature selection已经有较多的解决方案, 所以主要谈谈feature extraction.
 
