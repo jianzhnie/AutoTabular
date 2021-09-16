@@ -290,7 +290,33 @@ Furthermore, Alpine Meadow outperforms expert solutions in 80% of the cases for 
 
 
 
+**建议细度**： 建议
 
+## AutoAIViz
+
+- AutoAIViz: Opening the Blackbox of Automated Artificial Intelligence with Conditional Parallel Coordinates
+
+**ABSTRACT**
+
+Artificial Intelligence (AI) can now automate the algorithm selection, feature engineering, and hyperparameter tuning steps in a machine learning workflow. Commonly known as AutoML or AutoAI, these technologies aim to relieve data scientists from the tedious manual work. However, today’s AutoAI systems often present only limited to no information about the process of how they select and generate model results. Thus, users often do not understand the process, neither do they trust the outputs. In this short paper, we provide a first user evaluation by 10 data scientists of an experimental system, AutoAIViz, that aims to visualize AutoAI’s model generation process. We find that the proposed system helps users to complete the data science tasks, and increases their understanding, toward the goal of increasing trust in the AutoAI system
+
+人工智能（AI）现在可以自动完成机器学习工作流中的算法选择、特征工程和超参数调整步骤。这些技术通常被称为AutoML或AutoAI，旨在将数据科学家从繁琐的手工工作中解放出来。然而，今天的AutoAI系统通常只提供关于如何选择和生成模型结果，而没有提供过程信息。因此，用户通常不了解流程，也不信任输出。在这篇短文中，我们提供了10位数据科学家对实验系统AutoAIViz的首次用户评估，该系统旨在可视化AutoAI的模型生成过程。我们发现，建议的系统有助于用户完成数据科学任务，并增加他们的理解。
+
+**建议细度**： 不建议
+
+## AutoDS
+
+- AutoDS: Towards Human-Centered Automation of Data Science
+
+**ABSTRACT** Data science (DS) projects often follow a lifecycle that consists of laborious tasks for data scientists and domain experts (e.g., data exploration, model training, etc.). Only till recently, machine learning(ML) researchers have developed promising automation techniques to aid data workers in these tasks. This paper introduces AutoDS, an automated machine learning (AutoML) system that aims to leverage the latest ML automation techniques to support data science projects. Data workers only need to upload their dataset, then the system can automatically suggest ML configurations, preprocess data, select algorithm, and train the model. These suggestions are presented to the user via a web-based graphical user interface and a notebook-based programming user interface. We studied AutoDS with 30 professional data scientists, where one group used AutoDS, and the other did not, to complete a data science project. As expected, AutoDS improves productivity; Yet surprisingly, we find that the models produced by the AutoDS group have higher quality and less errors, but lower human confidence scores. We reflect on the findings by presenting design implications for incorporating automation techniques into human work in the data science lifecycle.
+
+**Contributions**•
+
+- We present an automated data science prototype system with various novel feature designs (e.g., end-to-end, human-inthe-loop, and automatically exporting models to notebooks);
+-  We offer a systematic investigation of user interaction and perceptions of using an AutoDS system in solving a data science task, which yields many expected (e.g., higher productivity) and novel findings (e.g., performance is not equal to confidence, and shift of focus);
+-  Based on these novel findings, we present design implications for AutoDS systems to better fit into data science workers’ workflow
+
+**建议细度**： 建议
 
 
 
