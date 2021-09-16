@@ -1,4 +1,3 @@
-import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -33,7 +32,7 @@ class GBDTFeatures(BaseEstimator, ClassifierMixin):
     def __init__(self,
                  gbdt=None,
                  gbdt_params=None,
-                 cv=CountVectorizer(
+                 vectorizer=CountVectorizer(
                      analyzer='word',
                      preprocessor=None,
                      ngram_range=(1, 1),
@@ -41,24 +40,29 @@ class GBDTFeatures(BaseEstimator, ClassifierMixin):
                      min_df=0,
                  )):
         self.gbdt = gbdt(**gbdt_params)
-        self.cv = cv
+        self.vectorizer = vectorizer
 
     def fit(self, X, y):
         self.gbdt.fit(X, y)
+        leaf = (self.gbdt.predict(X, pred_leaf=True)).astype(str).tolist()
+        leaf = [' '.join(item) for item in leaf]
+        self.result = self.vectorizer.fit_transform(leaf)
         return self
 
     def predict_proba(self, X):
         leaf = self.gbdt.predict(X, pred_leaf=True)
         leaf = (self.gbdt.predict(X, pred_leaf=True)).astype(str).tolist()
-        # get the leaf
-        gbdt_feats = self.gbdt.predict(X, pred_leaf=True)
-        gbdt_feats_name = [
-            'gbdt_leaf_' + str(i) for i in range(gbdt_feats.shape[1])
-        ]
-        # get the new datasets
-        gbdt_feats_df = pd.DataFrame(gbdt_feats, columns=gbdt_feats_name)
-        result = pd.concat([X, gbdt_feats_df], axis=1)
-        if self.get_paramscv is not None:
+        if self.vectorizer is not None:
             leaf = [' '.join(item) for item in leaf]
-            result = self.cv.transform(leaf)
+            result = self.vectorizer.transform(leaf)
         return result
+
+
+if __name__ == '__main__':
+    from sklearn.datasets import load_iris
+    import lightgbm as lgb
+    X_train, y_train = load_iris(return_X_y=True)
+    clf = GBDTFeatures(
+        gbdt=lgb.LGBMClassifier, gbdt_params={'n_estimators': 500})
+    clf.fit(X_train, y_train)
+    result = clf.predict_proba(X_train)
