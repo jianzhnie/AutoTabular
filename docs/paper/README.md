@@ -254,6 +254,46 @@ AutoFE作为AutoML的一环，常被集成在大型AutoML平台中，国外的�
 
 
 
+#  交互式AutoML
+
+## Alpine Meadow
+
+- Alpine Meadow : A System for Interactive AutoML
+
+AutoML已被没有机器学习知识的领域专家广泛用于从数据中提取可操作的见解。然而，以前的研究只强调最终答案的高准确性，这可能需要几个小时甚至几天才能完成。在本文中，我们介绍了Alpine Meadow，第一个交互式自动机器学习工具。使我们的系统独一无二的不仅仅是对交互性的关注，还有系统和算法设计方法的结合。我们设计了新的AutoML搜索算法，并共同设计了执行运行时，以高效地执行ML工作负载。
+
+我们在300个数据集上评估了我们的系统，并与其他AutoML工具（包括当前的NIPS赢家）以及专家解决方案进行了比较。Alpine Meadow不仅能够显著优于其他AutoML系统，没有交互延迟，而且在80%的情况下，在从未见过的数据集上，我们的系统优于专家解决方案。
+
+**Contributions：**
+
+(1) We present a novel architecture of an AutoML system with interactive responses;
+
+ (2) We show rule-based optimization, can be combined with multi-armed bandits, Bayesian optimization and meta-learning to find more efficiently the best ML pipeline for a given problem. We devise an adaptive pipeline selection algorithm to prune unpromising pipelines early.
+
+(3) We co-design the runtime with the decision process and decouple these two components to achieve better scalability, and devise sampling, caching and scheduling strategies to further promote interactivity.
+
+(4) We show in our evaluation that Alpine Meadow significantly outperforms other AutoML systems while — in contrast to the other systems — provides interactive latencies on over 300 real world datasets.
+
+Furthermore, Alpine Meadow outperforms expert solutions in 80% of the cases for datasets we have never seen before
+
+
+
+![image-20210916173841268](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210916173841268.png)
+
+
+
+![image-20210916173915140](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210916173915140.png)
+
+
+
+![image-20210916174548646](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210916174548646.png)
+
+
+
+
+
+
+
 # 特征工程
 
 ## 背景
