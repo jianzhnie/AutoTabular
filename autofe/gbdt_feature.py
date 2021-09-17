@@ -3,18 +3,26 @@ import pandas as pd
 from catboost import CatBoostClassifier, CatBoostRegressor
 from lightgbm.sklearn import LGBMClassifier, LGBMRegressor
 from sklearn.base import BaseEstimator, ClassifierMixin
-from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor, RandomForestClassifier, RandomForestRegressor
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from xgboost.sklearn import XGBClassifier, XGBRegressor
 
 
-class BaseGbdtEmbedding(BaseEstimator):
+class XGBoostFeatureTransformer(BaseEstimator):
 
-    def __init__(self, base_estimatior=None):
-        self.base_estimator = base_estimatior
+    def __init__(self,
+                 task='regression',
+                 params={
+                     'n_estimators': 10,
+                     'max_depth': 3
+                 }):
 
-    def fit(self, X, y=None, sample_weight=None):
+        if 'regression' == task:
+            self.estimator = XGBRegressor(**params)
+        else:
+            self.estimator = XGBClassifier(**params)
+
+    def fit(self, X, y, sample_weight=None):
         """Fit estimator.
 
         Parameters
@@ -65,9 +73,9 @@ class BaseGbdtEmbedding(BaseEstimator):
         X_transformed : sparse matrix of shape (n_samples, n_out)
             Transformed dataset.
         """
-        self.base_estimator.fit(X, y, sample_weight=sample_weight)
-        self.one_hot_encoder_ = OneHotEncoder(sparse=self.sparse_output)
-        return self.one_hot_encoder_.fit_transform(self.apply(X))
+        self.model = self.estimator.fit(X, y, sample_weight=sample_weight)
+        self.one_hot_encoder_ = OneHotEncoder(sparse=True)
+        return self.one_hot_encoder_.fit_transform(self.model.apply(X))
 
     def transform(self, X):
         """Transform dataset.
@@ -84,144 +92,141 @@ class BaseGbdtEmbedding(BaseEstimator):
         X_transformed : sparse matrix of shape (n_samples, n_out)
             Transformed dataset.
         """
-        return self.one_hot_encoder_.transform(self.apply(X))
+        return self.one_hot_encoder_.transform(self.model.apply(X))
 
-
-def get_estimator_class(task, estimator_name):
-    """when adding a new learner, need to add an elif branch."""
-
-    if 'xgboost' == estimator_name:
-        if 'regression' == task:
-            estimator_class = XGBRegressor
-        else:
-            estimator_class = XGBClassifier
-    elif 'rf' == estimator_name:
-        if 'regression' == task:
-            estimator_class = RandomForestRegressor
-        else:
-            estimator_class = RandomForestClassifier
-    elif 'gbdt' == estimator_name:
-        if 'regression' == task:
-            estimator_class = GradientBoostingClassifier
-        else:
-            estimator_class = GradientBoostingRegressor
-    elif 'lgbm' == estimator_name:
-        if 'regression' == task:
-            estimator_class = LGBMRegressor
-        else:
-            estimator_class = LGBMClassifier
-    elif 'catboost' == estimator_name:
-        if 'regression' == task:
-            estimator_class = CatBoostClassifier
-        else:
-            estimator_class = CatBoostRegressor
-    else:
-        raise ValueError(
-            estimator_name + ' is not a built-in learner. '
-            'Please use AutoML.add_learner() to add a customized learner.')
-    return estimator_class
-
-
-class GBDTFeaturesCountVecTransformer(BaseEstimator, ClassifierMixin):
-
-    def __init__(self,
-                 gbdt=None,
-                 gbdt_params=None,
-                 vectorizer=CountVectorizer(
-                     analyzer='word',
-                     preprocessor=None,
-                     ngram_range=(1, 1),
-                     stop_words=None,
-                     min_df=0,
-                 )):
-        self.gbdt = gbdt(**gbdt_params)
-        self.vectorizer = vectorizer
-
-    def fit(self, X, y):
-        self.gbdt.fit(X, y)
-        leaf = (self.gbdt.predict(X, pred_leaf=True)).astype(str).tolist()
-        leaf = [' '.join(item) for item in leaf]
-        self.result = self.vectorizer.fit_transform(leaf)
-        return self
-
-    def predict_proba(self, X):
-        leaf = self.gbdt.predict(X, pred_leaf=True)
-        leaf = (self.gbdt.predict(X, pred_leaf=True)).astype(str).tolist()
-        if self.vectorizer is not None:
-            leaf = [' '.join(item) for item in leaf]
-            result = self.vectorizer.transform(leaf)
-        return result
-
-
-class XGBoostFeatureTransformer(BaseEstimator, ClassifierMixin):
-
-    def __init__(self, task, concate_fea=False):
-
-        self.task = task
-        self.concate_fea = concate_fea
-
-        self.xgb = XGBClassifier(
-            n_estimators=100, learning_rate=1.0, max_depth=3, random_state=0)
-        self.onehot = OneHotEncoder()
-
-    def fit(self, X, y):
-        self.gbdt.fit(X, y)
-        return self
-
-    def predict_proba(self, X):
-        gbdt_leaf = self.gbdt.apply(X)[:, :, 0]
+    def predict_leafs(self, X, concate=True):
+        gbdt_leaf = self.model.apply(X)
         gbdt_feats_name = [
             'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
         ]
         gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
-        result = pd.concat([X, gbdt_feats], axis=1)
-        return result
+        if concate:
+            return pd.concat([X, gbdt_feats], axis=1)
+        else:
+            return gbdt_feats
 
 
 class GBDTFeatureTransformer(BaseEstimator, ClassifierMixin):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self,
+                 task='regression',
+                 params={
+                     'n_estimators': 10,
+                     'max_depth': 3
+                 }):
 
-        self.gbdt = GradientBoostingClassifier(
-            n_estimators=100, learning_rate=1.0, max_depth=3, random_state=0)
-        self.onehot = OneHotEncoder()
+        if 'regression' == task:
+            self.estimator = GradientBoostingRegressor(**params)
+        else:
+            self.estimator = GradientBoostingClassifier(**params)
 
-    def fit(self, X, y):
-        self.gbdt.fit(X, y)
+    def fit(self, X, y, sample_weight=None):
+        self.fit_transform(X, y, sample_weight=sample_weight)
         return self
 
-    def predict_proba(self, X):
-        gbdt_leaf = self.gbdt.apply(X)[:, :, 0]
+    def fit_transform(self, X, y=None, sample_weight=None):
+        self.model = self.estimator.fit(X, y, sample_weight=sample_weight)
+        self.one_hot_encoder_ = OneHotEncoder(sparse=True)
+        return self.one_hot_encoder_.fit_transform(
+            self.model.apply(X)[:, :, 0])
+
+    def transform(self, X):
+        return self.one_hot_encoder_.transform(self.model.apply(X)[:, :, 0])
+
+    def predict_leafs(self, X, concate=True):
+        gbdt_leaf = self.model.apply(X)[:, :, 0]
         gbdt_feats_name = [
             'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
         ]
         gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
-        result = pd.concat([X, gbdt_feats], axis=1)
-        return result
+        if concate:
+            return pd.concat([X, gbdt_feats], axis=1)
+        else:
+            return gbdt_feats
 
 
-class LightGBMFeatureTransformer(BaseEstimator, ClassifierMixin):
+class LightGBMFeatureTransformer(BaseEstimator):
 
-    def __init__(self, gbdt=None, gbdt_params=None):
-        self.gbdt = gbdt(**gbdt_params)
+    def __init__(self,
+                 task='regression',
+                 params={
+                     'n_estimators': 10,
+                     'max_depth': 3
+                 }):
 
-    def fit(self, X, y):
-        self.gbdt.fit(X, y)
+        if 'regression' == task:
+            self.estimator = LGBMRegressor(**params)
+        else:
+            self.estimator = LGBMClassifier(**params)
+
+    def fit(self, X, y, sample_weight=None):
+        self.fit_transform(X, y, sample_weight=sample_weight)
         return self
 
-    def predict_proba(self, X):
-        gbdt_leaf = self.gbdt.predict(X, pred_leaf=True)
+    def fit_transform(self, X, y=None, sample_weight=None):
+        self.model = self.estimator.fit(X, y, sample_weight=sample_weight)
+        self.one_hot_encoder_ = OneHotEncoder(sparse=True)
+        return self.one_hot_encoder_.fit_transform(
+            self.model.predict(X, pred_leaf=True))
+
+    def transform(self, X):
+        return self.one_hot_encoder_.transform(
+            self.model.predict(X, pred_leaf=True))
+
+    def predict_leafs(self, X, concate=True):
+        gbdt_leaf = self.model.predict(X, pred_leaf=True)
         gbdt_feats_name = [
             'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
         ]
         gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
-        result = pd.concat([X, gbdt_feats], axis=1)
-        return result
+        if concate:
+            return pd.concat([X, gbdt_feats], axis=1)
+        else:
+            return gbdt_feats
+
+
+class CatboostFeatureTransformer(BaseEstimator):
+
+    def __init__(self,
+                 task='regression',
+                 params={
+                     'n_estimators': 10,
+                     'max_depth': 3
+                 }):
+
+        if 'regression' == task:
+            self.estimator = CatBoostRegressor(
+                **params, logging_level='Silent', allow_writing_files=False)
+        else:
+            self.estimator = CatBoostClassifier(
+                **params, logging_level='Silent', allow_writing_files=False)
+
+    def fit(self, X, y, sample_weight=None):
+        self.fit_transform(X, y, sample_weight=sample_weight)
+        return self
+
+    def fit_transform(self, X, y=None, sample_weight=None):
+        self.model = self.estimator.fit(X, y, sample_weight=sample_weight)
+        self.one_hot_encoder_ = OneHotEncoder(sparse=True)
+        return self.one_hot_encoder_.fit_transform(
+            self.model.calc_leaf_indexes(X))
+
+    def transform(self, X):
+        return self.one_hot_encoder_.transform(self.model.calc_leaf_indexes(X))
+
+    def predict_leafs(self, X, concate=True):
+        gbdt_leaf = self.model.calc_leaf_indexes(X)
+        gbdt_feats_name = [
+            'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
+        ]
+        gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
+        if concate:
+            return pd.concat([X, gbdt_feats], axis=1)
+        else:
+            return gbdt_feats
 
 
 if __name__ == '__main__':
-    import lightgbm as lgb
     titanic = pd.read_csv('autotabular/datasets/data/Titanic.csv')
     # 'Embarked' is stored as letters, so fit a label encoder to the train set to use in the loop
     embarked_encoder = LabelEncoder()
@@ -249,32 +254,22 @@ if __name__ == '__main__':
     X_train = titanic.drop(['Survived'], axis=1)
     y_train = titanic['Survived']
 
-    params = {
-        'boosting': 'gbdt',
-        'objective': 'binary',
-        'metric': 'binary_logloss',
-        'num_leaves': 64,
-        'num_trees': 100,
-        'learning_rate': 0.01,
-        'feature_fraction': 0.9,
-        'bagging_fraction': 0.8,
-        'bagging_freq': 5,
-        'min_data_in_leaf': 4,
-        'verbose': 0
-    }
-    clf = GBDTFeaturesCountVecTransformer(
-        gbdt=lgb.LGBMClassifier, gbdt_params=params)
+    clf = XGBoostFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.predict_proba(X_train)
+    result = clf.transform(X_train)
     print(result)
 
-    clf = LightGBMFeatureTransformer(
-        gbdt=lgb.LGBMClassifier, gbdt_params=params)
+    clf = LightGBMFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.predict_proba(X_train)
+    result = clf.transform(X_train)
     print(result)
 
-    clf = GBDTFeatureTransformer()
+    clf = GBDTFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.predict_proba(X_train)
+    result = clf.predict_leafs(X_train)
+    print(result)
+
+    clf = CatboostFeatureTransformer(task='classification')
+    clf.fit(X_train, y_train)
+    result = clf.predict_leafs(X_train)
     print(result)
