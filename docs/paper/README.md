@@ -290,7 +290,7 @@ Furthermore, Alpine Meadow outperforms expert solutions in 80% of the cases for 
 
 
 
-**建议细度**： 建议
+**建议细读**： 建议
 
 ## AutoAIViz
 
@@ -302,7 +302,7 @@ Artificial Intelligence (AI) can now automate the algorithm selection, feature e
 
 人工智能（AI）现在可以自动完成机器学习工作流中的算法选择、特征工程和超参数调整步骤。这些技术通常被称为AutoML或AutoAI，旨在将数据科学家从繁琐的手工工作中解放出来。然而，今天的AutoAI系统通常只提供关于如何选择和生成模型结果，而没有提供过程信息。因此，用户通常不了解流程，也不信任输出。在这篇短文中，我们提供了10位数据科学家对实验系统AutoAIViz的首次用户评估，该系统旨在可视化AutoAI的模型生成过程。我们发现，建议的系统有助于用户完成数据科学任务，并增加他们的理解。
 
-**建议细度**： 不建议
+**建议细读**： 不建议
 
 ## AutoDS
 
@@ -316,7 +316,23 @@ Artificial Intelligence (AI) can now automate the algorithm selection, feature e
 -  We offer a systematic investigation of user interaction and perceptions of using an AutoDS system in solving a data science task, which yields many expected (e.g., higher productivity) and novel findings (e.g., performance is not equal to confidence, and shift of focus);
 -  Based on these novel findings, we present design implications for AutoDS systems to better fit into data science workers’ workflow
 
-**建议细度**： 建议
+**建议细读**： 建议
+
+
+
+### Human-in-the-Loop AutoDS
+
+
+
+AutoDS refers to a group of technologies that can automate the manual processes of data pre-processing, feature engineering, model selection, etc. [71]. Several technologies have been developed with different specializations.
+
+For example, Google has developed a set of AutoDS products under the umbrella of Cloud AutoML, such that even non-technical users can build models for visual, text, and tabular data [19].
+
+ H2O is java-based software for data modelling that provides a python module, which data scientists can import into their code file in order to use the automation capability.
+
+
+
+
 
 
 
