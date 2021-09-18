@@ -16,7 +16,7 @@ class XGBoostFeatureTransformer(BaseEstimator):
                      'n_estimators': 10,
                      'max_depth': 3
                  }):
-
+        self.short_name = 'xbgoost'
         if 'regression' == task:
             self.estimator = XGBRegressor(**params)
         else:
@@ -98,7 +98,8 @@ class XGBoostFeatureTransformer(BaseEstimator):
         gbdt_leaf = self.model.apply(X)
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
+            f'{self.short_name}' + '_embed_' + str(i)
+            for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
@@ -115,7 +116,7 @@ class GBDTFeatureTransformer(BaseEstimator):
                      'n_estimators': 10,
                      'max_depth': 3
                  }):
-
+        self.short_name = 'GBDT'
         if 'regression' == task:
             self.estimator = GradientBoostingRegressor(**params)
         else:
@@ -138,7 +139,8 @@ class GBDTFeatureTransformer(BaseEstimator):
         gbdt_leaf = self.model.apply(X)[:, :, 0]
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
+            f'{self.short_name}' + '_embed_' + str(i)
+            for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
@@ -155,7 +157,7 @@ class LightGBMFeatureTransformer(BaseEstimator):
                      'n_estimators': 10,
                      'max_depth': 3
                  }):
-
+        self.short_name = 'lightgbm'
         if 'regression' == task:
             self.estimator = LGBMRegressor(**params)
         else:
@@ -179,7 +181,8 @@ class LightGBMFeatureTransformer(BaseEstimator):
         gbdt_leaf = self.model.predict(X, pred_leaf=True)
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
+            f'{self.short_name}' + '_embed_' + str(i)
+            for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
@@ -196,6 +199,8 @@ class CatboostFeatureTransformer(BaseEstimator):
                      'n_estimators': 10,
                      'max_depth': 3
                  }):
+
+        self.short_name = 'catboost'
 
         if 'regression' == task:
             self.estimator = CatBoostRegressor(
@@ -221,7 +226,8 @@ class CatboostFeatureTransformer(BaseEstimator):
         gbdt_leaf = self.model.calc_leaf_indexes(X)
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
+            f'{self.short_name}' + '_embed_' + str(i)
+            for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
