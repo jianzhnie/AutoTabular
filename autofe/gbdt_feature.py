@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier, CatBoostRegressor
 from lightgbm.sklearn import LGBMClassifier, LGBMRegressor
-from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator
 from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from xgboost.sklearn import XGBClassifier, XGBRegressor
@@ -94,19 +94,20 @@ class XGBoostFeatureTransformer(BaseEstimator):
         """
         return self.one_hot_encoder_.transform(self.model.apply(X))
 
-    def predict_leafs(self, X, concate=True):
+    def concate_transform(self, X, concate=True):
         gbdt_leaf = self.model.apply(X)
+        onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
+            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
         ]
-        gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
+        gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
             return gbdt_feats
 
 
-class GBDTFeatureTransformer(BaseEstimator, ClassifierMixin):
+class GBDTFeatureTransformer(BaseEstimator):
 
     def __init__(self,
                  task='regression',
@@ -133,12 +134,13 @@ class GBDTFeatureTransformer(BaseEstimator, ClassifierMixin):
     def transform(self, X):
         return self.one_hot_encoder_.transform(self.model.apply(X)[:, :, 0])
 
-    def predict_leafs(self, X, concate=True):
+    def concate_transform(self, X, concate=True):
         gbdt_leaf = self.model.apply(X)[:, :, 0]
+        onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
+            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
         ]
-        gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
+        gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
@@ -173,12 +175,13 @@ class LightGBMFeatureTransformer(BaseEstimator):
         return self.one_hot_encoder_.transform(
             self.model.predict(X, pred_leaf=True))
 
-    def predict_leafs(self, X, concate=True):
+    def concate_transform(self, X, concate=True):
         gbdt_leaf = self.model.predict(X, pred_leaf=True)
+        onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
+            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
         ]
-        gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
+        gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
@@ -214,12 +217,13 @@ class CatboostFeatureTransformer(BaseEstimator):
     def transform(self, X):
         return self.one_hot_encoder_.transform(self.model.calc_leaf_indexes(X))
 
-    def predict_leafs(self, X, concate=True):
+    def concate_transform(self, X, concate=True):
         gbdt_leaf = self.model.calc_leaf_indexes(X)
+        onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
-            'gbdt_leaf_' + str(i) for i in range(gbdt_leaf.shape[1])
+            'gbdt_onehot_' + str(i) for i in range(onehot_embedding.shape[1])
         ]
-        gbdt_feats = pd.DataFrame(gbdt_leaf, columns=gbdt_feats_name)
+        gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
         if concate:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
@@ -256,7 +260,8 @@ if __name__ == '__main__':
 
     clf = XGBoostFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.transform(X_train)
+    result = clf.transform(X_train).toarray()
+    result = pd.DataFrame(result)
     print(result)
 
     clf = LightGBMFeatureTransformer(task='classification')
@@ -266,10 +271,10 @@ if __name__ == '__main__':
 
     clf = GBDTFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.predict_leafs(X_train)
+    result = clf.concate_transform(X_train)
     print(result)
 
     clf = CatboostFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.predict_leafs(X_train)
+    result = clf.concate_transform(X_train)
     print(result)
