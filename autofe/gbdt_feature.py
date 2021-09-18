@@ -266,13 +266,12 @@ if __name__ == '__main__':
 
     clf = XGBoostFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.transform(X_train).toarray()
-    result = pd.DataFrame(result)
+    result = clf.concate_transform(X_train)
     print(result)
 
     clf = LightGBMFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
-    result = clf.transform(X_train)
+    result = clf.concate_transform(X_train)
     print(result)
 
     clf = GBDTFeatureTransformer(task='classification')
