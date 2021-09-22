@@ -318,23 +318,13 @@ Artificial Intelligence (AI) can now automate the algorithm selection, feature e
 
 **建议细读**： 建议
 
-
-
 ### Human-in-the-Loop AutoDS
-
-
 
 AutoDS refers to a group of technologies that can automate the manual processes of data pre-processing, feature engineering, model selection, etc. [71]. Several technologies have been developed with different specializations.
 
 For example, Google has developed a set of AutoDS products under the umbrella of Cloud AutoML, such that even non-technical users can build models for visual, text, and tabular data [19].
 
  H2O is java-based software for data modelling that provides a python module, which data scientists can import into their code file in order to use the automation capability.
-
-
-
-
-
-
 
 # 特征工程
 
@@ -413,7 +403,13 @@ AutoFE可以看作自动化机器学习技术(Automated Machine Learning, AutoML
 
 ### 摘要
 
-特征生成是指利用已有特征衍生对模型有用的特征，是特征工程中的重要组成部分。衍生的特征可分为低阶特征和高阶特征，二者结合更有利于提升模型效果。现有的自动机器学习（AutoML）工具大多只包含单列特征变换和低阶特征生成，忽视了特征交互和高阶特征的重要性。针对这一现状，提出了新的AutoML框架Auto-Tabular，通过特征交叉组合和聚合操作进行特征交互，通过神经网络生成高阶特征，合并低阶和高阶特征，有效提升模型效果。在Kaggle和OpenML的数据集进行实验，结果表明，与Auto-Sklearn、mljar和 AutoGluon-Tabular等框架相比，Auto-Tabular具有更优异的性能。
+特征生成是指利用已有特征衍生对模型有用的特征，是特征工程中的重要组成部分。衍生的特征可分为低阶特征和高阶特征，二者结合更有利于提升模型效果。这一步可能比实际上使用的模型更重要，因为一个机器学习算法只能从我们给定的数据中学习，所以构造一个和任务相关的特征是至关重要的，参见优质论文《A Few Useful Things to Know about Machine Learning》。
+
+通常，特征工程是一个冗长的人工过程，依赖于领域知识、直觉和数据操作。这个过程可能是极其枯燥的，同时最终得到的特征将会受到人的主观性和时间的限制。特征工程自动化旨在通过从数据集中自动构造候选特征，并从中选择最优特征用于训练来帮助数据科学家。
+
+机器学习越来越多地从人工设计模型转向使用 H20、TPOT 和 Auto-sklearn 等工具自动优化的工具。这些库以及随机搜索（参见《Random Search for Hyper-Parameter Optimization》）等方法旨在通过寻找匹配数据集的最优模型来简化模型选择和机器学习调优过程，而几乎不需要任何人工干预。然而，特征工程作为机器学习流程中可能最有价值的一个方面，却被现在的自动化机器学习工具所忽略。
+
+针对这一现状，提出了新的AutoML框架Auto-Tabular，通过特征交叉组合和聚合操作进行特征交互，通过神经网络生成高阶特征，合并低阶和高阶特征，有效提升模型效果。在Kaggle和OpenML的数据集进行实验，结果表明，与Auto-Sklearn、mljar和 AutoGluon-Tabular等框架相比，Auto-Tabular具有更优异的性能。
 
 自动化特征工程(Automated Feature Engineering, AutoFE)主要涉及了feature extraction和feature selection两个子问题. 目前feature selection已经有较多的解决方案, 所以主要谈谈feature extraction.
 
