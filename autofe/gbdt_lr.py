@@ -23,10 +23,12 @@ score = roc_auc_score(y_test, lr.predict(x_test))
 print('LR train data shape : {0}  auc: {1}'.format(x_train.shape, score))
 x_train_gb = gb.apply(x_train)[:, :, 0]
 x_test_gb = gb.apply(x_test)[:, :, 0]
+print(x_train_gb)
 print(x_train_gb.shape)
 gb_onehot = OneHotEncoder()
 x_trains = gb_onehot.fit_transform(
     np.concatenate((x_train_gb, x_test_gb), axis=0))
+print(x_trains)
 print(x_trains.shape)
 rows = x_train.shape[0]
 lr = LogisticRegression()
