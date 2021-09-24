@@ -11,21 +11,30 @@ df['species'] = df['species'].map({
     1: 'versicolor',
     2: 'virginica'
 })
-print(df)
+print(df.dtypes)
 # Make an entityset and add the entity
-es = ft.EntitySet(id='iris')
+es = ft.EntitySet()
 print(es)
-es.entity_from_dataframe(
-    entity_id='data', dataframe=df, make_index=True, index='index')
-
+es.add_dataframe(
+    dataframe_name='data', dataframe=df, make_index=True, index='index')
+print(es['data'].ww)
 # Run deep feature synthesis with transformation primitives
 feature_matrix, feature_defs = ft.dfs(
     entityset=es,
-    target_entity='data',
+    target_dataframe_name='data',
     trans_primitives=['add_numeric', 'multiply_numeric'],
+    groupby_trans_primitives=None,
     agg_primitives=None)
 
 print(feature_defs)
+print(feature_matrix.head())
+print(feature_matrix.ww)
+print('===' * 100)
+
+features = ft.dfs(
+    entityset=es, target_dataframe_name='data', features_only=True)
+print(features)
+feature_matrix = ft.calculate_feature_matrix(features=features, entityset=es)
 print(feature_matrix.head())
 print('===' * 100)
 
@@ -35,12 +44,3 @@ agg_primitives = df[df['type'] == 'transform']['name'].tolist()
 print(trans_primitives)
 print('===' * 100)
 print(agg_primitives)
-# Run deep feature synthesis with transformation primitives
-feature_matrix, feature_defs = ft.dfs(
-    entityset=es,
-    target_entity='data',
-    trans_primitives=trans_primitives,
-    agg_primitives=agg_primitives)
-
-print(feature_defs)
-print(feature_matrix.head())
