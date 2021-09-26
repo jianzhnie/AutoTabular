@@ -11,6 +11,7 @@ df['species'] = df['species'].map({
     1: 'versicolor',
     2: 'virginica'
 })
+print(df.head())
 print(df.dtypes)
 # Make an entityset and add the entity
 es = ft.EntitySet()
@@ -21,10 +22,13 @@ print(es['data'].ww)
 # Run deep feature synthesis with transformation primitives
 feature_matrix, feature_defs = ft.dfs(
     entityset=es,
+    max_depth=3,
     target_dataframe_name='data',
-    trans_primitives=['add_numeric', 'multiply_numeric'],
-    groupby_trans_primitives=None,
-    agg_primitives=None)
+    agg_primitives=['mode', 'mean', 'max', 'count'],
+    trans_primitives=[
+        'add_numeric', 'multiply_numeric', 'cum_min', 'cum_mean', 'cum_max'
+    ],
+    groupby_trans_primitives=['cum_sum'])
 
 print(feature_defs)
 print(feature_matrix.head())
