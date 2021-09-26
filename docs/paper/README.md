@@ -326,6 +326,16 @@ For example, Google has developed a set of AutoDS products under the umbrella of
 
  H2O is java-based software for data modelling that provides a python module, which data scientists can import into their code file in order to use the automation capability.
 
+#  深度学习模型 & 结构化数据
+
+##  1. [GrowNet](https://arxiv.org/pdf/2002.07971.pdf)
+
+提出了一种新的梯度Boosting框架，将浅层神经网络作为“弱学习者”, 逐步构建复杂的神经网络，在此框架下，我们考虑一般的损失函数，并给出了分类、回归和排序的具体实例。原理和Gradient Boosting Tree 以及 XGBoost 很像，都是后面的模型的输入包含前面模型的输出结果，只是基学习器用的是神经网络。
+
+![image-20210926161721093](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210926161721093.png)
+
+## 2.
+
 # 特征工程
 
 ## 背景
@@ -456,8 +466,6 @@ tsfresh可以自动地从时间序列中提取100多个特征。这些特征描�
 需要注意的是，在使用tsfresh提取特征时，需要提前把结构进行转换，一般上需转换为(None,2)的结构，例如下图所示：
 
 ![img](https://img2018.cnblogs.com/blog/1473228/201902/1473228-20190214204948088-1936775105.png)
-
-
 
 
 
