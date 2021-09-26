@@ -334,7 +334,79 @@ For example, Google has developed a set of AutoDS products under the umbrella of
 
 ![image-20210926161721093](C:\Users\jianzh\AppData\Roaming\Typora\typora-user-images\image-20210926161721093.png)
 
-## 2.
+## 2. [Oblivious Decision Tree](https://arxiv.org/pdf/1909.06312.pdf)
+
+NODE模型的基础模型是Oblivious Decision Tree（ODT），因此这里先介绍一下ODT的原理，它其实就是一个决策树，不过ODT对用于划分特征的内部结点有一定限制——**对于相同深度的内部节点，其选择的特征和阈值也必须是相同的**。也就是说，对于相同深度的一层结点，ODT只能选择一个特征和一个阈值，这样一来，假设树的深度为d，那么一个ODT所用到的特征划分也最多只有d种，再进一步，我们可以发现其实**ODT就是一张具有 ![[公式]](https://www.zhihu.com/equation?tex=2%5Ed) 个条目的表，它对应着d种特征划分的所有可能组合**。举个例子，假设ODT有两层，也就是 ![[公式]](https://www.zhihu.com/equation?tex=d%3D2) ，两层的特征划分分别为： ![[公式]](https://www.zhihu.com/equation?tex=f_a%3EA%2Cf_b%3EB) ，这样ODT就可以表示成为：
+
+![img](https://pic3.zhimg.com/80/v2-28e53c7d16d9967b5c9514333b993e32_1440w.jpg)
+
+我们可以将这个ODT转换为一张具有 ![[公式]](https://www.zhihu.com/equation?tex=2%5E2) 个条目的决策表
+
+![img](https://pic3.zhimg.com/80/v2-4aefdf8fb61155842399549fc5f06862_1440w.jpg)
+
+这就是ODT的构成，可以看出ODT其实是**常规决策树的弱化版**，普通的决策树可以在每一个内部结点上选择划分特征和阈值，但是ODT被限制在了层这一级别上，不过这也给ODT带来了一个好处，在**推断（inference）过程比较快**，给定一个ODT，我们可以直接并行地对d个划分阈值进行比较，然后直接通过查表的方式得到预测值，而常规的决策树无法做到这一点，只能按照树节点从浅到深的顺序进行推断。
+
+现在我们来将ODT公式化，考虑一个样本向量为 ![[公式]](https://www.zhihu.com/equation?tex=x%5Cin%5Cmathbb%7BR%7D%5En) ，其中n是特征总数，假设第i层用到的特征是 ![[公式]](https://www.zhihu.com/equation?tex=f_i%28x%29) ，阈值为 ![[公式]](https://www.zhihu.com/equation?tex=b_i) ，一共d层，那么ODT的输出可以写为：
+
+![[公式]](https://www.zhihu.com/equation?tex=h%28x%29%3DR%5B%5Cmathbb%7B1%7D%5Cleft%28f_%7B1%7D%28x%29-b_%7B1%7D%5Cright%29%2C+%5Cldots%2C+%5Cmathbb%7B1%7D%5Cleft%28f_%7Bd%7D%28x%29-b_%7Bd%7D%5Cright%29%5D+)
+
+这里的R被叫做response张量，是一个具有d个维度的张量 ![[公式]](https://www.zhihu.com/equation?tex=R+%5Cin+%5Cmathbb%7BR%7D%5E%7B%5Cunderbrace%7B2+%5Ctimes+2+%5Ctimes%5Cldots%5Ctimes+2%7D_d%7D) ，对应上面的决策表； ![[公式]](https://www.zhihu.com/equation?tex=%5Cmathbb%7B1%7D%28%5Ccdot%29) 代表 Heaviside函数
+
+ ![[公式]](https://www.zhihu.com/equation?tex=H%28t%29%3D%5Cleft%5C%7B%5Cbegin%7Barray%7D%7Bll%7D+0%2C+%26+t%3C0++%5C%5C++1%2C+%26+t+%5Cgeq+0+%5Cend%7Barray%7D%5Cright.)
+
+### 可微分的ODT
+
+要想把ODT用在DNN中，就需要让它是可微分的，因此我们需要对上式中的特征选择函数 ![[公式]](https://www.zhihu.com/equation?tex=f_i%28x%29) 、比较函数 ![[公式]](https://www.zhihu.com/equation?tex=%5Cmathbb%7B1%7D%28f_i%28x%29-b_i%29) 的形式做一些修改，把**这些one-hot形式的函数变得“软”一些**。
+
+首先是特征选择函数，在原始ODT中它是one-hot的，也就是从n个特征中选1个出来，因此我们很自然地想到可以利用Softmax等函数，将 ![[公式]](https://www.zhihu.com/equation?tex=f_i%28x%29) relax为n个特征权重加和的形式，不过论文这里采用的不是Softmax，而是 ![[公式]](https://www.zhihu.com/equation?tex=%5Calpha-entmax) ，它是Softmax的推广，Softmax是它 ![[公式]](https://www.zhihu.com/equation?tex=%5Calpha%3D1) 时的特例，entmax的具体形式可以看[这篇文章](https://zhuanlan.zhihu.com/p/76607614)，这里就不过多介绍了。通过entmax，我们可以将特征选择函数改为：
+
+![[公式]](https://www.zhihu.com/equation?tex=%5Cbegin%7Baligned%7D+%5Chat%7Bf%7D_%7Bi%7D%28x%29%3D%5Csum_%7Bj%3D1%7D%5E%7Bn%7D+x_%7Bj%7D+%5Ccdot+%5Coperatorname%7Bentmax%7D_%7B%5Calpha%7D%5Cleft%28F_%7Bi+j%7D%5Cright%29+%5Cend%7Baligned%7D+)
+
+其中 ![[公式]](https://www.zhihu.com/equation?tex=F+%5Cin+%5Cmathbb%7BR%7D%5E%7Bd+%5Ctimes+n%7D) 是一个可训练的参数矩阵。简单分析一下这个式子， ![[公式]](https://www.zhihu.com/equation?tex=%5Chat%7Bf%7D_%7Bi%7D%28x%29) 就是可微ODT在第i层选择的特征，这里采用对所有的n个特征进行**权重加和**的方式来计算，entmax项就是权重，如果是原始ODT，这里的权重应该变为one-hot 的形式，即 ![[公式]](https://www.zhihu.com/equation?tex=%5B0%2C0%2C%5Cldots%2C1%2C%5Cldots%2C0%5D) 。
+
+接下来是比较函数 ![[公式]](https://www.zhihu.com/equation?tex=%5Cmathbb%7B1%7D%28f_i%28x%29-b_i%29) ，它只输出0或1，我们可以写成二分类的方式，即它只输出 ![[公式]](https://www.zhihu.com/equation?tex=%5B1%2C0%5D) 和 ![[公式]](https://www.zhihu.com/equation?tex=%5B0%2C1%5D) ，这样relax的方式就很容易想到了，可以写为 ![[公式]](https://www.zhihu.com/equation?tex=%5Csigma_%7B%5Calpha%7D%28x%29%3D%5Coperatorname%7Bentmax%7D_%7B%5Calpha%7D%28%5Bx%2C+0%5D%29) ，即输出一个**加和为1的二维向量**，而考虑到特征的量级不一定相同，所以可以将比较函数进一步写为 ![[公式]](https://www.zhihu.com/equation?tex=c_%7Bi%7D%28x%29%3D%5Csigma_%7B%5Calpha%7D%5Cleft%28%5Cfrac%7Bf_%7Bi%7D%28x%29-b_%7Bi%7D%7D%7B%5Ctau_%7Bi%7D%7D%5Cright%29) ，其中阈值 ![[公式]](https://www.zhihu.com/equation?tex=b_i) 和放缩参数 ![[公式]](https://www.zhihu.com/equation?tex=%5Ctau_i) 都是可训练的参数。
+
+这样我们就可以构建一个与response张量形状相同的choice张量 ![[公式]](https://www.zhihu.com/equation?tex=C+%5Cin+%5Cmathbb%7BR%7D%5E%7B%5Cunderbrace%7B2+%5Ctimes+2+%5Ctimes%5Cldots%5Ctimes+2%7D_d%7D)
+
+![[公式]](https://www.zhihu.com/equation?tex=+) ![[公式]](https://www.zhihu.com/equation?tex=+)![[公式]](https://www.zhihu.com/equation?tex=C%28x%29%3D%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7D+c_%7B1%7D%28x%29+%2C+1-c_%7B1%7D%28x%29+%5Cend%7Barray%7D%5Cright%5D+%5Cotimes%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7D+c_%7B2%7D%28x%29%2C+1-c_%7B2%7D%28x%29+%5Cend%7Barray%7D%5Cright%5D+%5Cotimes+%5Ccdots+%5Cotimes%5Cleft%5B%5Cbegin%7Barray%7D%7Bc%7D+c_%7Bd%7D%28x%29%2C+1-c_%7Bd%7D%28x%29+%5Cend%7Barray%7D%5Cright%5D)
+
+其中 ![[公式]](https://www.zhihu.com/equation?tex=%5Cotimes) 代表向量外积，那可微ODT的最终输出就为
+
+![[公式]](https://www.zhihu.com/equation?tex=%5Chat%7Bh%7D%28x%29%3D%5Csum_%7Bi_%7B1%7D%2C+%5Cldots+i_%7Bd%7D+%5Cin%5C%7B0%2C1%5C%7D%5E%7Bd%7D%7D+R_%7Bi_%7B1%7D%2C+%5Cldots%2C+i_%7Bd%7D%7D+%5Ccdot+C_%7Bi_%7B1%7D%2C+%5Cldots%2C+i_%7Bd%7D%7D%28x%29)
+
+其中R还是response张量，它是可训练的。
+
+可以看出，该式其实就是将choice张量的**每一个分量都看成是一个权重，然后计算加权和，得到最终的输出** ![[公式]](https://www.zhihu.com/equation?tex=%5Chat%7Bh%7D%28x%29) ，注意到它只是一个标量，这比较适合回归问题，而对于分类问题我们希望输出的是一个向量 ![[公式]](https://www.zhihu.com/equation?tex=%5Chat%7Bh%7D%28x%29+%5Cin+%5Cmathbb%7BR%7D%5E%7B%7CC%7C%7D) ，其中 ![[公式]](https://www.zhihu.com/equation?tex=%7CC%7C) 是预测的类别数。我们可以通过给R多加一个维度来达到这一目的，即R变为d+1位的张量 ![[公式]](https://www.zhihu.com/equation?tex=R+%5Cin+%5Cmathbb%7BR%7D%5E%7B%5Cunderbrace%7B2+%5Ctimes+2+%5Ctimes%5Cldots%5Ctimes+2%5Ctimes+l%7D_d%7D) ，其中 ![[公式]](https://www.zhihu.com/equation?tex=l%5Cgeq%7CC%7C) 是一个超参数，这样ODT的输出就是一个 ![[公式]](https://www.zhihu.com/equation?tex=l) 维的向量，对于分类问题，我们取它的前 ![[公式]](https://www.zhihu.com/equation?tex=%7CC%7C) 维分量用来预测，而对于回归问题，我们则取它的第1维，之所以要设计这样一个 ![[公式]](https://www.zhihu.com/equation?tex=l) ，是考虑到之后NODE会将前一层的输出会作为后一层的输入，不强制 ![[公式]](https://www.zhihu.com/equation?tex=l) 等于 ![[公式]](https://www.zhihu.com/equation?tex=%7CC%7C) 更合适一些。
+
+最后总结一下可微ODT，如下图所示：
+
+1. 每一层的函数都一样，这是ODT的原生特性
+2. 特征选择向量，即图中的紫色 ![[公式]](https://www.zhihu.com/equation?tex=F_i) ，这其实是一个权重向量，通过计算对所有的n个特征的加权和来进行特征选择。
+3. 比较函数，即图中的绿色的 ![[公式]](https://www.zhihu.com/equation?tex=%5Csigma_%5Calpha%28%5Ccdot%29) ，对选择到的特征进行阈值比较，得到二维choice向量
+4. 输出，d层树最后可以得到 ![[公式]](https://www.zhihu.com/equation?tex=2%5Ed) 个二维choice向量，将它们的每个元素分别与response张量的对应向量做数乘，加起来就得到最终的 ![[公式]](https://www.zhihu.com/equation?tex=l) 维向量。
+
+![img](https://pic1.zhimg.com/80/v2-d9d267187f76974d8517fab0f161f9a8_1440w.jpg)
+
+### NODE架构
+
+构造了可微ODT之后，就可以用它来组成NODE模型了，直接上图
+
+![img](https://pic4.zhimg.com/80/v2-2105e62aca89d0bb6bdb7f1eb728c05f_1440w.jpg)
+
+我们一步一步来，先看单独的一层，可以看出每一层都是由多个独立的ODT构成的，假设一层有m棵树，则该层的输出就是把每棵树的输出**串联**起来，即 ![[公式]](https://www.zhihu.com/equation?tex=%5Cleft%5B%5Chat%7Bh%7D_%7B1%7D%28x%29%2C+%5Cldots%2C+%5Chat%7Bh%7D_%7Bm%7D%28x%29%5Cright%5D) ，维度为 ![[公式]](https://www.zhihu.com/equation?tex=%5Cmathbb%7BR%7D%5E%7Bml%7D) ；接着是层与层之间，这里采用了类似于DenseNet的连接方式——**把该层前面所有层的输出都串联起来作为该层的输入**，那么对于第i层，其输入的维度就是 ![[公式]](https://www.zhihu.com/equation?tex=%5Cmathbb%7BR%7D%5E%7Bn%2B%28i-1%29ml%7D) ；最终的预测结果算起来很简单，就是直接对所有层中的所有决策树的输出做简单平均，最终得到的是一个 ![[公式]](https://www.zhihu.com/equation?tex=l) 维的向量。
+
+简单分析一下，NODE中之中层与层之间的连接方式，其实可以一种ensemble，**将之前的层的输出看做是新的特征，这样再输入到后面的层中**，这样做的好处就是模型能够到**同时学习浅层和深层的决策规则**，我们知道单个的ODT其实是一个比较弱的分类器，而通过这样的ensemble，可以有效提高模型的性能。
+
+### 总结
+
+简单总结一下，这篇论文和上一篇的TabNet模型有很多相似的地方，比如都是针对于表格数据的、都将决策树的思想融入到了DNN中；不过两者还是有很多的不同点，具体如下：
+
+- 特征选择方式：TabNet采用的是**顺序多步**（sequential multi-step）框架，每一个step的特征选择都会参考之前step的选择；而NODE则更直接，浅层的输出会直接作为后面层的输入特征。
+- 特征构建：TabNet并没有构建新的特征，它的每一个step用到的特征还是从原始特征中挑选出来的；而NODE的每一层都会产生新的特征，特**征数则会随着层数的加深而不断变多**。两者在这一点上的不同就导致TabNet可以直观地计算原始特征的 importance，而NODE由于引入了不直观的新特征，所以不好计算。
+- 基学习器：TabNet采用的就是普通决策树，但是因为它Feature transformer层比较复杂，所以其实TabNet的特征计算过程与真实决策树并不完全相符；而NODE用的直接就是“软”的ODT，相对而言更简单，符合的也更好。
+- 直观类比：个人的看法是，TabNet是一种**加法模型**，将每一个step的输出结果相加得到最终结果，因此**用到的是Boosting的思想**，相对而言更接近XGBoost等模型；而NODE则用到了**Bagging+Stacking的思想**，首先是NODE在每一层都构造了多个独立的ODT，这一点很像采用Bagging思想的随机森林，然后NODE在层与层之间的采用了DenseNet的连接方式，这一点又很像模型的Stacking（前面模型的输入作为后面模型的输出），因此个人感觉整个**NODE模型很像对多个随机森林模型做顺序的Stacking后的得到的一个ensemble模型**。
+
+
 
 # 特征工程
 
