@@ -6,19 +6,6 @@ import torch.nn.functional as F
 from sklearn.preprocessing import LabelEncoder
 from torch.utils.data import DataLoader, Dataset
 
-"""
-A Neural Network in PyTorch for Tabular Data with Categorical Embeddings
-
-https://yashuseth.blog/2018/07/22/pytorch-neural-network-for-tabular-data-with-categorical-embeddings/
-
-PyTorch is a promising python library for deep learning. I have been learning it for the past few weeks. 
-I am amused by its ease of use and flexibility. In this blog post, I will go through a feed-forward neural network 
-for tabular data that uses embeddings for categorical variables.
-
-If you want to understand the underlying concepts of using categorical feature embeddings, you should definitely check out 
-this awesome post – An Introduction to Deep Learning for Tabular Data. I also did a deep dive in fastai’s tabular module 
-to come up with this network.
-"""
 
 class TabularDataset(Dataset):
 
@@ -77,6 +64,19 @@ class TabularDataset(Dataset):
 
 
 class FeedForwardNN(nn.Module):
+    """A Neural Network in PyTorch for Tabular Data with Categorical
+    Embeddings.
+
+    https://yashuseth.blog/2018/07/22/pytorch-neural-network-for-tabular-data-with-categorical-embeddings/
+
+    PyTorch is a promising python library for deep learning. I have been learning it for the past few weeks.
+    I am amused by its ease of use and flexibility. In this blog post, I will go through a feed-forward neural network
+    for tabular data that uses embeddings for categorical variables.
+
+    If you want to understand the underlying concepts of using categorical feature embeddings,
+    you should definitely check out this awesome post – An Introduction to Deep Learning for Tabular Data.
+    I also did a deep dive in fastai’s tabular module to come up with this network.
+    """
 
     def __init__(
         self,
