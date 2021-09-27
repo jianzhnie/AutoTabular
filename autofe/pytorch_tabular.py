@@ -198,10 +198,7 @@ if __name__ == '__main__':
     dataloader = DataLoader(dataset, batchsize, shuffle=True, num_workers=1)
 
     cat_dims = [int(data[col].nunique()) for col in categorical_features]
-    print(cat_dims)
     emb_dims = [(x, min(50, (x + 1) // 2)) for x in cat_dims]
-    print(emb_dims)
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = FeedForwardNN(
         emb_dims,
@@ -210,6 +207,7 @@ if __name__ == '__main__':
         output_size=1,
         emb_dropout=0.04,
         lin_layer_dropouts=[0.001, 0.01]).to(device)
+    print(model)
     num_epochs = 100
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
