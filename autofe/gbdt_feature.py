@@ -13,7 +13,7 @@ class XGBoostFeatureTransformer(BaseEstimator):
     def __init__(self,
                  task='regression',
                  params={
-                     'n_estimators': 10,
+                     'n_estimators': 100,
                      'max_depth': 3
                  }):
         self.short_name = 'xbgoost'
@@ -113,7 +113,7 @@ class GBDTFeatureTransformer(BaseEstimator):
     def __init__(self,
                  task='regression',
                  params={
-                     'n_estimators': 10,
+                     'n_estimators': 100,
                      'max_depth': 3
                  }):
         self.short_name = 'GBDT'
@@ -154,7 +154,7 @@ class LightGBMFeatureTransformer(BaseEstimator):
     def __init__(self,
                  task='regression',
                  params={
-                     'n_estimators': 10,
+                     'n_estimators': 100,
                      'max_depth': 3
                  }):
         self.short_name = 'lightgbm'
@@ -196,7 +196,7 @@ class CatboostFeatureTransformer(BaseEstimator):
     def __init__(self,
                  task='regression',
                  params={
-                     'n_estimators': 10,
+                     'n_estimators': 100,
                      'max_depth': 3
                  }):
 
@@ -283,3 +283,23 @@ if __name__ == '__main__':
     clf.fit(X_train, y_train)
     result = clf.concate_transform(X_train)
     print(result)
+
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import roc_auc_score
+
+    lr = LogisticRegression()
+    x_train_gb, x_test_gb, y_train_gb, y_test_gb = train_test_split(
+        result, y_train)
+    x_train, x_test, y_train, y_test = train_test_split(X_train, y_train)
+
+    lr.fit(x_train, y_train)
+    score = roc_auc_score(y_test, lr.predict(x_test))
+    print('LR with GBDT apply data, train data shape : {0}  auc: {1}'.format(
+        x_train.shape, score))
+
+    lr = LogisticRegression()
+    lr.fit(x_train_gb, y_train_gb)
+    score = roc_auc_score(y_test_gb, lr.predict(x_test_gb))
+    print('LR with GBDT apply data, train data shape : {0}  auc: {1}'.format(
+        x_train_gb.shape, score))
