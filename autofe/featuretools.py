@@ -1,6 +1,6 @@
-from sklearn.datasets import load_iris
-import pandas as pd
 import featuretools as ft
+import pandas as pd
+from sklearn.datasets import load_iris
 
 # Load data and put into dataframe
 iris = load_iris()
