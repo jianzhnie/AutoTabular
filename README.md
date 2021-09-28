@@ -24,6 +24,15 @@ AutoTabular automates machine learning tasks enabling you to easily achieve stro
 - It can do advanced features engineering, like: [Golden Features](https://supervised.mljar.com/features/golden_features/), [Features Selection](https://supervised.mljar.com/features/features_selection/), Text and Time Transformations.
 - It can tune hyper-parameters with `not-so-random-search` algorithm (random-search over defined set of values) and hill climbing to fine-tune final models.
 
+## Auto Feature generate & Selection
+
+### Deep Feature Synthesis
+
+### GBDT Feature Generate
+
+### Neural Network Embeddings
+
+
 
 ## Example
 
