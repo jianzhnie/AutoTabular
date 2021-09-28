@@ -103,7 +103,7 @@ class TabularDataModule(pl.LightningDataModule):
                  num_cols,
                  cat_cols,
                  label_col,
-                 num_workers=2,
+                 num_workers=4,
                  batch_size_train=128,
                  batch_size_val=64,
                  batch_size_test=512):
@@ -246,9 +246,10 @@ def emb_sz_rule(n_cat):
 
 
 if __name__ == '__main__':
-    """http://ethen8181.github.io/machine-learning/deep_learning/tabular/tabular.html#Deep-Learning-For-Tabular-Data
-    """
-    input_path = 'UCI_Credit_Card.csv'
+    """http://ethen8181.github.io/machine-
+    learning/deep_learning/tabular/tabular.html#Deep-Learning-For-Tabular-
+    Data."""
+    input_path = '/media/robin/DATA/datatsets/structure_data/UCI_Credit_Card/UCI_Credit_Card.csv'
     df = pd.read_csv(input_path)
     print(df.shape)
     print(df.head())
@@ -290,6 +291,7 @@ if __name__ == '__main__':
             value: idx
             for idx, value in enumerate(category_col.cat.categories)
         }
+    print(cat_code_dict)
 
     def preprocess(df,
                    scaler=None,
@@ -340,7 +342,7 @@ if __name__ == '__main__':
 
     print(df_preprocessed.dtypes)
 
-    batch_size = 2
+    batch_size = 64
     path_train = os.path.join(data_dir, 'train.csv')
     dataset = TabularDataset(path_train, num_cols, cat_cols, label_col)
     data_loader = DataLoader(dataset, batch_size)
@@ -369,7 +371,7 @@ if __name__ == '__main__':
                                n_classes, embedding_dim_dict)
     print(tabular_model)
     callbacks = [EarlyStopping(monitor='val_loss')]
-    trainer = pl.Trainer(max_epochs=8, callbacks=callbacks)
+    trainer = pl.Trainer(max_epochs=8, callbacks=callbacks, gpus=1)
     trainer.fit(tabular_model, tabular_data_module)
     y_true, y_pred = predict(tabular_model, tabular_data_module)
     score = compute_score(y_true, y_pred)
