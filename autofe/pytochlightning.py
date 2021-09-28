@@ -246,7 +246,8 @@ def emb_sz_rule(n_cat):
 
 
 if __name__ == '__main__':
-
+    """http://ethen8181.github.io/machine-learning/deep_learning/tabular/tabular.html#Deep-Learning-For-Tabular-Data
+    """
     input_path = 'UCI_Credit_Card.csv'
     df = pd.read_csv(input_path)
     print(df.shape)
