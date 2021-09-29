@@ -5,7 +5,7 @@
 ```python
 pip install -U setuptools
 ```
-1. 用 twine上传分发包，并且只有 twine> = 1.11.0 才能将元数据正确发送到 Pypi上
+3. 用 twine上传分发包，并且只有 twine> = 1.11.0 才能将元数据正确发送到 Pypi上
 ```python
 pip install -U twine
 ```
@@ -31,7 +31,7 @@ python setup.py sdist
 
 运行该命令之后，会生成一个haipproxy.egg-info文件夹，可以查看其中的SOURCES.txt文件，以确定是否所有需要的内容都已经被包括在待发布的包中
 
-5.上传分发包
+5. 上传分发包
 ```python
 twine upload dist/* # 也可以单独指定 dist 文件夹中的某个版本的发布包
 ```
