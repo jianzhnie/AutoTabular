@@ -3,10 +3,10 @@ import os
 import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
+from autofe.tabular_embedding.pytorchlightning_tabular import TabularDataModule, TabularDataset, TabularNet, compute_score, predict
 from pytorch_lightning.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from tabular_embedding.pytorchlightning_tabular import TabularDataModule, TabularDataset, TabularNet, compute_score, predict
 from torch.utils.data import DataLoader
 
 if __name__ == '__main__':

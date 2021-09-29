@@ -1,8 +1,8 @@
 import pandas as pd
 import torch
 import torch.nn as nn
+from autofe.tabular_embedding.pytorch_tabular import FeedForwardNN, TabularDataset
 from sklearn.preprocessing import LabelEncoder
-from tabular_embedding.pytorch_tabular import FeedForwardNN, TabularDataset
 from torch.utils.data import DataLoader
 
 if __name__ == '__main__':
