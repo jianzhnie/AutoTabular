@@ -308,14 +308,3 @@ if __name__ == '__main__':
     score = roc_auc_score(y_test_gb, lr.predict(x_test_gb))
     print('LR with GBDT apply data, train data shape : {0}  auc: {1}'.format(
         x_train_gb.shape, score))
-
-    # from autogluon.tabular import TabularDataset, TabularPredictor
-
-    # label = 'Survived'  # name of target variable to predict in this competition
-    # eval_metric = 'roc_auc'  # Optional: specify that competition evaluation metric is AUC
-
-    # predictor = TabularPredictor(
-    #     label=label, eval_metric=eval_metric, verbosity=3).fit(
-    #         titanic, time_limit=3600)
-    # y_predproba = predictor.predict()
-    # y_predproba.head(5)  #

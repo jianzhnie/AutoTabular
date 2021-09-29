@@ -115,7 +115,7 @@ def get_score(item):
             multiply_score)
 
 
-class GBDTFeaturesTransformer(object):
+class GoldenFeatureTransformer(object):
 
     def __init__(self, results_path=None, ml_task=None, features_count=None):
         self._new_features = []
@@ -353,7 +353,7 @@ if __name__ == '__main__':
     X_train = titanic.drop(['Survived'], axis=1)
     y_train = titanic['Survived']
     print(X_train)
-    gbdt_model = GBDTFeaturesTransformer(
+    gbdt_model = GoldenFeatureTransformer(
         results_path='./', ml_task='BINARY_CLASSIFICATION')
     gbdt_model.fit(X_train, y_train)
     results = gbdt_model.transform(X_train)
