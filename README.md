@@ -24,29 +24,38 @@ AutoTabular automates machine learning tasks enabling you to easily achieve stro
 - It can do advanced features engineering, like: [Golden Features](https://supervised.mljar.com/features/golden_features/), [Features Selection](https://supervised.mljar.com/features/features_selection/), Text and Time Transformations.
 - It can tune hyper-parameters with `not-so-random-search` algorithm (random-search over defined set of values) and hill climbing to fine-tune final models.
 
-## Example
+##  Installation
 
-First, install dependencies
+The sources for AutoTabular can be downloaded from the `Github repo`.
+
+You can either clone the public repository:
+
 ```bash
 # clone project
 git clone https://apulis-gitlab.apulis.cn/apulis/AutoTabular/autotabular.git
-
-# install project
-cd autotabular
-pip install -e .
+# First, install dependencies
 pip install -r requirements.txt
 ```
- Next, navigate to any file and run it.
- ```bash
+
+Once you have a copy of the source, you can install it with:
+
+```bash
+python setup.py install
+```
+## Example
+Next, navigate to any file and run it.
+```bash
 # module folder
 cd example
 
 # run module (example: mnist as your main contribution)
-python demo.py
- ```
+python binary_classifier_Titanic.py
+```
 
 ### Auto Feature generate & Selection
-
+```python
+TODO
+```
 ### Deep Feature Synthesis
 ```python
 import featuretools as ft
