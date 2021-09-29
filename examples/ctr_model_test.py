@@ -16,9 +16,9 @@ from autotabular.algorithms.ctr.nfm import NeuralFactorizationMachineModel
 from autotabular.algorithms.ctr.pnn import ProductNeuralNetworkModel
 from autotabular.algorithms.ctr.wd import WideAndDeepModel
 from autotabular.algorithms.ctr.xdfm import ExtremeDeepFactorizationMachineModel
-from autotabular.dataset.avazu import AvazuDataset
-from autotabular.dataset.criteo import CriteoDataset
-from autotabular.dataset.movielens import MovieLens1MDataset, MovieLens20MDataset
+from autotabular.datasets.avazu import AvazuDataset
+from autotabular.datasets.criteo import CriteoDataset
+from autotabular.datasets.movielens import MovieLens1MDataset, MovieLens20MDataset
 from sklearn.metrics import roc_auc_score
 from torch.utils.data import DataLoader
 
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=2048)
     parser.add_argument('--weight_decay', type=float, default=1e-6)
     parser.add_argument('--device', default='cuda:0')
-    parser.add_argument('--save_dir', default='chkpt')
+    parser.add_argument('--save_dir', default='work_dir')
     args = parser.parse_args()
     main(args.dataset_name, args.dataset_path, args.model_name, args.epoch,
          args.learning_rate, args.batch_size, args.weight_decay, args.device,
