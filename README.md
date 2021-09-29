@@ -92,6 +92,8 @@ print(feature_matrix.ww)
 ```
 ### GBDT Feature Generate
 ```python
+from autofe.feature_engineering.gbdt_feature import CatboostFeatureTransformer, GBDTFeatureTransformer, LightGBMFeatureTransformer, XGBoostFeatureTransformer
+
 titanic = pd.read_csv('autotabular/datasets/data/Titanic.csv')
 # 'Embarked' is stored as letters, so fit a label encoder to the train set to use in the loop
 embarked_encoder = LabelEncoder()
