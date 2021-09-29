@@ -1,5 +1,5 @@
 import torch
-from torchfm.layer import CrossNetwork, FeaturesEmbedding, MultiLayerPerceptron
+from autotabular.algorithms.ctr.layer import CrossNetwork, FeaturesEmbedding, MultiLayerPerceptron
 
 
 class DeepCrossNetworkModel(torch.nn.Module):

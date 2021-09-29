@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from torchfm.layer import FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
+from autotabular.algorithms.ctr.layer import FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
 
 
 class AutomaticFeatureInteractionModel(torch.nn.Module):

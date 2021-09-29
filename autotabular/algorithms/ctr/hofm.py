@@ -1,5 +1,5 @@
 import torch
-from torchfm.layer import AnovaKernel, FactorizationMachine, FeaturesEmbedding, FeaturesLinear
+from autotabular.algorithms.ctr.layer import AnovaKernel, FactorizationMachine, FeaturesEmbedding, FeaturesLinear
 
 
 class HighOrderFactorizationMachineModel(torch.nn.Module):

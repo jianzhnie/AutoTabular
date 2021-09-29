@@ -1,5 +1,5 @@
 import torch
-from torchfm.layer import CompressedInteractionNetwork, FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
+from autotabular.algorithms.ctr.layer import CompressedInteractionNetwork, FeaturesEmbedding, FeaturesLinear, MultiLayerPerceptron
 
 
 class ExtremeDeepFactorizationMachineModel(torch.nn.Module):

@@ -1,5 +1,5 @@
 import torch
-from torchfm.layer import FeaturesEmbedding, FeaturesLinear, InnerProductNetwork, MultiLayerPerceptron, OuterProductNetwork
+from autotabular.algorithms.ctr.layer import FeaturesEmbedding, FeaturesLinear, InnerProductNetwork, MultiLayerPerceptron, OuterProductNetwork
 
 
 class ProductNeuralNetworkModel(torch.nn.Module):

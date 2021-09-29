@@ -1,5 +1,5 @@
 import torch
-from torchfm.layer import FeaturesEmbedding, MultiLayerPerceptron
+from autotabular.algorithms.ctr.layer import FeaturesEmbedding, MultiLayerPerceptron
 
 
 class FactorizationSupportedNeuralNetworkModel(torch.nn.Module):
