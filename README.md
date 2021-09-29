@@ -8,9 +8,9 @@
 
 AutoTabular automates machine learning tasks enabling you to easily achieve strong predictive performance in your applications.  With just a few lines of code, you can train and deploy high-accuracy machine learning and deep learning models tabular data.
 
-
 ![autotabular](./docs/autotabular.png)
 
+[Toc]
 ## What's good in it?
 
 - It is using the RAPIDS as back-end support, gives you the ability to execute end-to-end data science and analytics pipelines entirely on GPUs.
@@ -259,7 +259,7 @@ for epoch in range(num_epochs):
     print('loss:', loss)
 ```
 
-### Citation
+## Citation
 If you use AutoTabular in a scientific publication, please cite the following paper:
 
 Robin, et al. ["AutoTabular: Robust and Accurate AutoML for Structured Data."](https://arxiv.org/abs/2003.06505) arXiv preprint arXiv:2003.06505 (2021).
