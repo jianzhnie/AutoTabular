@@ -66,7 +66,6 @@ if __name__ == '__main__':
             'Intended Audience :: Education',
             'Intended Audience :: Science/Research',
             'Intended Audience :: Information Technology',
-            'License :: OSI Approved :: Apache License',
             'Natural Language :: English',
             'Operating System :: OS Independent',
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
