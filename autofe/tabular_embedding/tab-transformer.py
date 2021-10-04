@@ -222,13 +222,3 @@ class TabTransformer(nn.Module):
         normed_cont = self.norm(x_cont)
         x = torch.cat((flat_categ, normed_cont), dim=-1)
         return self.mlp(x)
-
-
-if __name__ == '__main__':
-    categories = [3, 2, 4]
-    num_special_tokens = 2
-    categories_offset = F.pad(
-        torch.tensor(list(categories)), (1, 0), value=num_special_tokens)
-    print(categories_offset)
-    categories_offset = categories_offset.cumsum(dim=-1)[:-1]
-    print(categories_offset)
