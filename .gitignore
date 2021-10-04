@@ -125,3 +125,4 @@ MNIST
 .DS_Store
 *.pt
 AutoML_*
+autotabular/datasets/data/shelter-animal-outcomes/
