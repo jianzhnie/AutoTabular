@@ -39,11 +39,10 @@ if __name__ == '__main__':
         'Hillshade_9am', 'Hillshade_Noon', 'Hillshade_3pm',
         'Horizontal_Distance_To_Fire_Points'
     ]
-
+    date_columns = []
     feature_columns = (num_col_names + cat_col_names + target_name)
 
     df = pd.read_csv(datafile, header=None, names=feature_columns)
-    df = df.head(5000)
     train, test = train_test_split(df, random_state=42)
     train, val = train_test_split(train, random_state=42)
     num_classes = len(set(train[target_name].values.ravel()))
@@ -52,8 +51,9 @@ if __name__ == '__main__':
         target=target_name,
         continuous_cols=num_col_names,
         categorical_cols=cat_col_names,
+        date_columns=date_columns,
         continuous_feature_transform=None,
-        normalize_continuous_features=False,
+        normalize_continuous_features=True,
     )
 
     tab_transformer_config = TabTransformerConfig(
@@ -69,17 +69,16 @@ if __name__ == '__main__':
     )
 
     trainer_config = TrainerConfig(
-        gpus=0,
+        gpus=1,
+        auto_lr_find=True,
         auto_select_gpus=False,
-        fast_dev_run=True,
-        max_epochs=5,
-        batch_size=256)
+        max_epochs=1000,
+        batch_size=64)
 
     experiment_config = ExperimentConfig(
         project_name='PyTorch Tabular Example',
         run_name='node_forest_cov',
         exp_watch='gradients',
-        log_target='wandb',
         log_logits=True)
 
     optimizer_config = OptimizerConfig()
@@ -94,9 +93,8 @@ if __name__ == '__main__':
     sampler = get_balanced_sampler(train[target_name].values.ravel())
     cust_loss = get_class_weighted_cross_entropy(
         train[target_name].values.ravel())
-    tabular_model.fit(
-        train=train, validation=val, loss=cust_loss, train_sampler=sampler)
-
+    tabular_model.fit(train=train, test=test)
+    print(tabular_model.trainer)
     dt = DeepFeatureExtractor(tabular_model)
     enc_df = dt.fit_transform(test)
     print(enc_df)
