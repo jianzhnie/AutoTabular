@@ -5,7 +5,9 @@ import wget
 from pytorch_tabular.config import DataConfig, OptimizerConfig, TrainerConfig
 from pytorch_tabular.feature_extractor import DeepFeatureExtractor
 from pytorch_tabular.models.category_embedding.config import CategoryEmbeddingModelConfig
+from pytorch_tabular.models.tab_transformer.config import TabTransformerConfig
 from pytorch_tabular.tabular_model import TabularModel
+from pytorch_tabular.utils import get_balanced_sampler
 from sklearn.model_selection import train_test_split
 
 
@@ -14,24 +16,42 @@ class TabularEmbeddingTransformer():
     def __init__(self,
                  cat_col_names=None,
                  num_col_names=None,
-                 date_columns=None,
+                 date_col_names=None,
                  target_name=None,
                  num_classes=None):
+
+        self.cat_col_names = cat_col_names
+        self.num_col_names = num_col_names
+        self.date_col_names = date_col_names
+        self.target_name = target_name
 
         data_config = DataConfig(
             target=target_name,
             continuous_cols=num_col_names,
             categorical_cols=cat_col_names,
-            date_columns=date_columns,
-            continuous_feature_transform=None,
+            date_columns=date_col_names,
+            continuous_feature_transform='quantile_normal',
             normalize_continuous_features=True,
         )
         model_config = CategoryEmbeddingModelConfig(
             task='classification',
+            learning_rate=1e-3,
             metrics=['f1', 'accuracy'],
             metrics_params=[{
                 'num_classes': num_classes
             }, {}])
+
+        model_config = TabTransformerConfig(
+            task='classification',
+            metrics=['f1', 'accuracy'],
+            share_embedding=True,
+            share_embedding_strategy='add',
+            shared_embedding_fraction=0.25,
+            metrics_params=[{
+                'num_classes': num_classes,
+                'average': 'macro'
+            }, {}],
+        )
 
         trainer_config = TrainerConfig(
             gpus=-1,
@@ -54,14 +74,16 @@ class TabularEmbeddingTransformer():
 
         Does not do anything
         """
-        self.tabular_model.fit(train=train_data)
+        sampler = get_balanced_sampler(
+            train_data[self.target_name].values.ravel())
+        self.tabular_model.fit(train=train_data, train_sampler=sampler)
         self.transformerMoldel = DeepFeatureExtractor(
             self.tabular_model, drop_original=False)
         return self
 
     def transform(self, train_data):
-        X_encoded = self.transformerMoldel.transform(train_data)
-        return X_encoded
+        encoded_data = self.transformerMoldel.transform(train_data)
+        return encoded_data
 
     def fit_transform(self, train_data):
         """Encode given columns of X based on the learned features.
