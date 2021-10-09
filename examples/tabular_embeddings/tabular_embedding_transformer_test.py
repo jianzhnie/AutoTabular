@@ -2,6 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 import wget
+from autofe.tabular_embedding.tabular_embedding_transformer import TabularEmbeddingTransformer
+from autofe.tabular_embedding.widedeep_embedding import WideDeepEmbeddingModel, WideDeepEmbeddingModelConfig
 from pytorch_tabular.config import DataConfig, ExperimentConfig, OptimizerConfig, TrainerConfig
 from pytorch_tabular.feature_extractor import DeepFeatureExtractor
 from pytorch_tabular.models.tab_transformer.config import TabTransformerConfig
@@ -56,6 +58,14 @@ if __name__ == '__main__':
         normalize_continuous_features=True,
     )
 
+    widedeep_model_config = WideDeepEmbeddingModelConfig(
+        task='classification',
+        learning_rate=1e-3,
+        metrics=['f1', 'accuracy'],
+        metrics_params=[{
+            'num_classes': num_classes
+        }, {}])
+
     tab_transformer_config = TabTransformerConfig(
         task='classification',
         metrics=['f1', 'accuracy'],
@@ -71,9 +81,9 @@ if __name__ == '__main__':
     trainer_config = TrainerConfig(
         gpus=1,
         auto_lr_find=True,
-        auto_select_gpus=False,
-        max_epochs=1000,
-        batch_size=64)
+        auto_select_gpus=True,
+        max_epochs=1,
+        batch_size=1024)
 
     experiment_config = ExperimentConfig(
         project_name='PyTorch Tabular Example',
@@ -85,11 +95,11 @@ if __name__ == '__main__':
 
     tabular_model = TabularModel(
         data_config=data_config,
-        model_config=tab_transformer_config,
+        model_config=widedeep_model_config,
         optimizer_config=optimizer_config,
         trainer_config=trainer_config,
         experiment_config=experiment_config,
-    )
+        model_callable=WideDeepEmbeddingModel)
     sampler = get_balanced_sampler(train[target_name].values.ravel())
     cust_loss = get_class_weighted_cross_entropy(
         train[target_name].values.ravel())
@@ -98,3 +108,12 @@ if __name__ == '__main__':
     dt = DeepFeatureExtractor(tabular_model)
     enc_df = dt.fit_transform(test)
     print(enc_df)
+
+    transformer = TabularEmbeddingTransformer(
+        cat_col_names=cat_col_names,
+        num_col_names=num_col_names,
+        date_col_names=[],
+        target_name=target_name,
+        num_classes=num_classes)
+    train_transform = transformer.fit_transform(df)
+    print(train_transform)
