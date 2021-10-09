@@ -150,7 +150,7 @@ class CategoryEmbeddingModel(BaseModel):
         return {'logits': y_hat, 'backbone_features': x}
 
 
-class EmbedNet(BaseModel):
+class WideDeepEmbeddingModel(BaseModel):
 
     def __init__(self, config: DictConfig, **kwargs):
         # The concatenated output dim of the embedding layer
@@ -207,7 +207,7 @@ class EmbedNet(BaseModel):
 
 
 @dataclass
-class CategoryEmbeddingModelConfig(ModelConfig):
+class WideDeepEmbeddingModelConfig(ModelConfig):
     """CategoryEmbeddingModel configuration
     Args:
         task (str): Specify whether the problem is regression of classification.Choices are: regression classification
@@ -240,7 +240,7 @@ class CategoryEmbeddingModelConfig(ModelConfig):
     """
 
     layers: str = field(
-        default='256-128-64',
+        default='128-64-32',
         metadata={
             'help':
             'Hyphen-separated number of layers and units in the classification head. eg. 32-64-32.'
@@ -286,5 +286,5 @@ class CategoryEmbeddingModelConfig(ModelConfig):
         },
     )
     _module_src: str = field(default='category_embedding')
-    _model_name: str = field(default='CategoryEmbeddingModel')
-    _config_name: str = field(default='CategoryEmbeddingModelConfig')
+    _model_name: str = field(default='WideDeepEmbeddingModel')
+    _config_name: str = field(default='WideDeepEmbeddingModelConfig')

@@ -2,12 +2,12 @@ from pathlib import Path
 
 import pandas as pd
 import wget
+from autofe.tabular_embedding.widedeep_embedding import WideDeepEmbeddingModel, WideDeepEmbeddingModelConfig
 from pytorch_tabular.config import DataConfig, OptimizerConfig, TrainerConfig
 from pytorch_tabular.feature_extractor import DeepFeatureExtractor
 from pytorch_tabular.models.category_embedding.config import CategoryEmbeddingModelConfig
 from pytorch_tabular.models.tab_transformer.config import TabTransformerConfig
 from pytorch_tabular.tabular_model import TabularModel
-from pytorch_tabular.utils import get_balanced_sampler
 from sklearn.model_selection import train_test_split
 
 
@@ -53,11 +53,19 @@ class TabularEmbeddingTransformer():
             }, {}],
         )
 
+        model_config = WideDeepEmbeddingModelConfig(
+            task='classification',
+            learning_rate=1e-3,
+            metrics=['f1', 'accuracy'],
+            metrics_params=[{
+                'num_classes': num_classes
+            }, {}])
+
         trainer_config = TrainerConfig(
             gpus=-1,
             auto_select_gpus=True,
             auto_lr_find=True,
-            max_epochs=120,
+            max_epochs=30,
             batch_size=1024)
 
         optimizer_config = OptimizerConfig()
@@ -67,16 +75,14 @@ class TabularEmbeddingTransformer():
             model_config=model_config,
             optimizer_config=optimizer_config,
             trainer_config=trainer_config,
-        )
+            model_callable=WideDeepEmbeddingModel)
 
-    def fit(self, train_data):
+    def fit(self, train_data, validation=None):
         """Just for compatibility.
 
         Does not do anything
         """
-        sampler = get_balanced_sampler(
-            train_data[self.target_name].values.ravel())
-        self.tabular_model.fit(train=train_data, train_sampler=sampler)
+        self.tabular_model.fit(train=train_data, validation=validation)
         self.transformerMoldel = DeepFeatureExtractor(
             self.tabular_model, drop_original=False)
         return self
@@ -200,7 +206,7 @@ if __name__ == '__main__':
     transformer = TabularEmbeddingTransformer(
         cat_col_names=cat_col_names,
         num_col_names=num_col_names,
-        date_columns=[],
+        date_col_names=[],
         target_name=target_name,
         num_classes=num_classes)
     train_transform = transformer.fit_transform(df)
