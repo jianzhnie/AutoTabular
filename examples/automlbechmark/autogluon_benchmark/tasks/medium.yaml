@@ -1,0 +1,58 @@
+---
+
+- name: adult
+  openml_task_id: 7592
+
+- name: Amazon_employee_access
+  openml_task_id: 34539
+
+- name: APSFailure
+  openml_task_id: 168868
+
+- name: bank-marketing
+  openml_task_id: 14965
+
+- name: connect-4
+  openml_task_id: 146195
+
+- name: Fashion-MNIST
+  openml_task_id: 146825
+
+- name: guillermo
+  openml_task_id: 168337
+
+- name: Helena
+  openml_task_id: 168329
+
+- name: higgs
+  openml_task_id: 146606
+
+- name: Jannis
+  openml_task_id: 168330
+
+- name: jungle_chess_2pcs_raw_endgame_complete
+  openml_task_id: 167119
+
+- name: KDDCup09_appetency
+  openml_task_id: 3945
+
+- name: MiniBooNE
+  openml_task_id: 168335
+
+- name: nomao
+  openml_task_id: 9977
+
+- name: numerai28.6
+  openml_task_id: 167120
+
+- name: riccardo
+  openml_task_id: 168338
+
+- name: Robert
+  openml_task_id: 168332
+
+- name: Shuttle
+  openml_task_id: 146212
+
+- name: Volkert
+  openml_task_id: 168331
