@@ -13,6 +13,11 @@ df['species'] = df['species'].map({
 })
 print(df.head())
 print(df.dtypes)
+
+df.ww.init(name='iris')
+log_df = df.ww
+print(type(log_df))
+
 # Make an entityset and add the entity
 es = ft.EntitySet()
 print(es)

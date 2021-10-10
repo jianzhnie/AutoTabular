@@ -3,7 +3,6 @@ from pathlib import Path
 
 import pandas as pd
 from autofe.feature_engineering.gbdt_feature import LightGBMFeatureTransformer
-# from autofe.tabular_embedding.tabular_embedding_transformer import TabularEmbeddingTransformer
 from autogluon.tabular import TabularPredictor
 
 
@@ -80,7 +79,6 @@ if __name__ == '__main__':
     leaderboard = predictor.leaderboard(test)
     print(leaderboard)
 
-    # GBDT embeddings
     clf = LightGBMFeatureTransformer(task='classification')
     clf.fit(X_train, y_train)
 
@@ -101,13 +99,3 @@ if __name__ == '__main__':
     scores = predictor.evaluate(X_test)
     leaderboard = predictor.leaderboard(X_test_enc)
     print(leaderboard)
-
-    # tabular net embeddings
-    # transformer = TabularEmbeddingTransformer(
-    #     cat_col_names=cat_col_names,
-    #     num_col_names=num_col_names,
-    #     date_col_names=[],
-    #     target_name=target_name,
-    #     num_classes=num_classes)
-    # train_transform = transformer.fit_transform(df)
-    # print(train_transform)
