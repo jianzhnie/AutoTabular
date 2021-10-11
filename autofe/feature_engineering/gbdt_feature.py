@@ -154,7 +154,7 @@ class LightGBMFeatureTransformer(BaseEstimator):
                  task='regression',
                  categorical_feature='auto',
                  params={
-                     'n_estimators': 10,
+                     'n_estimators': 1000,
                      'max_depth': 3
                  }):
         self.short_name = 'lightgbm'
