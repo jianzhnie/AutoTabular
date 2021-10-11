@@ -69,6 +69,7 @@ adult_train, adult_test = train_test_split(
 adult_val, adult_test = train_test_split(
     adult_test, test_size=0.5, random_state=SEED, stratify=adult_test.target)
 
+adult.to_csv(PROCESSED_DATA_DIR / 'adult.csv', index=None)
 adult_train.to_csv(PROCESSED_DATA_DIR / 'adult_train.csv', index=None)
 adult_val.to_csv(PROCESSED_DATA_DIR / 'adult_val.csv', index=None)
 adult_test.to_csv(PROCESSED_DATA_DIR / 'adult_test.csv', index=None)
