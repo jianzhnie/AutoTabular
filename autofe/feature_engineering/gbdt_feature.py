@@ -152,8 +152,9 @@ class LightGBMFeatureTransformer(BaseEstimator):
 
     def __init__(self,
                  task='regression',
+                 categorical_feature='auto',
                  params={
-                     'n_estimators': 100,
+                     'n_estimators': 10,
                      'max_depth': 3
                  }):
         self.short_name = 'lightgbm'
@@ -162,12 +163,14 @@ class LightGBMFeatureTransformer(BaseEstimator):
         else:
             self.estimator = LGBMClassifier(**params)
 
-    def fit(self, X, y, sample_weight=None):
-        self.fit_transform(X, y, sample_weight=sample_weight)
+        self.categorical_feature = categorical_feature
+
+    def fit(self, X, y):
+        self.fit_transform(X, y, categorical_feature=self.categorical_feature)
         return self
 
-    def fit_transform(self, X, y=None, sample_weight=None):
-        self.model = self.estimator.fit(X, y, sample_weight=sample_weight)
+    def fit_transform(self, X, y=None, categorical_feature='auto'):
+        self.model = self.estimator.fit(X, y)
         self.one_hot_encoder_ = OneHotEncoder(sparse=True)
         return self.one_hot_encoder_.fit_transform(
             self.model.predict(X, pred_leaf=True))

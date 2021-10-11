@@ -18,12 +18,14 @@ class TabularEmbeddingTransformer():
                  num_col_names=None,
                  date_col_names=None,
                  target_name=None,
-                 num_classes=None):
+                 num_classes=None,
+                 model_name='category'):
 
         self.cat_col_names = cat_col_names
         self.num_col_names = num_col_names
         self.date_col_names = date_col_names
         self.target_name = target_name
+        self.model_name = model_name
 
         data_config = DataConfig(
             target=target_name,
@@ -33,7 +35,7 @@ class TabularEmbeddingTransformer():
             continuous_feature_transform='quantile_normal',
             normalize_continuous_features=True,
         )
-        model_config = CategoryEmbeddingModelConfig(
+        category_model_config = CategoryEmbeddingModelConfig(
             task='classification',
             learning_rate=1e-3,
             metrics=['f1', 'accuracy'],
@@ -41,7 +43,7 @@ class TabularEmbeddingTransformer():
                 'num_classes': num_classes
             }, {}])
 
-        model_config = TabTransformerConfig(
+        tabtransformer_model_config = TabTransformerConfig(
             task='classification',
             metrics=['f1', 'accuracy'],
             share_embedding=True,
@@ -53,7 +55,7 @@ class TabularEmbeddingTransformer():
             }, {}],
         )
 
-        model_config = WideDeepEmbeddingModelConfig(
+        widedeep_model_config = WideDeepEmbeddingModelConfig(
             task='classification',
             learning_rate=1e-3,
             metrics=['f1', 'accuracy'],
@@ -65,17 +67,32 @@ class TabularEmbeddingTransformer():
             gpus=-1,
             auto_select_gpus=True,
             auto_lr_find=True,
-            max_epochs=30,
+            max_epochs=1,
             batch_size=1024)
 
         optimizer_config = OptimizerConfig()
 
-        self.tabular_model = TabularModel(
-            data_config=data_config,
-            model_config=model_config,
-            optimizer_config=optimizer_config,
-            trainer_config=trainer_config,
-            model_callable=WideDeepEmbeddingModel)
+        if self.model_name == 'category':
+            self.tabular_model = TabularModel(
+                data_config=data_config,
+                model_config=category_model_config,
+                optimizer_config=optimizer_config,
+                trainer_config=trainer_config)
+        elif self.model_name == 'tabtransformer':
+            self.tabular_model = TabularModel(
+                data_config=data_config,
+                model_config=tabtransformer_model_config,
+                optimizer_config=optimizer_config,
+                trainer_config=trainer_config)
+        elif self.model_name == 'widedeep':
+            self.tabular_model = TabularModel(
+                data_config=data_config,
+                model_config=widedeep_model_config,
+                optimizer_config=optimizer_config,
+                trainer_config=trainer_config,
+                model_callable=WideDeepEmbeddingModel)
+        else:
+            raise NotImplementedError
 
     def fit(self, train_data, validation=None):
         """Just for compatibility.
