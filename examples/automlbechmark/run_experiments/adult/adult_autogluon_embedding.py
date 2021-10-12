@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 from autofe.tabular_embedding.tabular_embedding_transformer import TabularEmbeddingTransformer
 from autogluon.tabular import TabularPredictor
+from pytorch_widedeep.utils import LabelEncoder
 from sklearn.model_selection import train_test_split
 
 SEED = 42
@@ -22,7 +23,7 @@ if __name__ == '__main__':
 
     cat_col_names = []
     for col in adult_data.columns:
-        if adult_data[col].dtype == 'object' and col != 'target':
+        if adult_data[col].dtype == 'object':
             cat_col_names.append(col)
 
     num_col_names = []
@@ -35,6 +36,11 @@ if __name__ == '__main__':
     print(num_classes)
     print(cat_col_names)
     print(num_col_names)
+    print(adult_data.info())
+    print(adult_data.describe())
+
+    label_encoder = LabelEncoder(cat_col_names)
+    adult_data = label_encoder.fit_transform(adult_data)
 
     X = adult_data.drop(target_name, axis=1)
     y = adult_data[target_name]
@@ -48,12 +54,12 @@ if __name__ == '__main__':
     val = adult_data.iloc[val_list]
     test = adult_data.iloc[test_list]
 
-    predictor = TabularPredictor(
-        label=target_name, path=RESULTS_DIR).fit(
-            train_data=train, tuning_data=val)
+    # predictor = TabularPredictor(
+    #     label=target_name, path=RESULTS_DIR).fit(
+    #         train_data=train, tuning_data=val)
 
-    scores = predictor.evaluate(test, auxiliary_metrics=False)
-    leaderboard = predictor.leaderboard(test)
+    # scores = predictor.evaluate(test, auxiliary_metrics=False)
+    # leaderboard = predictor.leaderboard(test)
 
     # GBDT embeddings
     transformer = TabularEmbeddingTransformer(
