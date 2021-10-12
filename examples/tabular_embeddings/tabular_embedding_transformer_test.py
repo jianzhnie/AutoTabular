@@ -45,6 +45,9 @@ if __name__ == '__main__':
     feature_columns = (num_col_names + cat_col_names + target_name)
 
     df = pd.read_csv(datafile, header=None, names=feature_columns)
+    print(df)
+    print(df.info())
+    print(df.describe())
     train, test = train_test_split(df, random_state=42)
     train, val = train_test_split(train, random_state=42)
     num_classes = len(set(train[target_name].values.ravel()))
@@ -117,3 +120,5 @@ if __name__ == '__main__':
         num_classes=num_classes)
     train_transform = transformer.fit_transform(df)
     print(train_transform)
+
+    #

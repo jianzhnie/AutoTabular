@@ -31,10 +31,11 @@ if __name__ == '__main__':
         return trainMeans[x['Pclass'], x['Sex']]
 
     titanic['Age'] = titanic.apply(f, axis=1)
-    rows = titanic.shape[0]
-    n_train = int(rows * 0.77)
-    train_data = titanic[:n_train, :]
-    test_data = titanic[n_train:, :]
+    # rows = titanic.shape[0]
+    # IndList = range(rows)
+    # train_list, test_list = train_test_split(IndList)
+    # train_data = titanic.iloc[train_list]
+    # test_data = titanic.iloc[test_list]
 
     X_train = titanic.drop(['Survived'], axis=1)
     y_train = titanic['Survived']
