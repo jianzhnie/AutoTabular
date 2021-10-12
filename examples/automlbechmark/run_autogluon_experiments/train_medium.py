@@ -4,18 +4,40 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from autogluon_benchmark.tasks import task_loader, task_transformer_utils, task_utils
+import yaml
+from autogluon_benchmark.tasks import task_transformer_utils, task_utils
 
 sys.path.append('../')
 
+
+def get_task_dict(yaml_files=None):
+    if yaml_files is None:
+        yaml_files = ['medium.yaml']
+    parent_dir = Path(
+        '/home/robin/jianzh/autotabular/examples/automlbechmark/autogluon_benchmark/tasks'
+    )
+    task_dict_full = {}
+    for yaml_file in yaml_files:
+        yaml_path = Path.joinpath(parent_dir, yaml_file)
+        with open(yaml_path, 'r') as stream:
+            task_list = yaml.load(stream, Loader=yaml.Loader)
+        task_dict = {d['name']: d for d in task_list}
+        for task in task_dict.values():
+            task.pop('name')
+        for key in task_dict:
+            if key in task_dict_full:
+                raise KeyError('Multiple yaml files contain the same key!')
+        task_dict_full.update(task_dict)
+    return task_dict_full
+
+
 if __name__ == '__main__':
     ROOTDIR = Path('/home/robin/jianzh/autotabular/examples/automlbechmark')
-    RESULTS_DIR = ROOTDIR / 'results/small_data/'
+    RESULTS_DIR = ROOTDIR / 'results/medium_data/'
     if not RESULTS_DIR.is_dir():
         os.makedirs(RESULTS_DIR)
 
-    task_dict = task_loader.get_task_dict()
-    print(task_dict)
+    task_dict = get_task_dict()
     for task_name in task_dict:  # task name in yaml config
         task_id = task_dict[task_name]['openml_task_id']  # openml task id
 
@@ -25,7 +47,7 @@ if __name__ == '__main__':
         }
 
         fit_args = {
-            'time_limit': 1500,
+            'time_limit': 7200,
             'num_bag_folds': 5,
             'num_stack_levels': 1,
             'num_bag_sets': 1,

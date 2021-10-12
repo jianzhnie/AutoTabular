@@ -25,7 +25,7 @@ def get_dataset(task):
     cat_col_names, cont_col_names = [], []
     for col in X.columns:
         # 50 is just a random number I choose here for this example
-        if X[col].dtype == 'O' or X[col].nunique() < 50:
+        if X[col].dtype == 'O':
             cat_col_names.append(col)
         else:
             cont_col_names.append(col)
@@ -105,6 +105,7 @@ def run_task(task,
     X, y = get_dataset(task)
     predictors = []
     scores = []
+    eval_dict = []
     if isinstance(n_folds, int):
         n_folds = list(range(n_folds))
     for repeat_idx in range(n_repeats):
@@ -141,7 +142,7 @@ def run_task(task,
                     fit_args=fit_args)
                 predictors.append(predictor)
                 X_test[task.target_name] = y_test
-                eval_dict = predictor.evaluate(X_test)
+                eval_dict.append(predictor.evaluate(X_test))
                 scores.append(
                     predictor.evaluate(X_test)[predictor.eval_metric.name])
                 if print_leaderboard:
