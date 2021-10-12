@@ -126,3 +126,7 @@ MNIST
 *.pt
 AutoML_*
 autotabular/datasets/data/shelter-animal-outcomes/
+examples/automlbechmark/data/processed/
+examples/automlbechmark/data/raw_data/
+examples/automlbechmark/data/
+examples/automlbechmark/results/

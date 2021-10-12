@@ -5,7 +5,7 @@ lightgbm>=3.0.0
 matplotlib>=3.2.2
 numpy>=1.9.0
 optuna>=2.7.0
-pandas>=1.2.0
+pandas
 pytorch-lightning>=1.1.1
 pytorch_tabnet
 scikit-learn>=0.24.2
