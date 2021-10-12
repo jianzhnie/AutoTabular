@@ -5,7 +5,7 @@ import yaml
 
 def get_task_dict(yaml_files=None):
     if yaml_files is None:
-        yaml_files = ['ag.yaml']
+        yaml_files = ['small.yaml']
     parent_dir = Path(__file__).resolve().parent
     task_dict_full = {}
     for yaml_file in yaml_files:

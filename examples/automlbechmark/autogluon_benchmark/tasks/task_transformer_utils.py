@@ -1,7 +1,16 @@
 import time
 
 import openml
+import pandas as pd
 from openml.exceptions import OpenMLServerException
+from pytorch_widedeep import Tab2Vec
+from pytorch_widedeep.metrics import Accuracy
+from pytorch_widedeep.models import FTTransformer, WideDeep
+from pytorch_widedeep.preprocessing import TabPreprocessor
+from pytorch_widedeep.training import Trainer
+from sklearn.feature_selection import SelectFromModel
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
 
 from ..frameworks.autogluon.run import run
 
@@ -13,7 +22,50 @@ def get_task(task_id: int):
 
 def get_dataset(task):
     X, y, _, _ = task.get_dataset().get_data(task.target_name)
-    return X, y
+    cat_col_names, cont_col_names = [], []
+    for col in X.columns:
+        # 50 is just a random number I choose here for this example
+        if X[col].dtype == 'O' or X[col].nunique() < 50:
+            cat_col_names.append(col)
+        else:
+            cont_col_names.append(col)
+
+    label_encoder = LabelEncoder()
+    le_y = label_encoder.fit_transform(y)
+
+    tab_preprocessor = TabPreprocessor(
+        embed_cols=cat_col_names,
+        continuous_cols=cont_col_names,
+        for_transformer=True)
+
+    X_tab = tab_preprocessor.fit_transform(X)
+
+    ft_transformer = FTTransformer(
+        column_idx=tab_preprocessor.column_idx,
+        embed_input=tab_preprocessor.embeddings_input,
+        continuous_cols=tab_preprocessor.continuous_cols,
+        n_blocks=3,
+        n_heads=6,
+        input_dim=36)
+
+    model = WideDeep(deeptabular=ft_transformer)
+    trainer = Trainer(model, objective='binary', metrics=[Accuracy])
+    trainer.fit(
+        X_tab=X_tab, target=le_y, n_epochs=30, batch_size=256, val_split=0.2)
+    t2v = Tab2Vec(model=model, tab_preprocessor=tab_preprocessor)
+    # assuming is a test set with target col
+    X_vec = t2v.transform(X)
+    feature_names = ['nn_embed_' + str(i) for i in range(X_vec.shape[1])]
+    X_vec = pd.DataFrame(X_vec, columns=feature_names)
+
+    selector = SelectFromModel(
+        estimator=LogisticRegression(), max_features=64).fit(X_vec, y)
+    support = selector.get_support()
+    col_names = X_vec.columns[support]
+    X_enc = selector.transform(X_vec)
+    X_enc = pd.DataFrame(X_enc, columns=col_names)
+
+    return X_enc, y
 
 
 def run_task(task,
@@ -50,10 +102,9 @@ def run_task(task,
     if n_samples is None:
         n_samples = n_samples_full
 
-    X, y, _, _ = task.get_dataset().get_data(task.target_name)
+    X, y = get_dataset(task)
     predictors = []
     scores = []
-    eval_dict = []
     if isinstance(n_folds, int):
         n_folds = list(range(n_folds))
     for repeat_idx in range(n_repeats):
@@ -90,7 +141,7 @@ def run_task(task,
                     fit_args=fit_args)
                 predictors.append(predictor)
                 X_test[task.target_name] = y_test
-                eval_dict.append(predictor.evaluate(X_test))
+                eval_dict = predictor.evaluate(X_test)
                 scores.append(
                     predictor.evaluate(X_test)[predictor.eval_metric.name])
                 if print_leaderboard:
