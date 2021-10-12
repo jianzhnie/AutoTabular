@@ -50,8 +50,9 @@ if __name__ == '__main__':
     val = adult_data.iloc[val_list]
     test = adult_data.iloc[test_list]
 
-    predictor = TabularPredictor(label=target_name).fit(
-        train_data=train, tuning_data=val)
+    predictor = TabularPredictor(
+        label=target_name, path=RESULTS_DIR).fit(
+            train_data=train, tuning_data=val)
 
     scores = predictor.evaluate(test, auxiliary_metrics=False)
     leaderboard = predictor.leaderboard(test)
