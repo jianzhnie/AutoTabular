@@ -37,6 +37,8 @@ adult_test = pd.read_csv(
     RAW_DATA_DIR / 'adult.test', skiprows=1, names=colnames)
 adult = pd.concat([adult_train, adult_test])
 
+adult.to_csv(PROCESSED_DATA_DIR / 'adult_autogluon.csv', index=None)
+
 # fill na
 adult = adult.replace(to_replace=' ?', value=np.nan)
 fill_transformer = SimpleImputer(
@@ -45,9 +47,8 @@ adult = fill_transformer.fit_transform(adult)
 adult = pd.DataFrame(adult, columns=colnames)
 
 # types convert
-adult.age = adult.age.astype(float)
-adult['hours_per_week'] = adult['hours_per_week'].astype(float)
-
+# adult.age = adult.age.astype(float)
+# adult['hours_per_week'] = adult['hours_per_week'].astype(float)
 for c in adult.columns:
     try:
         adult[c] = adult[c].str.lower()
@@ -70,6 +71,3 @@ adult_val, adult_test = train_test_split(
     adult_test, test_size=0.5, random_state=SEED, stratify=adult_test.target)
 
 adult.to_csv(PROCESSED_DATA_DIR / 'adult.csv', index=None)
-adult_train.to_csv(PROCESSED_DATA_DIR / 'adult_train.csv', index=None)
-adult_val.to_csv(PROCESSED_DATA_DIR / 'adult_val.csv', index=None)
-adult_test.to_csv(PROCESSED_DATA_DIR / 'adult_test.csv', index=None)
