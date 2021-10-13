@@ -54,7 +54,6 @@ train = adult_data.iloc[train_list]
 valid = adult_data.iloc[val_list]
 test = adult_data.iloc[test_list]
 
-
 lgbtrain = lgbDataset(
     train.drop(target_name, axis=1),
     train[target_name],

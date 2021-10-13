@@ -19,28 +19,10 @@ if __name__ == '__main__':
     if not RESULTS_DIR.is_dir():
         os.makedirs(RESULTS_DIR)
 
-    adult_data = pd.read_csv(PROCESSED_DATA_DIR / 'adult.csv')
-    target_name = 'target'
-    init_args = {'eval_metric': 'roc_auc', 'path': RESULTS_DIR}
+    adult_data = pd.read_csv(PROCESSED_DATA_DIR / 'adult_autogluon.csv')
+    target_name = 'income'
 
-    cat_col_names, cont_col_names = [], []
-    for col in adult_data.columns:
-        # 50 is just a random number I choose here for this example
-        if adult_data[col].dtype == 'O' or adult_data[col].nunique(
-        ) < 50 and col != 'target':
-            cat_col_names.append(col)
-        elif col != 'target':
-            cont_col_names.append(col)
-
-    num_classes = len(set(adult_data[target_name].values.ravel()))
-
-    label_encoder = LabelEncoder(cat_col_names)
-    adult_data = label_encoder.fit_transform(adult_data)
-
-    X = adult_data.drop(target_name, axis=1)
-    y = adult_data[target_name]
-
-    IndList = range(X.shape[0])
+    IndList = range(adult_data.shape[0])
     train_list, test_list = train_test_split(IndList, random_state=SEED)
     val_list, test_list = train_test_split(
         test_list, random_state=SEED, test_size=0.5)
@@ -55,6 +37,23 @@ if __name__ == '__main__':
 
     scores = predictor.evaluate(test, auxiliary_metrics=False)
     leaderboard = predictor.leaderboard(test)
+
+    # gbdt transformer
+    adult_data = pd.read_csv(PROCESSED_DATA_DIR / 'adult.csv')
+    target_name = 'target'
+    cat_col_names, cont_col_names = [], []
+    for col in adult_data.columns:
+        if adult_data[col].dtype == 'O' or col != 'target':
+            cat_col_names.append(col)
+        elif col != 'target':
+            cont_col_names.append(col)
+
+    num_classes = len(set(adult_data[target_name].values.ravel()))
+    label_encoder = LabelEncoder(cat_col_names)
+    adult_data = label_encoder.fit_transform(adult_data)
+
+    X = adult_data.drop(target_name, axis=1)
+    y = adult_data[target_name]
 
     # GBDT embeddings
     clf = LightGBMFeatureTransformer(
@@ -74,8 +73,9 @@ if __name__ == '__main__':
     val_enc = X_enc.iloc[val_list]
     test_enc = X_enc.iloc[test_list]
 
-    predictor = TabularPredictor(label=target_name).fit(
-        train_data=train_enc, tuning_data=val_enc)
+    predictor = TabularPredictor(
+        label=target_name, path=RESULTS_DIR).fit(
+            train_data=train_enc, tuning_data=val_enc)
 
     scores = predictor.evaluate(test_enc, auxiliary_metrics=False)
     leaderboard = predictor.leaderboard(test_enc)
