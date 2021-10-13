@@ -4,7 +4,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
 
 SEED = 1
 ROOT_DIR = Path('/home/robin/jianzh/autotabular/examples/automlbechmark')
@@ -64,10 +63,5 @@ print(adult)
 print(adult.head())
 print(adult.describe(include=['O']))
 print(adult.info())
-
-adult_train, adult_test = train_test_split(
-    adult, test_size=0.2, random_state=SEED, stratify=adult.target)
-adult_val, adult_test = train_test_split(
-    adult_test, test_size=0.5, random_state=SEED, stratify=adult_test.target)
 
 adult.to_csv(PROCESSED_DATA_DIR / 'adult.csv', index=None)

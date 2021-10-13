@@ -9,9 +9,8 @@ from geopy.distance import geodesic
 
 pd.options.display.max_columns = 100
 
-ROOT_DIR = Path(os.getcwd())
-
-RAW_DATA_DIR = ROOT_DIR / 'raw_data/nyc_taxi/'
+ROOT_DIR = Path('/home/robin/jianzh/autotabular/examples/automlbechmark')
+RAW_DATA_DIR = ROOT_DIR / 'data/raw_data/nyc_taxi'
 PROCESSED_DATA_DIR = ROOT_DIR / 'processed_data/nyc_taxi/'
 
 if not os.path.isdir(PROCESSED_DATA_DIR):
