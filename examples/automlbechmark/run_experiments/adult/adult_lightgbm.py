@@ -12,7 +12,7 @@ import pandas as pd
 from lightgbm import Dataset as lgbDataset
 from lightgbm_optimizer import LGBOptimizerHyperopt, LGBOptimizerOptuna
 from pytorch_widedeep.utils import LabelEncoder
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 SEED = 42
@@ -29,7 +29,7 @@ MODELS_DIR = ROOTDIR / 'results/adult/models/lightgbm'
 if not MODELS_DIR.is_dir():
     os.makedirs(MODELS_DIR)
 
-OPTIMIZE_WITH = 'hyperopt'
+OPTIMIZE_WITH = 'optuna'
 
 adult_data = pd.read_csv(PROCESSED_DATA_DIR / 'adult.csv')
 target_name = 'target'
@@ -104,6 +104,8 @@ runtime = time() - start
 
 preds = (model.predict(lgbtest.data) > 0.5).astype('int')
 acc = accuracy_score(lgbtest.label, preds)
+auc = roc_auc_score(lgbtest.label, preds)
+f1 = f1_score(lgbtest.label, preds)
 print(f'Accuracy: {acc}')
 
 # SAVE
@@ -113,6 +115,8 @@ results_d = {}
 results_d['best_params'] = optimizer.best
 results_d['runtime'] = runtime
 results_d['acc'] = acc
+results_d['auc'] = auc
+results_d['f1'] = f1
 with open(RESULTS_DIR / results_filename, 'w') as f:
     json.dump(results_d, f, indent=4)
 
