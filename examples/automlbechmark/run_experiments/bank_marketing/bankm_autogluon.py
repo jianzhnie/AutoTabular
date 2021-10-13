@@ -13,48 +13,46 @@ SEED = 42
 
 if __name__ == '__main__':
     ROOTDIR = Path('/home/robin/jianzh/autotabular/examples/automlbechmark')
-    PROCESSED_DATA_DIR = ROOTDIR / 'data/processed_data/adult/'
+    PROCESSED_DATA_DIR = ROOTDIR / 'data/processed_data/bank_marketing/'
 
-    RESULTS_DIR = ROOTDIR / 'results/adult/autogluon'
+    RESULTS_DIR = ROOTDIR / 'results/bank_marketing/autogluon'
     if not RESULTS_DIR.is_dir():
         os.makedirs(RESULTS_DIR)
 
-    adult_data = pd.read_csv(PROCESSED_DATA_DIR / 'adult_autogluon.csv')
-    target_name = 'income'
+    bank_maket = pd.read_csv(PROCESSED_DATA_DIR / 'bankm.csv')
+    target_name = 'target'
 
-    IndList = range(adult_data.shape[0])
+    IndList = range(bank_maket.shape[0])
     train_list, test_list = train_test_split(IndList, random_state=SEED)
     val_list, test_list = train_test_split(
         test_list, random_state=SEED, test_size=0.5)
 
-    train = adult_data.iloc[train_list]
-    val = adult_data.iloc[val_list]
-    test = adult_data.iloc[test_list]
+    train = bank_maket.iloc[train_list]
+    val = bank_maket.iloc[val_list]
+    test = bank_maket.iloc[test_list]
 
     predictor = TabularPredictor(
-        label=target_name, path=RESULTS_DIR).fit(
+        label=target_name, eval_metric='roc_auc', path=RESULTS_DIR).fit(
             train_data=train, tuning_data=val)
 
-    scores = predictor.evaluate(test, auxiliary_metrics=False)
+    scores = predictor.evaluate(test, auxiliary_metrics=True)
     leaderboard = predictor.leaderboard(test)
 
     # gbdt transformer
-    adult_data = pd.read_csv(PROCESSED_DATA_DIR / 'adult.csv')
-    target_name = 'target'
     cat_col_names, cont_col_names = [], []
-    for col in adult_data.columns:
-        if adult_data[col].dtype == 'O' or col != 'target':
+    for col in bank_maket.columns:
+        if bank_maket[col].dtype == 'O' and col != 'target':
             cat_col_names.append(col)
-        elif col != 'target':
+        elif bank_maket[col].dtype == 'float' and col != 'target':
             cont_col_names.append(col)
 
-    num_classes = len(set(adult_data[target_name].values.ravel()))
+    num_classes = len(set(bank_maket[target_name].values.ravel()))
     label_encoder = LabelEncoder(cat_col_names)
-    adult_data = label_encoder.fit_transform(adult_data)
+    bank_maket = label_encoder.fit_transform(bank_maket)
 
-    X = adult_data.drop(target_name, axis=1)
-    y = adult_data[target_name]
-
+    X = bank_maket.drop(target_name, axis=1)
+    y = bank_maket[target_name]
+    print(X.columns)
     # GBDT embeddings
     clf = LightGBMFeatureTransformer(
         task='classification', categorical_feature=cat_col_names)
@@ -77,5 +75,5 @@ if __name__ == '__main__':
         label=target_name, path=RESULTS_DIR).fit(
             train_data=train_enc, tuning_data=val_enc)
 
-    scores = predictor.evaluate(test_enc, auxiliary_metrics=False)
+    scores = predictor.evaluate(test_enc, auxiliary_metrics=True)
     leaderboard = predictor.leaderboard(test_enc)
