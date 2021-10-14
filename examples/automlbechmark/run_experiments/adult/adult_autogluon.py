@@ -35,7 +35,7 @@ if __name__ == '__main__':
         label=target_name, path=RESULTS_DIR).fit(
             train_data=train, tuning_data=val)
 
-    scores = predictor.evaluate(test, auxiliary_metrics=False)
+    scores = predictor.evaluate(test, auxiliary_metrics=True)
     leaderboard = predictor.leaderboard(test)
 
     # gbdt transformer
@@ -77,5 +77,5 @@ if __name__ == '__main__':
         label=target_name, path=RESULTS_DIR).fit(
             train_data=train_enc, tuning_data=val_enc)
 
-    scores = predictor.evaluate(test_enc, auxiliary_metrics=False)
+    scores = predictor.evaluate(test_enc, auxiliary_metrics=True)
     leaderboard = predictor.leaderboard(test_enc)

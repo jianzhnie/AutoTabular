@@ -1,12 +1,13 @@
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from autogluon.tabular import TabularPredictor
 from pytorch_widedeep import Tab2Vec
 from pytorch_widedeep.metrics import Accuracy
-from pytorch_widedeep.models import FTTransformer, WideDeep
-from pytorch_widedeep.preprocessing import TabPreprocessor
+from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
+from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LogisticRegression
@@ -33,8 +34,7 @@ if __name__ == '__main__':
     cat_col_names, cont_col_names = [], []
     for col in adult_data.columns:
         # 50 is just a random number I choose here for this example
-        if adult_data[col].dtype == 'O' or adult_data[col].nunique(
-        ) < 50 and col != 'target':
+        if adult_data[col].dtype == 'O' and col != 'target':
             cat_col_names.append(col)
         elif col != 'target':
             cont_col_names.append(col)
@@ -60,6 +60,18 @@ if __name__ == '__main__':
     scores = predictor.evaluate(test, auxiliary_metrics=False)
     leaderboard = predictor.leaderboard(test)
 
+    wide_cols = [
+        'education', 'relationship', 'workclass', 'occupation',
+        'native_country', 'sex', 'race', 'marital_status'
+    ]
+
+    crossed_cols = [('education', 'occupation'),
+                    ('native_country', 'occupation'), ('education', 'sex'),
+                    ('education', 'native_country'),
+                    ('native_country', 'race')]
+    wide_prprocessor = WidePreprocessor(wide_cols, crossed_cols)
+    X_wide = wide_prprocessor.fit_transform(adult_data)
+
     tab_preprocessor = TabPreprocessor(
         embed_cols=cat_col_names,
         continuous_cols=cont_col_names,
@@ -74,10 +86,16 @@ if __name__ == '__main__':
         n_heads=6,
         input_dim=36)
 
-    model = WideDeep(deeptabular=ft_transformer)
+    wide = Wide(wide_dim=np.unique(X_wide).shape[0], pred_dim=1)
+    model = WideDeep(wide=wide, deeptabular=ft_transformer)
     trainer = Trainer(model, objective='binary', metrics=[Accuracy])
     trainer.fit(
-        X_tab=X_tab, target=target, n_epochs=30, batch_size=256, val_split=0.2)
+        X_wide=X_wide,
+        X_tab=X_tab,
+        target=target,
+        n_epochs=30,
+        batch_size=256,
+        val_split=0.2)
     t2v = Tab2Vec(model=model, tab_preprocessor=tab_preprocessor)
     # assuming is a test set with target col
     X_vec = t2v.transform(adult_data)
