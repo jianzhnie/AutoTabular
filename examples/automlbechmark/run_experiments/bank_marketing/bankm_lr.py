@@ -3,12 +3,13 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from autofe.feature_engineering.gbdt_feature import LightGBMFeatureTransformer
 from pytorch_widedeep import Tab2Vec
 from pytorch_widedeep.metrics import Accuracy
-from pytorch_widedeep.models import FTTransformer, WideDeep
-from pytorch_widedeep.preprocessing import TabPreprocessor
+from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
+from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
 from pytorch_widedeep.utils import LabelEncoder
 from sklearn.linear_model import LogisticRegression
@@ -97,6 +98,15 @@ if __name__ == '__main__':
 
     # embedding
     target = bank_maket[target_name].values
+    wide_cols = cat_col_names
+    crossed_cols = []
+    for i in range(0, len(wide_cols) - 1):
+        for j in range(i + 1, len(wide_cols)):
+            crossed_cols.append((wide_cols[i], wide_cols[j]))
+
+    wide_prprocessor = WidePreprocessor(wide_cols, crossed_cols)
+    X_wide = wide_prprocessor.fit_transform(bank_maket)
+
     tab_preprocessor = TabPreprocessor(
         embed_cols=cat_col_names,
         continuous_cols=num_cols,
@@ -111,10 +121,16 @@ if __name__ == '__main__':
         n_heads=6,
         input_dim=36)
 
-    model = WideDeep(deeptabular=ft_transformer)
+    wide = Wide(wide_dim=np.unique(X_wide).shape[0], pred_dim=1)
+    model = WideDeep(wide=wide, deeptabular=ft_transformer)
     trainer = Trainer(model, objective='binary', metrics=[Accuracy])
     trainer.fit(
-        X_tab=X_tab, target=target, n_epochs=30, batch_size=512, val_split=0.2)
+        X_wide=X_wide,
+        X_tab=X_tab,
+        target=target,
+        n_epochs=30,
+        batch_size=512,
+        val_split=0.2)
     t2v = Tab2Vec(model=model, tab_preprocessor=tab_preprocessor)
     # assuming is a test set with target col
     X_vec = t2v.transform(bank_maket)
@@ -136,12 +152,17 @@ if __name__ == '__main__':
 
     print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
     # SAVE
+
     suffix = str(datetime.now()).replace(' ', '_').split('.')[:-1][0]
-    results_filename = '_'.join(['bankm_ebm_lr', suffix]) + '.json'
+    results_filename = '_'.join(['bankm_results', suffix]) + '.json'
     nn_embedding_lr = {}
     nn_embedding_lr['acc'] = acc
     nn_embedding_lr['auc'] = auc
     nn_embedding_lr['f1'] = f1
-    results = [nn_embedding_lr, gbdt_lr, base_lr]
+    results = {
+        'nn_embedding_lr': nn_embedding_lr,
+        'gbdt_lr': gbdt_lr,
+        'base_lr': base_lr
+    }
     with open(RESULTS_DIR / results_filename, 'w') as f:
         json.dump(results, f, indent=4)
