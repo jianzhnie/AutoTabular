@@ -64,8 +64,8 @@ class TabularEmbeddingTransformer():
             }, {}])
 
         trainer_config = TrainerConfig(
-            gpus=-1,
-            auto_select_gpus=True,
+            gpus=0,
+            auto_select_gpus=False,
             auto_lr_find=True,
             max_epochs=1,
             batch_size=1024)
