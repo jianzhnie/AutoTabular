@@ -57,7 +57,6 @@ for c in adult.columns:
 adult['target'] = (adult['income'].apply(lambda x: '>50' in x)).astype(int)
 adult.drop('income', axis=1, inplace=True)
 adult.drop('education_num', axis=1, inplace=True)
-adult = adult.sample(frac=1).reset_index(drop=True)
 
 print(adult)
 print(adult.head())
@@ -65,3 +64,10 @@ print(adult.describe(include=['O']))
 print(adult.info())
 
 adult.to_csv(PROCESSED_DATA_DIR / 'adult.csv', index=None)
+
+n_train = len(adult_train)
+adult_train = adult.iloc[:n_train]
+adult_test = adult.iloc[n_train:]
+
+adult_train.to_csv(PROCESSED_DATA_DIR / 'train.csv', index=None)
+adult_test.to_csv(PROCESSED_DATA_DIR / 'test.csv', index=None)
