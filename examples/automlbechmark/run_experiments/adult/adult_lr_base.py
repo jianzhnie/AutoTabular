@@ -114,6 +114,36 @@ def get_nn_embedding_total_data(df, target_name):
     return total_data
 
 
+def get_widedeep_total_data(df, target_name):
+    cat_col_names = get_category_columns(df, target_name)
+    num_cols_names = get_numerical_columns(df, target_name)
+
+    wide_cols = cat_col_names
+    crossed_cols = []
+    for i in range(0, len(wide_cols) - 1):
+        for j in range(i + 1, len(wide_cols)):
+            crossed_cols.append((wide_cols[i], wide_cols[j]))
+    wide_prprocessor = WidePreprocessor(wide_cols, crossed_cols)
+    X_wide = wide_prprocessor.fit_transform(df)
+
+    tab_preprocessor = TabPreprocessor(
+        embed_cols=cat_col_names,
+        continuous_cols=num_cols_names,
+        for_transformer=True)
+    X_tab = tab_preprocessor.fit_transform(df)
+
+    feature_names = ['wide_embed_' + str(i) for i in range(X_wide.shape[1])]
+    X_wide = pd.DataFrame(X_wide, columns=feature_names)
+
+    feature_names = ['tab_embed_' + str(i) for i in range(X_wide.shape[1])]
+    X_tab = pd.DataFrame(X_tab, columns=feature_names)
+
+    total_data = pd.concat([X_wide, X_tab, df[target_name]],
+                           axis=1,
+                           verify_integrity=True)
+    return total_data
+
+
 def train_and_evaluate(total_data, target_name, num_train_set, classfier):
     train_data = total_data.iloc[:num_train_set]
     test_data = total_data.iloc[num_train_set:]
