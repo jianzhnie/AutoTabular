@@ -135,7 +135,7 @@ def get_widedeep_total_data(df, target_name):
     feature_names = ['wide_embed_' + str(i) for i in range(X_wide.shape[1])]
     X_wide = pd.DataFrame(X_wide, columns=feature_names)
 
-    feature_names = ['tab_embed_' + str(i) for i in range(X_wide.shape[1])]
+    feature_names = ['tab_embed_' + str(i) for i in range(X_tab.shape[1])]
     X_tab = pd.DataFrame(X_tab, columns=feature_names)
 
     total_data = pd.concat([X_wide, X_tab, df[target_name]],
@@ -173,8 +173,10 @@ if __name__ == '__main__':
 
     classfier = LogisticRegression(random_state=0)
     """lr baseline"""
-    # total_data_base = get_baseline_total_data(total_data)
-    # train_and_evaluate(total_data_base, target_name, len_train, classfier)
+    # Accuracy: 0.7978011178674529. ROC_AUC: 0.6196475756094981
+    total_data_base = get_baseline_total_data(total_data)
+    acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
+                                  classfier)
     """groupby + lr"""
     # AUC: 0.850158787211963
     # threshold = 0.9
@@ -191,15 +193,22 @@ if __name__ == '__main__':
     # 加原始特征：AUC: 0.8501569053514051
     # 不加原始特征：AUC: 0.8500834500609618
     # groupby后的特征与原始特征合并，再给GBDT，生成的特征再给lr，AUC: 0.9294256917039849
-    # threshold = 0.9
-    # k = 5
-    # methods = ["min", "max", "sum", "mean", "std", "count"]
-    # groupby_data = get_groupby_total_data(total_data, target_name, threshold, k, methods)
-    # total_data_GBDT = get_groupby_GBDT_total_data(groupby_data, target_name)
-    # train_and_evaluate(total_data_GBDT, target_name, len_train, classfier)
-    """nn embedding + lr"""
-    # Accuracy: 0.8192985688839752. ROC_AUC: 0.8583896375557474
-    # Accuracy: 0.8492721577298692. ROC_AUC: 0.8992624988473603
-    total_data_embed = get_nn_embedding_total_data(total_data, target_name)
-    acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
+    # Accuracy: 0.8747619925066028. ROC_AUC: 0.9294256917039849
+    threshold = 0.9
+    k = 5
+    methods = ['min', 'max', 'sum', 'mean', 'std', 'count']
+    groupby_data = get_groupby_total_data(total_data, target_name, threshold,
+                                          k, methods)
+    total_data_GBDT = get_groupby_GBDT_total_data(groupby_data, target_name)
+    acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train,
                                   classfier)
+    """nn embedding + lr"""
+    # Accuracy: 0.8492721577298692. ROC_AUC: 0.8992624988473603
+    # total_data_embed = get_nn_embedding_total_data(total_data, target_name)
+    # acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
+    #                               classfier)
+    """wide & deep embedding + lr"""
+    # Accuracy: 0.7777163564891592. ROC_AUC: 0.7640908282089225
+    # total_data_embed = get_widedeep_total_data(total_data, target_name)
+    # acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
+    #                               classfier)
