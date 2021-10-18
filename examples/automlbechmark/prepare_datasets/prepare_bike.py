@@ -3,7 +3,7 @@ import pandas as pd
 import calendar
 from datetime import datetime
 
-from autofe.feature_engineering.data_preprocess import preprocess
+from autofe.feature_engineering.data_preprocess import preprocess, split_train_test
 
 def datatime_preprocess(df, col):
     df["tempDate"] = df[col].apply(lambda x:x.split())
@@ -22,15 +22,11 @@ def datatime_preprocess(df, col):
 
 if __name__ == "__main__":
     root_dir = "./data/bike/"
-    train_data = pd.read_csv(root_dir + 'train.csv')
-    test_data = pd.read_csv(root_dir + 'test.csv')
-
-    train_data = datatime_preprocess(train_data, "datetime")
-    test_data = datatime_preprocess(test_data, "datetime")
-
+    data = pd.read_csv(root_dir + 'train.csv')
+    data = datatime_preprocess(data, "datetime")
     target_name = "count"
-    train_data = preprocess(train_data, target_name)
-    test_data = preprocess(test_data, target_name)
+    data = preprocess(data, target_name)
 
-    train_data.to_csv(root_dir + 'train.csv', index = False)
-    test_data.to_csv(root_dir + 'test.csv', index = False)
+    data_train, data_test = split_train_test(data, target_name, 0.2)
+    data_train.to_csv(root_dir + 'data_train.csv', index = False)
+    data_test.to_csv(root_dir + 'data_test.csv', index = False)

@@ -1,15 +1,15 @@
 import sys
 
 import numpy as np
+sys.path.append('../')
 from autogluon_benchmark.tasks import task_loader, task_transformer_utils, task_utils
 
-sys.path.append('../')
 
 sys.path.append('../')
 
 if __name__ == '__main__':
     task_dict = task_loader.get_task_dict()
-    task_name = 'Australian'  # task name in yaml config
+    task_name = 'adult'  # task name in yaml config
     task_id = task_dict[task_name]['openml_task_id']  # openml task id
     n_folds = 1  # do 5 folds of train/val split
 

@@ -1,5 +1,16 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 from autofe.feature_engineering.groupby import get_category_columns, get_numerical_columns
+
+def split_train_test(df, target_name, test_size):
+    X = df.drop(target_name, axis=1)
+    y = df[target_name]
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size = test_size, random_state=2021)
+    data_train = pd.concat([X_train, y_train], axis=1)
+    data_test = pd.concat([X_test, y_test], axis=1)
+    return data_train, data_test
+
 
 def imputing_missing_features(df, target_name):
     cat_col_names = get_category_columns(df, target_name)
@@ -22,6 +33,7 @@ def drop_data(df, target_name):
         if 'id' in col.lower() and df[col].nunique() == len(df) and col != target_name:
             df = df.drop(col, axis=1)
     return df
+
 
 def preprocess(df, target_name):
     ### drop duplicates and none rows and cols

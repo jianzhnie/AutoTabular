@@ -4,13 +4,14 @@ from lightgbm.sklearn import LGBMClassifier, LGBMRegressor
 from autofe.deeptabular_utils import LabelEncoder
 from autofe.feature_engineering.gbdt_feature import LightGBMFeatureTransformer
 from autofe.feature_engineering.groupby import get_category_columns, get_numerical_columns, groupby_generate_feature
+
 from pytorch_widedeep import Tab2Vec
 from pytorch_widedeep.metrics import Accuracy
 from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
 from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import accuracy_score, roc_auc_score, r2_score
 from sklearn.feature_selection import SelectFromModel
 
 
@@ -165,7 +166,7 @@ def select_feature(df, target_name, estimator):
     return total_data
 
 
-def train_and_evaluate(total_data, target_name, num_train_set, classfier):
+def train_and_evaluate(total_data, target_name, num_train_set, classifier, task_type = 'binary'):
     train_data = total_data.iloc[:num_train_set]
     test_data = total_data.iloc[num_train_set:]
     X_train = train_data.drop(target_name, axis=1)
@@ -173,11 +174,22 @@ def train_and_evaluate(total_data, target_name, num_train_set, classfier):
     X_test = test_data.drop(target_name, axis=1)
     y_test = test_data[target_name]
 
-    clf = classfier.fit(X_train, y_train)
-    preds = preds = clf.predict(X_test)
-    preds_prob = classfier.predict_proba(X_test)[:, 1]
-
-    acc = accuracy_score(y_test, preds)
-    auc = roc_auc_score(y_test, preds_prob)
-    print(f'Accuracy: {acc}. ROC_AUC: {auc}')
-    return acc, auc
+    clf = classifier.fit(X_train, y_train)
+    preds = clf.predict(X_test)
+    print(preds)
+    print(y_test)
+    if hasattr(clf, "predict_proba"):
+        preds_prob = classifier.predict_proba(X_test)[:, 1]
+    if task_type == 'binary':
+        acc = accuracy_score(y_test, preds)
+        auc = roc_auc_score(y_test, preds_prob)
+        print(f'Accuracy: {acc}. ROC_AUC: {auc}')
+        return acc, auc
+    elif task_type == 'multiclass':
+        acc = accuracy_score(y_test, preds)
+        print(f'Accuracy: {acc}.')
+        return acc
+    else:
+        score = r2_score(y_test, preds)
+        print(f'r2_score: {score}')
+        return score

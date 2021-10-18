@@ -1,16 +1,14 @@
 import os
 import pandas as pd
 
-from autofe.feature_engineering.data_preprocess import preprocess
+from autofe.feature_engineering.data_preprocess import preprocess, split_train_test
+
 
 if __name__ == "__main__":
     root_dir = "./data/house/"
-    train_data = pd.read_csv(root_dir + 'train.csv')
-    test_data = pd.read_csv(root_dir + 'test.csv')
-
+    data = pd.read_csv(root_dir + 'train.csv')
     target_name = "SalePrice"
-    train_data = preprocess(train_data, target_name)
-    test_data = preprocess(test_data, target_name)
-
-    train_data.to_csv(root_dir + 'train.csv', index = False)
-    test_data.to_csv(root_dir + 'test.csv', index = False)
+    data = preprocess(data, target_name)
+    data_train, data_test = split_train_test(data, target_name, 0.2)
+    data_train.to_csv(root_dir + 'data_train.csv', index = False)
+    data_test.to_csv(root_dir + 'data_test.csv', index = False)
