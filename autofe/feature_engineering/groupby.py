@@ -1,6 +1,7 @@
 import gc
 
 from scipy.stats import kurtosis, skew
+from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import mutual_info_classif, mutual_info_regression
 
 
@@ -20,15 +21,24 @@ def get_numerical_columns(df, target):
     return num_col_names
 
 
-def get_candidate_numerical_feature(df, target, k):
+def get_candidate_numerical_feature(df, target, k, method="abs_corr"):
     num_col_names = get_numerical_columns(df, target)
-    if df[target].dtype == 'float':
-        select_model = SelectKBest(mutual_info_regression, k=k)
-    else:
-        select_model = SelectKBest(mutual_info_classif, k=k)
-    X = df[num_col_names]
-    y = df[target]
-    slect_feature_cols = select_model.fit(X, y).get_feature_names_out()
+    if method == "abs_corr":
+        num_col_names.append(target)
+        k = min(k, len(num_col_names))
+        num_data = df[num_col_names]
+        num_data = num_data.fillna(0)
+        abs_corr = num_data.corr()[target].abs()
+        slect_feature_cols = abs_corr.sort_values(ascending = False)[1:k].index.values.tolist()
+    else :
+        if df[target].dtype == 'float':
+            select_model = SelectKBest(mutual_info_regression, k=k)
+        else:
+            select_model = SelectKBest(mutual_info_classif, k=k)
+        X = df[num_col_names]
+        y = df[target]
+        slect_feature_cols = select_model.fit(X, y).get_feature_names_out()
+    
     return slect_feature_cols
 
 
@@ -105,7 +115,7 @@ def add_features_in_group(features, df, feature_name, aggs, prefix):
 if __name__ == '__main__':
     import pandas as pd
     from sklearn.datasets import load_iris
-    from sklearn.feature_selection import SelectKBest
+    
     from sklearn.feature_selection import chi2
     X, y = load_iris(return_X_y=True)
     X_new = SelectKBest(chi2, k=3).fit_transform(X, y)
