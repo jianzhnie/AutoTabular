@@ -7,7 +7,7 @@ from sklearn.feature_selection import SelectKBest, mutual_info_classif, mutual_i
 def get_category_columns(df, target):
     cat_col_names = []
     for col in df.columns:
-        if df[col].dtype in ['object', 'category'] and col != target:
+        if df[col].dtype in ['object'] and col != target:
             cat_col_names.append(col)
     return cat_col_names
 
