@@ -21,7 +21,7 @@ SEED = 42
 pd.options.display.max_columns = 100
 
 if __name__ == '__main__':
-    ROOTDIR = Path('/home/robin/jianzh/autotabular/examples/automlbechmark')
+    ROOTDIR = Path('./')
     PROCESSED_DATA_DIR = ROOTDIR / 'data/processed_data/bank_marketing/'
     RESULTS_DIR = ROOTDIR / 'results/bank_marketing/logistic_regression'
     if not RESULTS_DIR.is_dir():

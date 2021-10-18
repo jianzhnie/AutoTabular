@@ -163,7 +163,7 @@ def train_and_evaluate(total_data, target_name, num_train_set, classfier):
 
 
 if __name__ == '__main__':
-    root_path = '/home/robin/jianzh/autotabular/examples/automlbechmark/data/processed_data/adult/'
+    root_path = './data/processed_data/adult/'
     train_data = pd.read_csv(root_path + 'train.csv')
     len_train = len(train_data)
     test_data = pd.read_csv(root_path + 'test.csv')
@@ -178,13 +178,15 @@ if __name__ == '__main__':
     acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
                                   classfier)
     """groupby + lr"""
-    # AUC: 0.850158787211963
-    # threshold = 0.9
-    # k = 5
-    # methods = ["min", "max", "sum", "mean", "std", "count"]
-    # total_data_groupby = get_groupby_total_data(total_data, target_name, threshold, k, methods)
-    # total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
-    # train_and_evaluate(total_data_groupby, target_name, len_train, classfier)
+    # Accuracy: 0.8189300411522634. ROC_AUC: 0.850159372679692
+    threshold = 0.9
+    k = 5
+    methods = ['min', 'max', 'sum', 'mean', 'std', 'count']
+    total_data_groupby = get_groupby_total_data(total_data, target_name,
+                                                threshold, k, methods)
+    total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
+    acc, auc = train_and_evaluate(total_data_groupby, target_name, len_train,
+                                  classfier)
     """GBDT + lr"""
     # AUC: 0.9255204442194576
     # total_data_GBDT = get_GBDT_total_data(total_data, target_name)
