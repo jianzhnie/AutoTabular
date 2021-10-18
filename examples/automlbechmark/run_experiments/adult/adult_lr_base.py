@@ -1,17 +1,17 @@
 import numpy as np
 import pandas as pd
-from lightgbm.sklearn import LGBMClassifier, LGBMRegressor
 from autofe.deeptabular_utils import LabelEncoder
 from autofe.feature_engineering.gbdt_feature import LightGBMFeatureTransformer
 from autofe.feature_engineering.groupby import get_category_columns, get_numerical_columns, groupby_generate_feature
+from lightgbm.sklearn import LGBMClassifier
 from pytorch_widedeep import Tab2Vec
 from pytorch_widedeep.metrics import Accuracy
 from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
 from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
+from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, roc_auc_score
-from sklearn.feature_selection import SelectFromModel
 
 
 def get_baseline_total_data(df):
@@ -147,7 +147,7 @@ def get_widedeep_total_data(df, target_name):
 
 
 def autofi_simple_concat_total_data(df_groupby, df_gbtd, df_embedding):
-    total_data = pd.concat([df_groupby, df_gbtd, df_embedding], axis = 1)
+    total_data = pd.concat([df_groupby, df_gbtd, df_embedding], axis=1)
     total_data = total_data.loc[:, ~total_data.columns.duplicated()]
     return total_data
 
@@ -184,8 +184,7 @@ def train_and_evaluate(total_data, target_name, num_train_set, classfier):
 
 
 if __name__ == '__main__':
-    root_path = '/home/wenqi-ao/userdata/workdirs/automl_benchmark/data/processed_data/adult/'
-    saved_dir = '/home/wenqi-ao/userdata/workdirs/automl_benchmark/data/processed_data/adult/'
+    root_path = './data/processed_data/adult/'
     train_data = pd.read_csv(root_path + 'train.csv')
     len_train = len(train_data)
     test_data = pd.read_csv(root_path + 'test.csv')
@@ -195,28 +194,26 @@ if __name__ == '__main__':
 
     classfier = LogisticRegression(random_state=0)
     estimator = LGBMClassifier(objective='binary')
-
     """lr baseline"""
     # Accuracy: 0.7978011178674529. ROC_AUC: 0.6196475756094981
     # total_data_base = get_baseline_total_data(total_data)
     # acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
     #                               classfier)
     """groupby + lr"""
-    # AUC: 0.850158787211963
+    # Accuracy: 0.8189300411522634. ROC_AUC: 0.850159372679692
     # threshold = 0.9
     # k = 5
-    # methods = ["min", "max", "sum", "mean", "std", "count"]
-    # total_data_groupby = get_groupby_total_data(total_data, target_name, threshold, k, methods)
+    # methods = ['min', 'max', 'sum', 'mean', 'std', 'count']
+    # total_data_groupby = get_groupby_total_data(total_data, target_name,
+    #                                             threshold, k, methods)
     # total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
-    # total_data_groupby.to_csv(saved_dir + 'adult_groupby.csv', index = False)
-    # acc, auc = train_and_evaluate(total_data_groupby, target_name, len_train, classfier)
-
+    # acc, auc = train_and_evaluate(total_data_groupby, target_name, len_train,
+    #                               classfier)
     """GBDT + lr"""
     # AUC: 0.9255204442194576
     # total_data_GBDT = get_GBDT_total_data(total_data, target_name)
     # total_data_GBDT.to_csv(saved_dir + 'adult_gbdt.csv', index = False)
     # acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train, classfier)
-
     """groupby + GBDT + lr"""
     # 加原始特征：AUC: 0.8501569053514051
     # 不加原始特征：AUC: 0.8500834500609618
@@ -233,29 +230,32 @@ if __name__ == '__main__':
     # total_data_GBDT.to_csv(saved_dir + 'adult_groupby_gbdt.csv', index = False)
     # acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train,
     #                               classfier)
-
     """nn embedding + lr"""
     # Accuracy: 0.8492721577298692. ROC_AUC: 0.8992624988473603
     # total_data_embed = get_nn_embedding_total_data(total_data, target_name)
     # total_data_embed.to_csv(saved_dir + 'adult_embed.csv', index = False)
     # acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
     #                               classfier)
-
     """wide & deep embedding + lr"""
     # Accuracy: 0.7777163564891592. ROC_AUC: 0.7640908282089225
     # total_data_embed = get_widedeep_total_data(total_data, target_name)
     # acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
     #                               classfier)
-
     """AutoFI + lr: simple concate"""
+    # Accuracy: 0.8469381487623611. ROC_AUC: 0.8977897338651891
+
     threshold = 0.9
     k = 5
-    methods = ["min", "max", "sum", "mean", "std", "count"]
-    total_data_groupby = get_groupby_total_data(total_data, target_name, threshold, k, methods)
+    methods = ['min', 'max', 'sum', 'mean', 'std', 'count']
+    total_data_groupby = get_groupby_total_data(total_data, target_name,
+                                                threshold, k, methods)
     total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
     total_data_GBDT = get_GBDT_total_data(total_data, target_name)
     total_data_embed = get_nn_embedding_total_data(total_data, target_name)
-    total_data = autofi_simple_concat_total_data(total_data_groupby, total_data_GBDT, total_data_embed)
-    total_data.to_csv(saved_dir + 'adult_autofi.csv', index = False)
-    acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
+    total_data = autofi_simple_concat_total_data(total_data_groupby,
+                                                 total_data_GBDT,
+                                                 total_data_embed)
+    # total_data.to_csv(saved_dir + 'adult_autofi.csv', index = False)
+    total_data = select_feature(total_data, target_name, estimator)
+    acc, auc = train_and_evaluate(total_data, target_name, len_train,
                                   classfier)

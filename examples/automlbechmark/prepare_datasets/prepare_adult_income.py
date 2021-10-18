@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.impute import SimpleImputer
 
 SEED = 1
-ROOT_DIR = Path('/home/robin/jianzh/autotabular/examples/automlbechmark')
+ROOT_DIR = Path('./')
 RAW_DATA_DIR = ROOT_DIR / 'data/raw_data/adult'
 PROCESSED_DATA_DIR = ROOT_DIR / 'data/processed_data/adult'
 if not os.path.isdir(PROCESSED_DATA_DIR):

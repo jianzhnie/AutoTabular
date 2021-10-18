@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 import pandas as pd
 from autofe.feature_engineering.groupby import get_candidate_categorical_feature
+from pandas.core.frame import DataFrame
 from sklearn.exceptions import NotFittedError
 
 
@@ -64,14 +65,12 @@ class CrossFeatureTransformer(BaseTransformer):
     def __init__(self,
                  category_cols: List[str],
                  continue_cols: List[str],
-                 target_name: str,
                  crossed_cols: List[Tuple[str, str]] = None):
         super(CrossFeatureTransformer, self).__init__()
 
         self.category_cols = category_cols
         self.crossed_cols = crossed_cols
         self.continue_cols = continue_cols
-        self.target_name = target_name
 
     def fit(self, df: pd.DataFrame) -> BaseTransformer:
         df_cat = self._prepare_cat(df)
@@ -101,22 +100,95 @@ class CrossFeatureTransformer(BaseTransformer):
             return df.copy()[self.category_cols]
 
 
-def get_category_columns(df, target):
-    cat_col_names = []
-    for col in df.columns:
-        if df[col].dtype in ['object', 'category'] and col != target:
-            cat_col_names.append(col)
-    return cat_col_names
+class CrossColTransform():
+
+    def __init__(self,
+                 df: DataFrame,
+                 category_cols: List[str] = None,
+                 continue_cols: List[str] = None,
+                 crossed_cols: List[Tuple[str, str]] = None,
+                 target_name: str = None):
+
+        self.df = df
+        self.category_cols = category_cols
+        self.crossed_cols = crossed_cols
+        self.continue_cols = continue_cols
+        self.target_name = target_name
+
+        if self.category_cols is None:
+            self.category_cols = self.get_category_columns(df, target_name)
+        if self.continue_cols is None:
+            self.continue_cols = self.get_numerical_columns(df, target_name)
+        if self.crossed_cols is None:
+            self.crossed_cols = self.get_cross_columns(self.category_cols)
+
+        self.df, self.crossed_colnames = self.generate_cross_cols(
+            self.crossed_cols)
+        self.category_cols.extend(self.crossed_colnames)
+
+    def get_cross_columns(self, category_cols):
+        crossed_cols = []
+        for i in range(0, len(category_cols) - 1):
+            for j in range(i + 1, len(category_cols)):
+                crossed_cols.append((category_cols[i], category_cols[j]))
+        return crossed_cols
+
+    def get_category_columns(self, df, target):
+        cat_col_names = []
+        for col in df.columns:
+            if df[col].dtype in ['object', 'category'] and col != target:
+                cat_col_names.append(col)
+        return cat_col_names
+
+    def get_numerical_columns(self, df, target):
+        num_col_names = []
+        for col in df.columns:
+            if df[col].dtype in ['float', 'int'] and col != target:
+                num_col_names.append(col)
+        return num_col_names
+
+    def generate_cross_cols(self, crossed_cols):
+        df_cc = self.df.copy()
+        crossed_colnames = []
+        for cols in crossed_cols:
+            for c in cols:
+                df_cc[c] = df_cc[c].astype('str')
+            colname = '_'.join(cols)
+            df_cc[colname] = df_cc[list(cols)].apply(
+                lambda x: '-'.join(x), axis=1)
+
+            crossed_colnames.append(colname)
+        return df_cc, crossed_colnames
+
+    def generate_groupby_feature(self, methods, reserve=False):
+        df = self.df.copy()
+        new_col_names = []
+        for cat_col in self.category_cols:
+            for num_col in self.continue_cols:
+                for method in methods:
+                    new_col_name = cat_col + '_' + num_col + '_' + method
+                    new_col_names.append(new_col_name)
+                    df[new_col_name] = df.groupby(cat_col)[num_col].transform(
+                        method)
+                    df = df.fillna(0)
+        if reserve:
+            return df
+        else:
+            return df[new_col_names]
 
 
 if __name__ == '__main__':
     titanic = pd.read_csv('autotabular/datasets/data/Titanic.csv')
     print(titanic)
-    cf = CrossFeatureTransformer(
-        category_cols=['Pclass', 'Sex', 'Embarked'],
-        continue_cols=['Age', 'Fare'],
-        crossed_cols=[('Sex', 'Embarked'), ('Pclass', 'Sex')])
+    # cf = CrossFeatureTransformer(
+    #     category_cols=['Pclass', 'Sex', 'Embarked'],
+    #     continue_cols=['Age', 'Fare'],
+    #     crossed_cols=[('Sex', 'Embarked'), ('Pclass', 'Sex')])
 
-    df = cf._prepare_cat(titanic)
+    # df = cf._prepare_cat(titanic)
+    # print(df)
+    # print(cf._make_column_feature_list(df))
+
+    cf = CrossColTransform(df=titanic, target_name='Survived')
+    df = cf.generate_groupby_feature(methods=['mean'])
     print(df)
-    print(cf._make_column_feature_list(df))
