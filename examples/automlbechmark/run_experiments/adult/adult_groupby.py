@@ -31,25 +31,25 @@ if __name__ == '__main__':
         if adult_data[col].dtype in ['float', 'int'] and col != 'target':
             num_col_names.append(col)
     
-    # #calculate corr to get candidate numerical feature columns
-    # num_data = adult_data[num_col_names + [target_name]]
-    # num_data = num_data.fillna(0)
-    # k = min(5, len(num_col_names))
-    # abs_corr = num_data.corr()[target_name].abs()
-    # top_k = abs_corr.sort_values(ascending = False)[1:k+1].index.values.tolist()
-    # cand_num_col = top_k
+    #calculate corr to get candidate numerical feature columns
+    num_data = adult_data[num_col_names + [target_name]]
+    num_data = num_data.fillna(0)
+    k = min(5, len(num_col_names))
+    abs_corr = num_data.corr()[target_name].abs()
+    top_k = abs_corr.sort_values(ascending = False)[1:k+1].index.values.tolist()
+    cand_num_col = top_k
 
-    # #get candidate categorical feature columns
-    # for col in cat_col_names:
-    #     if adult_data[col].nunique() > len(adult_data)*0.95 or adult_data[col].nunique() == 1:
-    #         cat_col_names.remove(col)
+    #get candidate categorical feature columns
+    for col in cat_col_names:
+        if adult_data[col].nunique() > len(adult_data)*0.95 or adult_data[col].nunique() == 1:
+            cat_col_names.remove(col)
     
-    # for cat_col in cat_col_names:
-    #     for num_col in num_col_names:
-    #         for method in ["min", "max", "sum", "mean", "std", "count"]:
-    #             new_col_name = cat_col + "_" + num_col + "_" + method
-    #             adult_data[new_col_name] = adult_data.groupby(cat_col)[num_col].transform(method)
-    # print(adult_data.head(5))
+    for cat_col in cat_col_names:
+        for num_col in num_col_names:
+            for method in ["min", "max", "sum", "mean", "std", "count"]:
+                new_col_name = cat_col + "_" + num_col + "_" + method
+                adult_data[new_col_name] = adult_data.groupby(cat_col)[num_col].transform(method)
+    print(adult_data.head(5))
 
 
     num_classes = adult_data[target_name].nunique()
@@ -62,9 +62,6 @@ if __name__ == '__main__':
 
     label_encoder = LabelEncoder(cat_col_names)
     adult_data = label_encoder.fit_transform(adult_data)
-
-    X = adult_data.drop(target_name, axis=1)
-    y = adult_data[target_name]
 
     IndList = range(X.shape[0])
     train_list, test_list = train_test_split(IndList, random_state=SEED)
