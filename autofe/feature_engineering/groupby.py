@@ -1,7 +1,7 @@
 import gc
 
 from scipy.stats import kurtosis, skew
-from sklearn.feature_selection import mutual_info_classif, mutual_info_regression
+from sklearn.feature_selection import SelectKBest, mutual_info_classif, mutual_info_regression
 
 
 def get_category_columns(df, target):
@@ -105,7 +105,6 @@ def add_features_in_group(features, df, feature_name, aggs, prefix):
 if __name__ == '__main__':
     import pandas as pd
     from sklearn.datasets import load_iris
-    from sklearn.feature_selection import SelectKBest
     from sklearn.feature_selection import chi2
     X, y = load_iris(return_X_y=True)
     X_new = SelectKBest(chi2, k=3).fit_transform(X, y)
