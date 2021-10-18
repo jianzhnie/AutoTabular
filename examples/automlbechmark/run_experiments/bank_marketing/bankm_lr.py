@@ -3,22 +3,39 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+import flash
 import numpy as np
 import pandas as pd
+import torch
 from autofe.feature_engineering.gbdt_feature import LightGBMFeatureTransformer
+from flash.tabular import TabularClassificationData, TabularClassifier
 from pytorch_widedeep import Tab2Vec
 from pytorch_widedeep.metrics import Accuracy
 from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
 from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
 from pytorch_widedeep.utils import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
+from xgboost.sklearn import XGBClassifier
 
 SEED = 42
 
-pd.options.display.max_columns = 100
+
+def generate_cross_cols(self, df: pd.DataFrame, crossed_cols):
+    df_cc = df.copy()
+    crossed_colnames = []
+    for cols in crossed_cols:
+        for c in cols:
+            df_cc[c] = df_cc[c].astype('str')
+        colname = '_'.join(cols)
+        df_cc[colname] = df_cc[list(cols)].apply(lambda x: '-'.join(x), axis=1)
+
+        crossed_colnames.append(colname)
+    return df_cc[crossed_colnames]
+
 
 if __name__ == '__main__':
     ROOTDIR = Path('./')
@@ -40,7 +57,7 @@ if __name__ == '__main__':
         c for c in bank_maket.columns if c not in cat_col_names + ['target']
     ]
 
-    #  TRAIN/VALID for hyperparam optimization
+    # TRAIN/VALID for hyperparam optimization
     label_encoder = LabelEncoder(cat_col_names)
     bank_maket = label_encoder.fit_transform(bank_maket)
 
@@ -50,8 +67,7 @@ if __name__ == '__main__':
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, random_state=SEED)
 
-    clf = LogisticRegression(
-        max_iter=int(1e6), warm_start=True, tol=1e-4, penalty='l2')
+    clf = LogisticRegression(max_iter=1000, warm_start=True, tol=1e-4)
 
     clf.fit(X_train, y_train)
     preds = clf.predict(X_test)
@@ -59,12 +75,42 @@ if __name__ == '__main__':
     acc = accuracy_score(y_test, preds)
     auc = roc_auc_score(y_test, preds_prob)
     f1 = f1_score(y_test, preds)
+    print(clf)
     print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
+
     # SAVE
     base_lr = {}
     base_lr['acc'] = acc
     base_lr['auc'] = auc
     base_lr['f1'] = f1
+
+    # random forest
+    clf = RandomForestClassifier()
+    clf.fit(X_train, y_train)
+    preds = clf.predict(X_test)
+    preds_prob = clf.predict_proba(X_test)[:, 1]
+    acc = accuracy_score(y_test, preds)
+    auc = roc_auc_score(y_test, preds_prob)
+    f1 = f1_score(y_test, preds)
+    print(clf)
+    print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
+    base_randomforest = {}
+    base_randomforest['acc'] = acc
+    base_randomforest['auc'] = auc
+    base_randomforest['f1'] = f1
+
+    # xgboost
+    clf = XGBClassifier()
+    clf.fit(X_train, y_train)
+    preds = clf.predict(X_test)
+    preds_prob = clf.predict_proba(X_test)[:, 1]
+    print(clf)
+    print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
+    # SAVE
+    base_xgboost = {}
+    base_xgboost['acc'] = acc
+    base_xgboost['auc'] = auc
+    base_xgboost['f1'] = f1
 
     # gbdt feature
     lgb = LightGBMFeatureTransformer(
@@ -75,7 +121,7 @@ if __name__ == '__main__':
             'max_depth': 3
         })
     lgb.fit(X, y)
-    X_enc = lgb.concate_transform(X, concate=True)
+    X_enc = lgb.concate_transform(X, concate=False)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X_enc, y, random_state=SEED)
@@ -89,12 +135,47 @@ if __name__ == '__main__':
     acc = accuracy_score(y_test, preds)
     auc = roc_auc_score(y_test, preds_prob)
     f1 = f1_score(y_test, preds)
-
+    print('GBDT + lr')
     print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
     gbdt_lr = {}
     gbdt_lr['acc'] = acc
     gbdt_lr['auc'] = auc
     gbdt_lr['f1'] = f1
+
+    X = bank_maket.drop(target_name, axis=1)
+    y = bank_maket[target_name]
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, random_state=SEED)
+    train_data = pd.concat([X_train, y_train], axis=1)
+    val_data = pd.concat([X_test, y_test], axis=1)
+
+    # 1. Create the DataModule
+    datamodule = TabularClassificationData.from_data_frame(
+        categorical_fields=cat_col_names,
+        numerical_fields=num_cols,
+        target_fields=target_name,
+        train_data_frame=train_data,
+        val_data_frame=val_data,
+        batch_size=128,
+    )
+    # 2. Build the task
+    model = TabularClassifier.from_data(datamodule)
+    # 3. Create the trainer and train the model
+    trainer = flash.Trainer(max_epochs=1, gpus=torch.cuda.device_count())
+    trainer.fit(model, datamodule=datamodule)
+    # 4. Generate predictions from a CSV
+    preds_mat = model.predict(
+        '/home/robin/jianzh/autotabular/examples/automlbechmark/data/processed_data/bank_marketing/bankm.csv'
+    )
+    preds_mat = np.array(preds_mat)
+    preds_prob = preds_mat[:, 1]
+    print(preds_mat.shape)
+    preds = np.argmax(preds_mat, axis=1)
+    acc = accuracy_score(y, preds)
+    auc = roc_auc_score(y, preds_prob)
+    f1 = f1_score(y, preds)
+    print(type(preds))
+    print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
 
     # embedding
     target = bank_maket[target_name].values
