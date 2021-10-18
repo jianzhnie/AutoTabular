@@ -1,3 +1,21 @@
+
+## Benchmark Datasets
+
+| Datasets | Category | Link |
+| -------- | -------- | ---- |
+| Adult | binary Classification | https://archive.ics.uci.edu/ml/datasets/Adult |
+| Bank-market | binary Classification | https://archive.ics.uci.edu/ml/datasets/Bank+Marketing |
+| Amazon.com - Employee Access Challenge | binary Classification | https://www.kaggle.com/c/amazon-employee-access-challenge/data |
+| Credit | binary Classification | https://www.kaggle.com/c/GiveMeSomeCredit/data |
+| shelter-animal-outcomes | multiclass | https://www.kaggle.com/c/shelter-animal-outcomes/data |
+| house-prices-advanced-regression-techniques | Regession | https://www.kaggle.com/c/house-prices-advanced-regression-techniques. |
+| Bike Sharing Demand | Regression | https://www.kaggle.com/c/bike-sharing-demand/data |
+| Prudential Life Insurance Assessment | Classification | https://www.kaggle.com/c/prudential-life-insurance-assessment/data |
+| Display Advertising Challenge | Classification | https://www.kaggle.com/c/criteo-display-ad-challenge/data |
+
+
+
+
 # **Adult**
 
 ## LightGBM
