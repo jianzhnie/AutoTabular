@@ -9,7 +9,7 @@ from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
 from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
 from sklearn.feature_selection import SelectFromModel
-from sklearn.metrics import accuracy_score, r2_score, roc_auc_score
+from sklearn.metrics import accuracy_score, r2_score, roc_auc_score, f1_score, mean_squared_error
 
 
 def get_baseline_total_data(df):
@@ -198,12 +198,14 @@ def train_and_evaluate(total_data,
 
     clf = classifier.fit(X_train, y_train)
     preds = clf.predict(X_test)
+    print(clf)
     if hasattr(clf, 'predict_proba'):
         preds_prob = classifier.predict_proba(X_test)[:, 1]
     if task_type == 'binary':
         acc = accuracy_score(y_test, preds)
         auc = roc_auc_score(y_test, preds_prob)
-        print(f'Accuracy: {acc}. ROC_AUC: {auc}')
+        f1 = f1_score(y_test, preds)
+        print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
         return acc, auc
     elif task_type == 'multiclass':
         acc = accuracy_score(y_test, preds)
@@ -211,5 +213,6 @@ def train_and_evaluate(total_data,
         return acc
     else:
         score = r2_score(y_test, preds)
-        print(f'r2_score: {score}')
+        mse = mean_squared_error(y_test, preds)
+        print(f'r2_score: {score}, mse: {mse}.')
         return score
