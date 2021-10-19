@@ -1,18 +1,15 @@
 import numpy as np
 import pandas as pd
-from lightgbm.sklearn import LGBMClassifier, LGBMRegressor
 from autofe.deeptabular_utils import LabelEncoder
 from autofe.feature_engineering.gbdt_feature import LightGBMFeatureTransformer
 from autofe.feature_engineering.groupby import get_category_columns, get_numerical_columns, groupby_generate_feature
-
 from pytorch_widedeep import Tab2Vec
 from pytorch_widedeep.metrics import Accuracy
 from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
 from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, roc_auc_score, r2_score
 from sklearn.feature_selection import SelectFromModel
+from sklearn.metrics import accuracy_score, r2_score, roc_auc_score
 
 
 def get_baseline_total_data(df):
@@ -201,7 +198,7 @@ def train_and_evaluate(total_data,
 
     clf = classifier.fit(X_train, y_train)
     preds = clf.predict(X_test)
-    if hasattr(clf, "predict_proba"):
+    if hasattr(clf, 'predict_proba'):
         preds_prob = classifier.predict_proba(X_test)[:, 1]
     if task_type == 'binary':
         acc = accuracy_score(y_test, preds)
