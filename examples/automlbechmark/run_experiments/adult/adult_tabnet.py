@@ -1,83 +1,106 @@
-
+import flash
 import numpy as np
 import pandas as pd
-from autofe.get_feature import *
-from pytorch_tabnet.tab_model import TabNetClassifier
+import torch
+from autofe.feature_engineering.groupby import get_category_columns, get_numerical_columns
+from autofe.get_feature import generate_cross_feature, get_cross_columns, get_groupby_total_data
+from flash.tabular import TabularClassificationData, TabularClassifier
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 
 if __name__ == '__main__':
-    root_path = './data/adult/'
+    root_path = './data/processed_data/adult/'
+    test_datafile = root_path + 'test.csv'
     train_data = pd.read_csv(root_path + 'train.csv')
     len_train = len(train_data)
     test_data = pd.read_csv(root_path + 'test.csv')
     total_data = pd.concat([train_data, test_data]).reset_index(drop=True)
-
     target_name = 'target'
 
-    classfier = TabNetClassifier()
+    cat_col_names = get_category_columns(total_data, target_name)
+    num_col_names = get_numerical_columns(total_data, target_name)
 
-    estimator = LGBMClassifier(objective='binary')
+    X_train = train_data.drop(target_name, axis=1)
+    y_train = train_data[target_name]
 
-    """tabnet baseline"""
-    # Accuracy: 0.8424543946932007. ROC_AUC: 0.8914562067002181
-    total_data_base = get_baseline_total_data(total_data)
-    print("tabnet baseline: ")
-    acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
-                                  classfier)
-    """groupby + xgboost"""
-    # Accuracy: 0.8512376389656655. ROC_AUC: 0.9000965603561818
-    # threshold = 0.9
-    # k = 5
-    # methods = ["min", "max", "sum", "mean", "std", "count"]
-    # total_data_groupby = get_groupby_total_data(total_data, target_name, threshold, k, methods)
-    # total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
-    # total_data_groupby.to_csv(root_path + 'adult_groupby.csv', index = False)
-    # acc, auc = train_and_evaluate(total_data_groupby, target_name, len_train, classfier)
+    X_test = test_data.drop(target_name, axis=1)
+    y_test = test_data[target_name]
 
-    """GBDT + xgboost"""
-    # Accuracy: 0.8549843375714022. ROC_AUC: 0.8988352433172517
-    # total_data_GBDT = get_GBDT_total_data(total_data, target_name)
-    # total_data_GBDT.to_csv(root_path + 'adult_gbdt.csv', index = False)
-    # acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train, classfier)
+    # tabnet
+    # 1. Create the DataModule
+    datamodule = TabularClassificationData.from_data_frame(
+        categorical_fields=cat_col_names,
+        numerical_fields=num_col_names,
+        target_fields=target_name,
+        train_data_frame=train_data,
+        val_data_frame=test_data,
+        batch_size=128,
+    )
+    # 2. Build the task
+    model = TabularClassifier.from_data(datamodule)
+    # 3. Create the trainer and train the model
+    trainer = flash.Trainer(max_epochs=10, gpus=torch.cuda.device_count())
+    trainer.fit(model, datamodule=datamodule)
+    # 4. Generate predictions from a CSV
+    preds_mat = model.predict(test_datafile)
+    preds_mat = np.array(preds_mat)
+    preds_prob = preds_mat[:, 1]
+    print(preds_mat.shape)
+    preds = np.argmax(preds_mat, axis=1)
+    acc = accuracy_score(y_test, preds)
+    auc = roc_auc_score(y_test, preds_prob)
+    f1 = f1_score(y_test, preds)
+    print(type(preds))
+    print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
 
-    """groupby + GBDT + lr"""
-    # 加原始特征：AUC: 0.8501569053514051
-    # 不加原始特征：AUC: 0.8500834500609618
-    # groupby后的特征与原始特征合并，再给GBDT，生成的特征再给lr，AUC: 0.9294256917039849
-    # Accuracy: 0.8747619925066028. ROC_AUC: 0.9294256917039849
-    # 特征选择后 Accuracy: 0.8755604692586451. ROC_AUC: 0.9304231928022597
-    # threshold = 0.9
-    # k = 5
-    # methods = ['min', 'max', 'sum', 'mean', 'std', 'count']
-    # groupby_data = get_groupby_total_data(total_data, target_name, threshold,
-    #                                       k, methods)
-    # total_data_GBDT = get_groupby_GBDT_total_data(groupby_data, target_name)
-    # total_data_GBDT = select_feature(total_data_GBDT, target_name, estimator)
-    # total_data_GBDT.to_csv(root_path + 'adult_groupby_gbdt.csv', index = False)
-    # acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train,
-    #                               classfier)
+    # tabnet + groupby
+    threshold = 0.9
+    k = 5
+    methods = ['min', 'max', 'sum', 'mean', 'std', 'count']
+    cross_col_names = get_cross_columns(cat_col_names)
+    total_data = generate_cross_feature(
+        total_data, crossed_cols=cross_col_names)
 
-    """nn embedding + lr"""
-    # Accuracy: 0.8492721577298692. ROC_AUC: 0.8992624988473603
-    # total_data_embed = get_nn_embedding_total_data(total_data, target_name)
-    # total_data_embed.to_csv(root_path + 'adult_embed.csv', index = False)
-    # acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
-    #                               classfier)
+    total_data_groupby = get_groupby_total_data(total_data, target_name,
+                                                threshold, k, methods)
+    total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
+    total_data_groupby.to_csv(root_path + 'adult_groupby.csv', index=False)
 
-    """wide & deep embedding + lr"""
-    # Accuracy: 0.7777163564891592. ROC_AUC: 0.7640908282089225
-    # total_data_embed = get_widedeep_total_data(total_data, target_name)
-    # acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
-    #                               classfier)
+    cat_col_names = get_category_columns(total_data_groupby, target_name)
+    num_col_names = get_numerical_columns(total_data_groupby, target_name)
 
-    """AutoFI + lr: simple concate"""
-    # threshold = 0.9
-    # k = 5
-    # methods = ["min", "max", "sum", "mean", "std", "count"]
-    # total_data_groupby = get_groupby_total_data(total_data, target_name, threshold, k, methods)
-    # total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
-    # total_data_GBDT = get_GBDT_total_data(total_data, target_name)
-    # total_data_embed = get_nn_embedding_total_data(total_data, target_name)
-    # total_data = autofi_simple_concat_total_data(total_data_groupby, total_data_GBDT, total_data_embed)
-    # total_data.to_csv(root_path + 'adult_autofi.csv', index = False)
-    # acc, auc = train_and_evaluate(total_data_embed, target_name, len_train,
-    #                               classfier)
+    train_data = total_data_groupby.iloc[:len_train]
+    test_data = total_data_groupby.iloc[len_train:]
+    X_train = train_data.drop(target_name, axis=1)
+    y_train = train_data[target_name]
+    X_test = test_data.drop(target_name, axis=1)
+    y_test = test_data[target_name]
+
+    test_datafile = root_path + 'test_groupby.csv'
+    test_data.to_csv(test_datafile, index=None)
+
+    # tabnet
+    # 1. Create the DataModule
+    datamodule = TabularClassificationData.from_data_frame(
+        categorical_fields=cat_col_names,
+        numerical_fields=num_col_names,
+        target_fields=target_name,
+        train_data_frame=train_data,
+        val_data_frame=test_data,
+        batch_size=128,
+    )
+    # 2. Build the task
+    model = TabularClassifier.from_data(datamodule)
+    # 3. Create the trainer and train the model
+    trainer = flash.Trainer(max_epochs=10, gpus=torch.cuda.device_count())
+    trainer.fit(model, datamodule=datamodule)
+    # 4. Generate predictions from a CSV
+    preds_mat = model.predict(test_datafile)
+    preds_mat = np.array(preds_mat)
+    preds_prob = preds_mat[:, 1]
+    print(preds_mat.shape)
+    preds = np.argmax(preds_mat, axis=1)
+    acc = accuracy_score(y_test, preds)
+    auc = roc_auc_score(y_test, preds_prob)
+    f1 = f1_score(y_test, preds)
+    print(type(preds))
+    print(f'Accuracy: {acc}. F1: {f1}. ROC_AUC: {auc}')
