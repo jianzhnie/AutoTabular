@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from autofe.feature_engineering.groupby import get_category_columns, get_numerical_columns
 
 def split_train_test(df, target_name, test_size):
@@ -10,6 +11,13 @@ def split_train_test(df, target_name, test_size):
     data_train = pd.concat([X_train, y_train], axis=1)
     data_test = pd.concat([X_test, y_test], axis=1)
     return data_train, data_test
+
+
+def standardscalar(df, target_name):
+    num_col_names = get_numerical_columns(df, target_name)
+    scalar = StandardScaler()
+    df[num_col_names] = scalar.fit_transform(df[num_col_names])
+    return df
 
 
 def imputing_missing_features(df, target_name):
@@ -40,6 +48,8 @@ def preprocess(df, target_name):
     df = drop_data(df, target_name)
     ### imputing missing
     df = imputing_missing_features(df, target_name)
+    ### standard scalar
+    # df = standardscalar(df, target_name)
     return df
 
 if __name__ == "__main__":
