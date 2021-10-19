@@ -12,6 +12,10 @@
 | Bike Sharing Demand | Regression | https://www.kaggle.com/c/bike-sharing-demand/data |
 | Prudential Life Insurance Assessment | Classification | https://www.kaggle.com/c/prudential-life-insurance-assessment/data |
 | Display Advertising Challenge | Classification | https://www.kaggle.com/c/criteo-display-ad-challenge/data |
+| nyc-taxi-trip-duration| regression|  kaggle|
+| fb_comments | regression|  https://archive.ics.uci.edu/ml/machine-learning-databases/00363/Dataset.zip|
+|covtype|Classification|https://archive.ics.uci.edu/ml/machine-learning-databases/covtype/covtype.data.gz|
+|UCI_Credit_Card|Classification|UCI|
 
 
 
