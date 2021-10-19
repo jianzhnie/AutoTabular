@@ -4,6 +4,8 @@ import pandas as pd
 from autofe.feature_engineering.groupby import get_candidate_categorical_feature
 from pandas.core.frame import DataFrame
 from sklearn.exceptions import NotFittedError
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.feature_selection import SelectFromModel
 
 
 # This class does not represent any sctructural advantage, but I keep it to
@@ -175,6 +177,20 @@ class CrossColTransform():
             return df
         else:
             return df[new_col_names]
+
+    def selectkbesttransform(self, task='classification'):
+        if 'regression' == task:
+            estimator = RandomForestRegressor()
+        else:
+            estimator = RandomForestClassifier()
+
+        X = self.df.drop(self.target_name, axis=1)
+        y = self.df[self.target_name]
+
+        selector = SelectFromModel(estimator=estimator).fit()
+
+        support = selector.get_support()
+        col_names = X.columns[support]
 
 
 if __name__ == '__main__':

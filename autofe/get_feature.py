@@ -31,6 +31,30 @@ def get_groupby_total_data(
     return generated_feature
 
 
+def generate_cross_feature(df: pd.DataFrame, crossed_cols, keep_all=True):
+    df_cc = df.copy()
+    crossed_colnames = []
+    for cols in crossed_cols:
+        for c in cols:
+            df_cc[c] = df_cc[c].astype('str')
+        colname = '_'.join(cols)
+        df_cc[colname] = df_cc[list(cols)].apply(lambda x: '_'.join(x), axis=1)
+
+        crossed_colnames.append(colname)
+    if keep_all:
+        return df_cc
+    else:
+        return df_cc[crossed_colnames]
+
+
+def get_cross_columns(category_cols):
+    crossed_cols = []
+    for i in range(0, len(category_cols) - 1):
+        for j in range(i + 1, len(category_cols)):
+            crossed_cols.append((category_cols[i], category_cols[j]))
+    return crossed_cols
+
+
 def get_GBDT_total_data(df, target_name):
     cat_col_names = get_category_columns(df, target_name)
     label_encoder = LabelEncoder(cat_col_names)
@@ -94,7 +118,7 @@ def get_nn_embedding_total_data(df, target_name):
         continuous_cols=tab_preprocessor.continuous_cols,
         n_blocks=3,
         n_heads=6,
-        input_dim=36)
+        input_dim=32)
 
     wide = Wide(wide_dim=np.unique(X_wide).shape[0], pred_dim=1)
     model = WideDeep(wide=wide, deeptabular=ft_transformer)
@@ -111,10 +135,7 @@ def get_nn_embedding_total_data(df, target_name):
     X_vec = t2v.transform(df)
     feature_names = ['nn_embed_' + str(i) for i in range(X_vec.shape[1])]
     X_vec = pd.DataFrame(X_vec, columns=feature_names)
-    total_data = pd.concat([X_vec, df[target_name]],
-                           axis=1,
-                           verify_integrity=True)
-    return total_data
+    return X_vec
 
 
 def get_widedeep_total_data(df, target_name):
@@ -148,7 +169,7 @@ def get_widedeep_total_data(df, target_name):
 
 
 def autofi_simple_concat_total_data(df_groupby, df_gbtd, df_embedding):
-    total_data = pd.concat([df_groupby, df_gbtd, df_embedding], axis = 1)
+    total_data = pd.concat([df_groupby, df_gbtd, df_embedding], axis=1)
     total_data = total_data.loc[:, ~total_data.columns.duplicated()]
     return total_data
 
@@ -166,7 +187,11 @@ def select_feature(df, target_name, estimator):
     return total_data
 
 
-def train_and_evaluate(total_data, target_name, num_train_set, classifier, task_type = 'binary'):
+def train_and_evaluate(total_data,
+                       target_name,
+                       num_train_set,
+                       classifier,
+                       task_type='binary'):
     train_data = total_data.iloc[:num_train_set]
     test_data = total_data.iloc[num_train_set:]
     X_train = train_data.drop(target_name, axis=1)
@@ -176,8 +201,6 @@ def train_and_evaluate(total_data, target_name, num_train_set, classifier, task_
 
     clf = classifier.fit(X_train, y_train)
     preds = clf.predict(X_test)
-    print(preds)
-    print(y_test)
     if hasattr(clf, "predict_proba"):
         preds_prob = classifier.predict_proba(X_test)[:, 1]
     if task_type == 'binary':
