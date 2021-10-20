@@ -12,20 +12,6 @@ from sklearn.ensemble import RandomForestClassifier
 
 SEED = 42
 
-
-def generate_cross_cols(self, df: pd.DataFrame, crossed_cols):
-    df_cc = df.copy()
-    crossed_colnames = []
-    for cols in crossed_cols:
-        for c in cols:
-            df_cc[c] = df_cc[c].astype('str')
-        colname = '_'.join(cols)
-        df_cc[colname] = df_cc[list(cols)].apply(lambda x: '-'.join(x), axis=1)
-
-        crossed_colnames.append(colname)
-    return df_cc[crossed_colnames]
-
-
 if __name__ == '__main__':
     ROOTDIR = Path('./')
     PROCESSED_DATA_DIR = ROOTDIR / 'data/processed_data/bank_marketing/'

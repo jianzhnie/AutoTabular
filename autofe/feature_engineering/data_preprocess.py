@@ -1,17 +1,6 @@
 import pandas as pd
 from autofe.feature_engineering.groupby import get_category_columns, get_numerical_columns
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
-
-def split_train_test(df, target_name, test_size):
-    X = df.drop(target_name, axis=1)
-    y = df[target_name]
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=2021)
-    data_train = pd.concat([X_train, y_train], axis=1)
-    data_test = pd.concat([X_test, y_test], axis=1)
-    return data_train, data_test
 
 
 def standardscalar(df, target_name):
@@ -62,8 +51,6 @@ if __name__ == '__main__':
     test_data = pd.read_csv(root_path + 'test.csv')
     total_data = pd.concat([train_data, test_data]).reset_index(drop=True)
     # print(total_data)
-
     target_name = 'SalePrice'
-
     data = preprocess(total_data, target_name)
     print(data)

@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # 2. Build the task
     model = TabularClassifier.from_data(datamodule)
     # 3. Create the trainer and train the model
-    trainer = flash.Trainer(max_epochs=10, gpus=torch.cuda.device_count())
+    trainer = flash.Trainer(max_epochs=20, gpus=torch.cuda.device_count())
     trainer.fit(model, datamodule=datamodule)
     # 4. Generate predictions from a CSV
     preds_mat = model.predict(test_datafile)
