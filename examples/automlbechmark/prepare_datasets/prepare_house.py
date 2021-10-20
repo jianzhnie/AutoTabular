@@ -1,14 +1,21 @@
 import os
+from pathlib import Path
+
 import pandas as pd
+from autofe.feature_engineering.data_preprocess import preprocess
+from sklearn.model_selection import train_test_split
 
-from autofe.feature_engineering.data_preprocess import preprocess, split_train_test
-
-
-if __name__ == "__main__":
-    root_dir = "./data/house/"
-    data = pd.read_csv(root_dir + 'train.csv')
-    target_name = "SalePrice"
+if __name__ == '__main__':
+    ROOT_DIR = Path('./')
+    RAW_DATA_DIR = ROOT_DIR / 'data/raw_data/house'
+    PROCESSED_DATA_DIR = ROOT_DIR / 'data/processed_data/house'
+    if not os.path.isdir(PROCESSED_DATA_DIR):
+        os.makedirs(PROCESSED_DATA_DIR)
+    data = pd.read_csv(RAW_DATA_DIR / 'train.csv')
+    target_name = 'SalePrice'
     data = preprocess(data, target_name)
-    data_train, data_test = split_train_test(data, target_name, 0.2)
-    data_train.to_csv(root_dir + 'data_train.csv', index = False)
-    data_test.to_csv(root_dir + 'data_test.csv', index = False)
+    train_data, test_data = train_test_split(
+        data, test_size=0.2, random_state=2021)
+
+    train_data.to_csv(PROCESSED_DATA_DIR / 'train_data.csv', index=False)
+    test_data.to_csv(PROCESSED_DATA_DIR / 'test_data.csv', index=False)
