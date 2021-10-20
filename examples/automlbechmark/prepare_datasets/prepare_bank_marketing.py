@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 pd.options.display.max_columns = 100
 
@@ -20,3 +21,8 @@ bankm['target'] = (bankm['y'].apply(lambda x: x == 'yes')).astype(int)
 bankm.drop('y', axis=1, inplace=True)
 
 bankm.to_csv(PROCESSED_DATA_DIR / 'bankm.csv', index=None)
+
+train_data, test_data = train_test_split(bankm, test_size=0.2)
+
+train_data.to_csv(PROCESSED_DATA_DIR / 'train_data.csv', index=None)
+test_data.to_csv(PROCESSED_DATA_DIR / 'test_data.csv', index=None)
