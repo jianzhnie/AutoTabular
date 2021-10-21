@@ -31,3 +31,18 @@ if __name__ == '__main__':
         len_train,
         classfier,
         task_type='multiclass')
+
+    param = {
+        'subsample': 0.9691896314686848,
+        'colsample_bytree': 0.6605496959185819,
+        'learning_rate': 0.012217164333137215,
+        'max_depth': 27,
+        'n_estimators': 900
+    }
+    classfier = XGBClassifier(**param)
+    acc = train_and_evaluate(
+        total_data_base,
+        target_name,
+        len_train,
+        classfier,
+        task_type='multiclass')

@@ -9,7 +9,7 @@ from pytorch_widedeep.models import FTTransformer, Wide, WideDeep
 from pytorch_widedeep.preprocessing import TabPreprocessor, WidePreprocessor
 from pytorch_widedeep.training import Trainer
 from sklearn.feature_selection import SelectFromModel
-from sklearn.metrics import accuracy_score, r2_score, roc_auc_score, f1_score, mean_squared_error
+from sklearn.metrics import accuracy_score, f1_score, mean_squared_error, r2_score, roc_auc_score
 
 
 def get_baseline_total_data(df):
@@ -52,12 +52,12 @@ def get_cross_columns(category_cols):
     return crossed_cols
 
 
-def get_GBDT_total_data(df, target_name):
+def get_GBDT_total_data(df, target_name, task='classification'):
     cat_col_names = get_category_columns(df, target_name)
     label_encoder = LabelEncoder(cat_col_names)
     total_data = label_encoder.fit_transform(df)
     clf = LightGBMFeatureTransformer(
-        task='classification',
+        task=task,
         categorical_feature=cat_col_names,
         params={
             'n_estimators': 100,
@@ -71,7 +71,10 @@ def get_GBDT_total_data(df, target_name):
     return total_data
 
 
-def get_groupby_GBDT_total_data(groupby_df, target_name):
+def get_groupby_GBDT_total_data(groupby_df,
+                                target_name,
+                                task='classification',
+                                contate=False):
     cat_col_names = get_category_columns(groupby_df, target_name)
     label_encoder = LabelEncoder(cat_col_names)
     total_data = label_encoder.fit_transform(groupby_df)
@@ -85,7 +88,7 @@ def get_groupby_GBDT_total_data(groupby_df, target_name):
     X = total_data.drop(target_name, axis=1)
     y = total_data[target_name]
     clf.fit(X, y)
-    X_enc = clf.concate_transform(X, concate=False)
+    X_enc = clf.concate_transform(X, concate=contate)
     total_data = pd.concat([X_enc, y], axis=1)
     return total_data
 
@@ -198,7 +201,6 @@ def train_and_evaluate(total_data,
 
     clf = classifier.fit(X_train, y_train)
     preds = clf.predict(X_test)
-    print(clf)
     if hasattr(clf, 'predict_proba'):
         preds_prob = classifier.predict_proba(X_test)[:, 1]
     if task_type == 'binary':
@@ -210,9 +212,9 @@ def train_and_evaluate(total_data,
     elif task_type == 'multiclass':
         acc = accuracy_score(y_test, preds)
         print(f'Accuracy: {acc}.')
-        return acc
+        return acc, acc
     else:
         score = r2_score(y_test, preds)
         mse = mean_squared_error(y_test, preds)
         print(f'r2_score: {score}, mse: {mse}.')
-        return score
+        return mse, score

@@ -75,7 +75,6 @@ if __name__ == '__main__':
     X_test = test_data.drop(target_name, axis=1)
     y_test = test_data[target_name]
 
-    test_datafile = root_path + 'test_groupby.csv'
     test_data.to_csv(test_datafile, index=None)
 
     # tabnet

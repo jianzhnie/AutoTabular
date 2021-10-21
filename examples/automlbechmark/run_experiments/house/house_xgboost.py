@@ -27,3 +27,19 @@ if __name__ == '__main__':
         len_train,
         classfier,
         task_type='regression')
+
+    param = {
+        'subsample': 0.3653289846869241,
+        'colsample_bytree': 0.9545839225514163,
+        'learning_rate': 0.02858607644743819,
+        'max_depth': 24,
+        'n_estimators': 600
+    }
+    classfier = XGBRegressor(**param)
+    total_data_base = get_baseline_total_data(total_data)
+    score = train_and_evaluate(
+        total_data_base,
+        target_name,
+        len_train,
+        classfier,
+        task_type='regression')

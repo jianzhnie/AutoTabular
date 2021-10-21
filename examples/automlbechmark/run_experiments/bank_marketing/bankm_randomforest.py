@@ -6,8 +6,8 @@ from autofe.deeptabular_utils import LabelEncoder
 from autofe.feature_engineering.groupby import get_category_columns
 from autofe.get_feature import (generate_cross_feature,
                                 get_baseline_total_data, get_cross_columns,
-                                get_GBDT_total_data, get_groupby_total_data,
-                                train_and_evaluate)
+                                get_groupby_GBDT_total_data,
+                                get_groupby_total_data, train_and_evaluate)
 from sklearn.ensemble import RandomForestClassifier
 
 SEED = 42
@@ -47,7 +47,6 @@ if __name__ == '__main__':
     crossed_cols = get_cross_columns(cat_col_names)
     total_cross_data = generate_cross_feature(
         total_data, crossed_cols=crossed_cols)
-    print(total_cross_data)
     cat_col_names = get_category_columns(total_cross_data, target_name)
     label_encoder = LabelEncoder(cat_col_names)
     total_cross_data = label_encoder.fit_transform(total_cross_data)
@@ -65,7 +64,22 @@ if __name__ == '__main__':
     acc, auc = train_and_evaluate(total_data_groupby, target_name, len_train,
                                   classfier)
     """GBDT + RF"""
-    total_data_GBDT = get_GBDT_total_data(total_data, target_name)
-    total_data_GBDT.to_csv(PROCESSED_DATA_DIR / 'adult_gbdt.csv', index=False)
+    groupby_data = get_groupby_total_data(total_data, target_name, threshold,
+                                          k, methods)
+    total_data_GBDT = get_groupby_GBDT_total_data(groupby_data, target_name)
     acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train,
+                                  classfier)
+
+    # random forest
+    param = {
+        'criterion': 'gini',
+        'min_samples_leaf': 2,
+        'min_samples_split': 4,
+        'max_depth': 8,
+        'n_estimators': 1000
+    }
+    classfier = RandomForestClassifier(**param)
+    """RF baseline"""
+    total_data_base = get_baseline_total_data(total_data)
+    acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
                                   classfier)

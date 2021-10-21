@@ -3,8 +3,8 @@ from autofe.deeptabular_utils import LabelEncoder
 from autofe.feature_engineering.groupby import get_category_columns
 from autofe.get_feature import (generate_cross_feature,
                                 get_baseline_total_data, get_cross_columns,
-                                get_GBDT_total_data, get_groupby_total_data,
-                                train_and_evaluate)
+                                get_groupby_GBDT_total_data,
+                                get_groupby_total_data, train_and_evaluate)
 from sklearn.ensemble import RandomForestClassifier
 
 if __name__ == '__main__':
@@ -31,7 +31,6 @@ if __name__ == '__main__':
     crossed_cols = get_cross_columns(cat_col_names)
     total_cross_data = generate_cross_feature(
         total_data, crossed_cols=crossed_cols)
-    print(total_cross_data)
     cat_col_names = get_category_columns(total_cross_data, target_name)
     label_encoder = LabelEncoder(cat_col_names)
     total_cross_data = label_encoder.fit_transform(total_cross_data)
@@ -44,11 +43,22 @@ if __name__ == '__main__':
     total_data_groupby = get_groupby_total_data(total_data, target_name,
                                                 threshold, k, methods)
     total_data_groupby = pd.get_dummies(total_data_groupby).fillna(0)
-    total_data_groupby.to_csv(root_path + 'adult_groupby.csv', index=False)
     acc, auc = train_and_evaluate(total_data_groupby, target_name, len_train,
                                   classfier)
     """GBDT + RF"""
-    total_data_GBDT = get_GBDT_total_data(total_data, target_name)
-    total_data_GBDT.to_csv(root_path + 'adult_gbdt.csv', index=False)
+    param = {
+        'criterion': 'gini',
+        'min_samples_leaf': 2,
+        'min_samples_split': 8,
+        'max_depth': 12,
+        'n_estimators': 500
+    }
+    classfier = RandomForestClassifier(**param)
+    threshold = 0.9
+    k = 5
+    methods = ['min', 'max', 'sum', 'mean', 'std', 'count']
+    groupby_data = get_groupby_total_data(total_data, target_name, threshold,
+                                          k, methods)
+    total_data_GBDT = get_groupby_GBDT_total_data(groupby_data, target_name)
     acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train,
                                   classfier)

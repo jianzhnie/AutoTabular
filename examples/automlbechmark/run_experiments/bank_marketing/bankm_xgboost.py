@@ -69,3 +69,15 @@ if __name__ == '__main__':
     total_data_GBDT.to_csv(PROCESSED_DATA_DIR / 'adult_gbdt.csv', index=False)
     acc, auc = train_and_evaluate(total_data_GBDT, target_name, len_train,
                                   classfier)
+
+    param = {
+        'subsample': 0.7997071117992662,
+        'colsample_bytree': 0.4355584194234931,
+        'learning_rate': 0.13015209461739366,
+        'max_depth': 2,
+        'n_estimators': 800
+    }
+    classfier = XGBClassifier(**param)
+    total_data_base = get_baseline_total_data(total_data)
+    acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
+                                  classfier)

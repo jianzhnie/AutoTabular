@@ -20,6 +20,22 @@ if __name__ == '__main__':
     print('xgboost baseline: \n')
     acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
                                   classfier)
+
+    param = {
+        'subsample': 0.9894965585620157,
+        'colsample_bytree': 0.3725398569008492,
+        'learning_rate': 0.13098012414701815,
+        'max_depth': 4,
+        'n_estimators': 500
+    }
+
+    classfier = XGBClassifier(**param)
+    """xgboost baseline"""
+    # Accuracy: 0.8724279835390947. ROC_AUC: 0.9257845633487581
+    total_data_base = get_baseline_total_data(total_data)
+    print('xgboost baseline: \n')
+    acc, auc = train_and_evaluate(total_data_base, target_name, len_train,
+                                  classfier)
     """groupby + xgboost"""
     # Accuracy: 0.8727350899821879. ROC_AUC: 0.9254309826594914
     threshold = 0.9
