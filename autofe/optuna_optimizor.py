@@ -1,53 +1,83 @@
-from typing import Dict
-
 import numpy as np
 import optuna
 import pandas as pd
 import sklearn.datasets
+from autofe.utils.logger import get_root_logger
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import accuracy_score, mean_squared_error, r2_score, roc_auc_score
 from sklearn.model_selection import train_test_split
-from autofe.utils.logger import get_root_logger
+
 logger = get_root_logger(log_file=None)
+
+BINARY_CLASSIFICATION = 'binary_classification'
+MULTICLASS_CLASSIFICATION = 'multiclass_classification'
+REGRESSION = 'regression'
 
 
 class RandomForestHpo(object):
 
-    def __init__(self,
-                 target: str = None,
-                 task: str = 'binary',
-                 metric: str = 'accuracy'):
+    def __init__(
+        self,
+        target: str = None,
+        task: str = BINARY_CLASSIFICATION,
+        metric: str = 'accuracy',
+        random_state=None,
+    ):
 
         self.target = target
         self.task = task
         self.metric = metric
-        self.early_stop_dict: Dict = {}
+        self.seed = random_state
 
-        if self.task == 'regression':
+        if self.task == REGRESSION:
             self.estimator = RandomForestRegressor
         else:
             self.estimator = RandomForestClassifier
 
     def fit(self,
-            X_train,
-            y_train,
-            X_val=None,
-            y_val=None,
+            train_data,
+            val_data=None,
+            split_ratio=0.2,
             max_evals: int = 10,
             timeout=600):
+
+        train_data, tuning_data = self._validate_fit_data(
+            train_data=train_data, tuning_data=val_data)
+
+        X_train = train_data.drop(self.target, axis=1)
+        y_train = train_data[self.target]
+
+        if tuning_data is None:
+            logger.info(
+                'Tuning data is not support, the train_data  will be split :  train vs val =  %2s vs %2s'
+                % (1 - split_ratio, split_ratio))
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_train, y_train, test_size=split_ratio)
+        else:
+            X_val = train_data.drop(self.target, axis=1)
+            y_val = train_data[self.target]
+
         objective = self.get_objective(X_train, y_train, X_val, y_val)
         logger.info('===== Beginning  RandomForest Hpo training ======')
-        logger.info('Max Hpo trials:  %s ' % max_evals)
+        logger.info('Max Hpo trials:  %s' % max_evals)
         logger.info('Time Out: %s s ' % timeout)
-        study = optuna.create_study(direction='maximize')
-        study.optimize(objective, n_trials=max_evals, timeout=timeout)
-        trial = study.best_trial
-        best_param = trial.params
-        logger.info('====== Finished RandomForest Hpo training ======')
-        logger.info('Get the best model params ...')
-        logger.info('parms: %s', best_param)
-        logger.info('Retraining on the whole dataset.')
-        self.model = self.estimator(**best_param).fit(X_train, y_train)
+
+        try:
+            study = optuna.create_study(direction='maximize')
+            study.optimize(objective, n_trials=max_evals, timeout=timeout)
+            trial = study.best_trial
+            best_param = trial.params
+            logger.info('====== Finished RandomForest Hpo training ======')
+            logger.info('Get the best model params ...')
+            logger.info('parms: %s', best_param)
+            logger.info('Retraining on the whole dataset.')
+            self.model = self.estimator(**best_param).fit(X_train, y_train)
+
+        except optuna.exceptions.TrialPruned as e:
+            raise e
+        except Exception as e:
+            print('Exception in RandomForestObjective', str(e))
+            return None
         return best_param
 
     def predict(self, X_test):
@@ -82,22 +112,27 @@ class RandomForestHpo(object):
                       X_val=None,
                       y_val=None,
                       **kwargs):
-        assert X_train is not None, 'train data most exist'
-        assert y_train is not None, 'label data most exist'
-        if X_val is None or y_val is None:
-            X_train, X_val, y_train, y_val = train_test_split(
-                X_train, y_train, test_size=0.20, random_state=42)
 
         def objective(trial):
+            if self.task == REGRESSION:
+                criterion = trial.suggest_categorical(
+                    'criterion',
+                    ['squared_error', 'mse', 'absolute_error', 'poisson'])
+            else:
+                criterion = trial.suggest_categorical('criterion',
+                                                      ['gini', 'entropy'])
+
             param = {
                 'criterion':
-                trial.suggest_categorical('criterion', ['gini', 'entropy']),
+                criterion,
                 'min_samples_leaf':
-                trial.suggest_int('min_samples_leaf', 1, 20),
+                trial.suggest_int('min_samples_leaf', 1, 100),
                 'min_samples_split':
-                trial.suggest_int('min_samples_split', 2, 20),
+                trial.suggest_int('min_samples_split', 2, 100),
                 'max_depth':
-                trial.suggest_int('max_depth', 2, 12),
+                trial.suggest_int('max_depth', 2, 32),
+                'max_features':
+                trial.suggest_float('max_features', 0.01, 1),
                 'n_estimators':
                 trial.suggest_int('n_estimators', 100, 1000, step=100),
             }
@@ -143,9 +178,13 @@ class RandomForestHpo(object):
 
 
 if __name__ == '__main__':
-    x, y = sklearn.datasets.load_iris(return_X_y=True)
-    rf = RandomForestHpo(target=None, task='multiclass')
-    rf.fit(x, y)
-    preds = rf.predict(x)
-    acc = accuracy_score(y, preds)
+    iris = sklearn.datasets.load_iris(as_frame=True)['frame']
+    print(iris)
+    target = 'target'
+    rf = RandomForestHpo(target='target', task='multiclass')
+    rf.fit(iris)
+    X_train = iris.drop(target, axis=1)
+    y_train = iris[target]
+    preds = rf.predict(X_train)
+    acc = accuracy_score(y_train, preds)
     print(acc)
