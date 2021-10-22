@@ -18,13 +18,11 @@ class RandomForestHpo(object):
 
     def __init__(
         self,
-        target: str = None,
         task: str = BINARY_CLASSIFICATION,
         metric: str = 'accuracy',
         random_state=None,
     ):
 
-        self.target = target
         self.task = task
         self.metric = metric
         self.seed = random_state
@@ -35,27 +33,23 @@ class RandomForestHpo(object):
             self.estimator = RandomForestClassifier
 
     def fit(self,
-            train_data,
-            val_data=None,
+            X_train,
+            y_train,
+            X_val=None,
+            y_val=None,
             split_ratio=0.2,
-            max_evals: int = 10,
+            max_evals: int = 100,
             timeout=600):
 
-        train_data, tuning_data = self._validate_fit_data(
-            train_data=train_data, tuning_data=val_data)
+        X_train, X_val = self._validate_fit_data(
+            train_data=X_train, tuning_data=X_val)
 
-        X_train = train_data.drop(self.target, axis=1)
-        y_train = train_data[self.target]
-
-        if tuning_data is None:
+        if X_val is None:
             logger.info(
-                'Tuning data is not support, the train_data  will be split :  train vs val =  %2s vs %2s'
+                'Tuning data is None, the original train_data will be split: train vs val =  %2s vs %2s'
                 % (1 - split_ratio, split_ratio))
             X_train, X_val, y_train, y_val = train_test_split(
                 X_train, y_train, test_size=split_ratio)
-        else:
-            X_val = train_data.drop(self.target, axis=1)
-            y_val = train_data[self.target]
 
         objective = self.get_objective(X_train, y_train, X_val, y_val)
         logger.info('===== Beginning  RandomForest Hpo training ======')
@@ -81,12 +75,10 @@ class RandomForestHpo(object):
         return best_param
 
     def predict(self, X_test):
-        preds = self.model.predict(X_test)
-        return preds
+        return self.model.predict(X_test)
 
     def predict_proba(self, X_test):
-        preds = self.model.predict_proba(X_test)
-        return preds
+        return self.model.predict_proba(X_test)
 
     def get_score_fn(self, task, metric):
         support_metric_dict = {
@@ -161,14 +153,8 @@ class RandomForestHpo(object):
                 raise AssertionError(
                     f'tuning_data is required to be a pandas DataFrame, but was instead: {type(tuning_data)}'
                 )
-            train_features = [
-                column for column in train_data.columns
-                if column != self.target
-            ]
-            tuning_features = [
-                column for column in tuning_data.columns
-                if column != self.target
-            ]
+            train_features = train_data.columns
+            tuning_features = tuning_data.columns
             train_features = np.array(train_features)
             tuning_features = np.array(tuning_features)
             if np.any(train_features != tuning_features):
@@ -178,13 +164,10 @@ class RandomForestHpo(object):
 
 
 if __name__ == '__main__':
-    iris = sklearn.datasets.load_iris(as_frame=True)['frame']
-    print(iris)
-    target = 'target'
-    rf = RandomForestHpo(target='target', task='multiclass')
-    rf.fit(iris)
-    X_train = iris.drop(target, axis=1)
-    y_train = iris[target]
-    preds = rf.predict(X_train)
-    acc = accuracy_score(y_train, preds)
+    X, y = sklearn.datasets.load_iris(return_X_y=True, as_frame=True)
+    rf = RandomForestHpo(task='multiclass')
+    X_train, X_val, y_train, y_val = train_test_split(X, y)
+    rf.fit(X_train, y_train, X_val=None, y_val=None, max_evals=10)
+    preds = rf.predict(X_val)
+    acc = accuracy_score(y_val, preds)
     print(acc)
