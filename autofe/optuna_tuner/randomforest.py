@@ -1,20 +1,15 @@
 import numpy as np
 import optuna
 import pandas as pd
-import sklearn.datasets
+from autofe.optuna_tuner.registry import BINARY_CLASSIFICATION, REGRESSION, default_optimizer_direction, default_task_metric, get_metric_fn, support_ml_task
 from autofe.utils.logger import get_root_logger
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.metrics import accuracy_score, mean_squared_error, r2_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 logger = get_root_logger(log_file=None)
 
-BINARY_CLASSIFICATION = 'binary_classification'
-MULTICLASS_CLASSIFICATION = 'multiclass_classification'
-REGRESSION = 'regression'
 
-
-class RandomForestHpo(object):
+class RandomForestOptuna(object):
 
     def __init__(
         self,
@@ -26,6 +21,8 @@ class RandomForestHpo(object):
         self.task = task
         self.metric = metric
         self.seed = random_state
+
+        assert self.task in support_ml_task, 'Only Support ML Tasks: %s' % support_ml_task
 
         if self.task == REGRESSION:
             self.estimator = RandomForestRegressor
@@ -81,22 +78,16 @@ class RandomForestHpo(object):
         return self.model.predict_proba(X_test)
 
     def get_score_fn(self, task, metric):
-        support_metric_dict = {
-            'auc': roc_auc_score,
-            'accuracy': accuracy_score,
-            'r2': r2_score,
-            'mse': mean_squared_error
-        }
-        default_score_dict = {
-            'binary': roc_auc_score,
-            'multiclass': accuracy_score,
-            'regression': r2_score,
-        }
-        if metric is not None:
-            score_fn = support_metric_dict[metric]
-        else:
-            score_fn = default_score_dict[task]
+        if metric is None:
+            metric = default_task_metric[task]
+        score_fn = get_metric_fn[metric]
         return score_fn
+
+    def get_optimizer_direction(self, task, metric):
+        if metric is not None:
+            metric = default_task_metric[task]
+        direction = default_optimizer_direction[task]
+        return direction
 
     def get_objective(self,
                       X_train,
@@ -164,8 +155,10 @@ class RandomForestHpo(object):
 
 
 if __name__ == '__main__':
+    import sklearn.datasets
+    from sklearn.metrics import accuracy_score
     X, y = sklearn.datasets.load_iris(return_X_y=True, as_frame=True)
-    rf = RandomForestHpo(task='multiclass')
+    rf = RandomForestOptuna(task='multiclass_classification')
     X_train, X_val, y_train, y_val = train_test_split(X, y)
     rf.fit(X_train, y_train, X_val=None, y_val=None, max_evals=10)
     preds = rf.predict(X_val)
