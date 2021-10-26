@@ -93,7 +93,7 @@ class XGBoostFeatureTransformer(BaseEstimator):
         """
         return self.one_hot_encoder_.transform(self.model.apply(X))
 
-    def concate_transform(self, X, concate=True):
+    def dense_transform(self, X, keep_original=True):
         gbdt_leaf = self.model.apply(X)
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
@@ -101,7 +101,7 @@ class XGBoostFeatureTransformer(BaseEstimator):
             for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
-        if concate:
+        if keep_original:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
             return gbdt_feats
@@ -134,7 +134,7 @@ class GBDTFeatureTransformer(BaseEstimator):
     def transform(self, X):
         return self.one_hot_encoder_.transform(self.model.apply(X)[:, :, 0])
 
-    def concate_transform(self, X, concate=True):
+    def dense_transform(self, X, keep_original=True):
         gbdt_leaf = self.model.apply(X)[:, :, 0]
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
@@ -142,7 +142,7 @@ class GBDTFeatureTransformer(BaseEstimator):
             for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
-        if concate:
+        if keep_original:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
             return gbdt_feats
@@ -154,7 +154,7 @@ class LightGBMFeatureTransformer(BaseEstimator):
                  task='regression',
                  categorical_feature='auto',
                  params={
-                     'n_estimators': 1000,
+                     'n_estimators': 100,
                      'max_depth': 3
                  }):
         self.short_name = 'lightgbm'
@@ -179,7 +179,7 @@ class LightGBMFeatureTransformer(BaseEstimator):
         return self.one_hot_encoder_.transform(
             self.model.predict(X, pred_leaf=True))
 
-    def concate_transform(self, X, concate=True):
+    def dense_transform(self, X, keep_original=True):
         gbdt_leaf = self.model.predict(X, pred_leaf=True)
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
@@ -187,7 +187,7 @@ class LightGBMFeatureTransformer(BaseEstimator):
             for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
-        if concate:
+        if keep_original:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
             return gbdt_feats
@@ -224,7 +224,7 @@ class CatboostFeatureTransformer(BaseEstimator):
     def transform(self, X):
         return self.one_hot_encoder_.transform(self.model.calc_leaf_indexes(X))
 
-    def concate_transform(self, X, concate=True):
+    def concate_transform(self, X, keep_original=True):
         gbdt_leaf = self.model.calc_leaf_indexes(X)
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
@@ -232,7 +232,7 @@ class CatboostFeatureTransformer(BaseEstimator):
             for i in range(onehot_embedding.shape[1])
         ]
         gbdt_feats = pd.DataFrame(onehot_embedding, columns=gbdt_feats_name)
-        if concate:
+        if keep_original:
             return pd.concat([X, gbdt_feats], axis=1)
         else:
             return gbdt_feats

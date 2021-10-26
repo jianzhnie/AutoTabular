@@ -179,7 +179,7 @@ print(f"Accuracy: {accuracy_score(test['Survived'], predictions)*100.0:.2f}%")
 - Each model will be trained for 30 minutes (30*60 seconds). total_time_limit is not set.
 - There will be trained about 10 + 3 * 3 * 2 = 28 unstacked models for each algorithm。
 > 10 个 随机搜索的模型
-> hill_climbing_steps *  top_models_to_improve *  golden_features or not = 3 * 3 * 2 = 18 
+> hill_climbing_steps *  top_models_to_improve *  golden_features or not = 3 * 3 * 2 = 18
 
 - There will be trained about  10 stacked models for each algorithm. (There is stacked up to 10 models for each algorithm)
 
@@ -246,7 +246,7 @@ class LabelEncoder(object):
         self.lbl.classes_ = keys
 ```
 
-## 2. 自定义  data_preprocesing 的调用 
+## 2. 自定义  data_preprocesing 的调用
 
 所有的 data_preprocesing 函数类都通过 [Preprocessing](../supervised/preprocessing/preprocessing.py) 进行调用
 
@@ -334,7 +334,7 @@ def test_add_to_registry(self):
     AlgorithmsRegistry.add(**model1)
 ```
 
-#### 调用 AlgorithmsRegistry 
+#### 调用 AlgorithmsRegistry
 
 ```python
 from supervised.algorithms.registry import AlgorithmsRegistry
@@ -342,11 +342,11 @@ model_info = AlgorithmsRegistry.registry["binary_classification"]["Xgboost"]
 print(model_info)
 
 {
-'class': <class 'supervised.algorithms.xgboost.XgbAlgorithm'>, 
+'class': <class 'supervised.algorithms.xgboost.XgbAlgorithm'>,
 
-'params': {'objective': ['binary:logistic'], 'eta': [0.05, 0.075, 0.1, 0.15], 'max_depth': [4, 5, 6, 7, 8, 9], 'min_child_weight': [1, 5, 10, 25, 50], 'subsample': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0], 'colsample_bytree': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}, 'required_preprocessing': ['missing_values_inputation', 'convert_categorical', 'datetime_transform', 'text_transform', 'target_as_integer'], }, 
+'params': {'objective': ['binary:logistic'], 'eta': [0.05, 0.075, 0.1, 0.15], 'max_depth': [4, 5, 6, 7, 8, 9], 'min_child_weight': [1, 5, 10, 25, 50], 'subsample': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0], 'colsample_bytree': [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]}, 'required_preprocessing': ['missing_values_inputation', 'convert_categorical', 'datetime_transform', 'text_transform', 'target_as_integer'], },
 
-'additional': {'max_rounds': 10000, 'early_stopping_rounds': 50, 'max_rows_limit': None, 'max_cols_limit': None}, 
+'additional': {'max_rounds': 10000, 'early_stopping_rounds': 50, 'max_rows_limit': None, 'max_cols_limit': None},
 
 'default_params': {'objective': 'binary:logistic', 'eta': 0.075, 'max_depth': 6, 'min_child_weight': 1, 'subsample': 1.0, 'colsample_bytree': 1.0}
 
@@ -423,4 +423,3 @@ def _get_model_params(self, model_type, seed, params_type="random"):
 ```
 
 通过  `model_info = AlgorithmsRegistry.registry[self._ml_task][model_type]` 可以获得每个模型的相关信息
-

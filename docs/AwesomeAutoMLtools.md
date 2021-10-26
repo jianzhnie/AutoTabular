@@ -7,9 +7,9 @@ Curating a list of AutoML-related research, tools, projects and other resources
 
 # AutoML
 
-AutoML is the tools and technology to use machine learning methods and processes to automate machine learning systems and make them more accessible. It existed for several decades so it's not a completely new idea. 
+AutoML is the tools and technology to use machine learning methods and processes to automate machine learning systems and make them more accessible. It existed for several decades so it's not a completely new idea.
 
-Recent work by Google Brain and many others have re-kindled the enthusiasm of AutoML and some companies have already [commercialized the technology](https://cloud.google.com/automl/). Thus, it has becomes one of the hosttest areas to look into. 
+Recent work by Google Brain and many others have re-kindled the enthusiasm of AutoML and some companies have already [commercialized the technology](https://cloud.google.com/automl/). Thus, it has becomes one of the hosttest areas to look into.
 
 There are many kinds of AutoML, including:
 - Neural network architecture search
@@ -124,7 +124,7 @@ There are many kinds of AutoML, including:
 - [Progressive Neural Architecture Search](https://arxiv.org/abs/1712.00559) (Liu et al. 2017)
 - [AdaNet: Adaptive Structural Learning of Artificial Neural Networks](https://arxiv.org/abs/1607.01097) (Cortes et al. 2017)
 - [Learning Transferable Architectures for Scalable Image Recognition](https://arxiv.org/abs/1707.07012) (Zoph et al. 2017)
-- [Designing Neural Network Architectures using Reinforcement Learning](https://arxiv.org/abs/1611.02167) (Baker et al. 2016) 
+- [Designing Neural Network Architectures using Reinforcement Learning](https://arxiv.org/abs/1611.02167) (Baker et al. 2016)
 - [Neural Architecture Search with Reinforcement Learning](https://arxiv.org/abs/1611.01578) (Zoph and Le. 2016)
 
 ### Neural Architecture Search benchmark
@@ -207,7 +207,7 @@ There are many kinds of AutoML, including:
 - [SMAC](https://github.com/automl/SMAC3): Sequential Model-based Algorithm Configuration
 - [Hyperopt-sklearn](https://github.com/hyperopt/hyperopt-sklearn): hyper-parameter optimization for sklearn
 - [Spearmint](https://github.com/HIPS/Spearmint): a software package to perform Bayesian optimization
-- [TPOT](http://automl.info/tpot/): one of the very first AutoML methods and open-source software packages 
+- [TPOT](http://automl.info/tpot/): one of the very first AutoML methods and open-source software packages
 - [MOE](https://github.com/Yelp/MOE): a global, black box optimization engine for real world metric optimization by Yelp
 - [Hyperband](https://github.com/zygmuntz/hyperband): open source code for tuning hyperparams with Hyperband
 - [Optuna](https://optuna.org/): define-by-run hypterparameter optimization framework
@@ -233,7 +233,7 @@ There are many kinds of AutoML, including:
 
 ## Commercial products
 - [Amazon SageMaker AutoPilot](https://aws.amazon.com/sagemaker/autopilot/)
-- [Google Cloud AutoML](https://cloud.google.com/automl/) 
+- [Google Cloud AutoML](https://cloud.google.com/automl/)
 - [Google Cloud ML Hyperparameter Turning](https://cloud.google.com/ml-engine/docs/tensorflow/using-hyperparameter-tuning)
 - [Microsoft Azure Machine Learning Studio](https://azure.microsoft.com/en-us/services/machine-learning-studio/)
 - [comet.ml](https://www.comet.ml/)
