@@ -1,8 +1,12 @@
 from pathlib import Path
-
+import logging
 import pandas as pd
 from autofe.get_feature import get_baseline_total_data, get_GBDT_total_data, get_groupby_total_data, train_and_evaluate
 from sklearn.linear_model import Ridge
+# create logger
+logger = logging.getLogger(__name__)
+logger.setLevel(20)
+
 
 if __name__ == '__main__':
     ROOTDIR = Path('./')
@@ -10,7 +14,7 @@ if __name__ == '__main__':
 
     train_datafile = PROCESSED_DATA_DIR / 'train_data.csv'
     test_datafile = PROCESSED_DATA_DIR / 'test_data.csv'
-
+    logger.log(20, '============ fit kwarg info ============')
     train_data = pd.read_csv(PROCESSED_DATA_DIR / 'train_data.csv')
     test_data = pd.read_csv(PROCESSED_DATA_DIR / 'test_data.csv')
     total_data = pd.concat([train_data, test_data]).reset_index(drop=True)
