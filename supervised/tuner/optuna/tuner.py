@@ -19,6 +19,20 @@ from supervised.exceptions import AutoMLException
 
 
 class OptunaTuner:
+    """
+    def __init__(
+        self,
+        results_path,
+        ml_task,
+        eval_metric,
+        max_trials=100,
+        time_budget=3600,
+        init_params={},
+        verbose=True,
+        n_jobs=-1,
+        random_state=42,
+    )
+    """
     def __init__(
         self,
         results_path,
@@ -62,7 +76,7 @@ class OptunaTuner:
             "maximize" if Metric.optimize_negative(eval_metric.name) else "minimize"
         )
         self.n_warmup_steps = (
-            500  # set large enough to give small learning rates a chance
+            10  # set large enough to give small learning rates a chance
         )
         self.time_budget = time_budget
         self.verbose = verbose
@@ -217,7 +231,7 @@ class OptunaTuner:
                 self.random_state,
             )
 
-        study.optimize(objective, n_trials=5000, timeout=self.time_budget)
+        study.optimize(objective, n_trials=self.max_trials, timeout=self.time_budget)
 
         self.plot_study(algorithm, data_type, study)
 

@@ -1,3 +1,4 @@
+from logging import log
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
@@ -107,9 +108,7 @@ class LightgbmObjective:
             "metric": self.eval_metric_name,
             "verbosity": -1,
             "boosting_type": "gbdt",
-            "learning_rate": trial.suggest_categorical(
-                "learning_rate", [0.0125, 0.025, 0.05, 0.1]
-            ),
+            "learning_rate": trial.suggest_float("learning_rate", 0.001, 0.3, log=True),
             "num_leaves": trial.suggest_int("num_leaves", 2, 2048),
             "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),
             "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),
