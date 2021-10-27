@@ -84,14 +84,15 @@ class XgboostObjective:
             "tree_method": "hist",
             "booster": "gbtree",
             "eta": trial.suggest_categorical("eta", [0.0125, 0.025, 0.05, 0.1]),
-            "max_depth": trial.suggest_int("max_depth", 2, 12),
+            "max_depth": trial.suggest_int("max_depth", 2, 32),
             "lambda": trial.suggest_float("lambda", EPS, 10.0, log=True),
             "alpha": trial.suggest_float("alpha", EPS, 10.0, log=True),
             "colsample_bytree": min(
                 trial.suggest_float("colsample_bytree", 0.3, 1.0 + EPS), 1.0
             ),
-            "subsample": min(trial.suggest_float("subsample", 0.3, 1.0 + EPS), 1.0),
-            "min_child_weight": trial.suggest_int("min_child_weight", 1, 100),
+            "colsample_bylevel": trial.suggest.float('colsample_bylevel', 0.1, 1.0),
+            "subsample": min(trial.suggest_float("subsample", 0.1, 1.0 + EPS), 1.0),
+            "min_child_weight": trial.suggest_int("min_child_weight", 1, 128),
             "n_jobs": self.n_jobs,
             "seed": self.seed,
             "verbosity": 0,

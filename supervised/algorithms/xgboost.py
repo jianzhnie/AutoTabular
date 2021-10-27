@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import os
 import time
+from inspect import signature
 import xgboost as xgb
 
 from supervised.algorithms.algorithm import BaseAlgorithm
@@ -269,7 +270,13 @@ class XgbAlgorithm(BaseAlgorithm):
         dtrain = xgb.DMatrix(
             X.values if isinstance(X, pd.DataFrame) else X, missing=np.NaN
         )
-        a = self.model.predict(dtrain, ntree_limit=self.best_ntree_limit)
+        if "iteration_range" in str(signature(self.model.predict)):
+            # the newer version
+            a = self.model.predict(dtrain, iteration_range=(0, self.best_ntree_limit))
+        else:
+            # the older interface
+            a = self.model.predict(dtrain, ntree_limit=self.best_ntree_limit)
+
         return a
 
     def copy(self):
@@ -348,7 +355,7 @@ regression_default_params = {
 
 additional = {
     "max_rounds": 10000,
-    "early_stopping_rounds": 20,
+    "early_stopping_rounds": 50,
     "max_rows_limit": None,
     "max_cols_limit": None,
 }

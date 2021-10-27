@@ -24,6 +24,7 @@ class OptunaTuner:
         results_path,
         ml_task,
         eval_metric,
+        max_trials=100,
         time_budget=3600,
         init_params={},
         verbose=True,
@@ -56,7 +57,7 @@ class OptunaTuner:
         self.tuning_fname = os.path.join(self.study_dir, "optuna.json")
         self.tuning = init_params
         self.eval_metric = eval_metric
-
+        self.max_trials = max_trials
         self.direction = (
             "maximize" if Metric.optimize_negative(eval_metric.name) else "minimize"
         )
@@ -121,7 +122,7 @@ class OptunaTuner:
             sampler=optuna.samplers.TPESampler(seed=self.random_state),
             pruner=optuna.pruners.MedianPruner(n_warmup_steps=self.n_warmup_steps),
         )
-        obejctive = None
+        objective = None
         if algorithm == "LightGBM":
             objective = LightgbmObjective(
                 self.ml_task,
