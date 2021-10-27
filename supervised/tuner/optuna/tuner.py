@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 import joblib
 import optuna
 import warnings
@@ -64,6 +65,7 @@ class OptunaTuner:
 
         self.study_dir = os.path.join(results_path, "optuna")
         if not os.path.exists(self.study_dir):
+            print("%s is not exist" % self.study_dir)
             try:
                 os.mkdir(self.study_dir)
             except Exception as e:
@@ -240,6 +242,8 @@ class OptunaTuner:
         best = study.best_params
 
         if algorithm == "LightGBM":
+            best["objective"] = objective.objective
+            best["num_class"] = objective.num_class
             best["metric"] = objective.eval_metric_name
             best["custom_eval_metric_name"] = objective.custom_eval_metric_name
             best["num_boost_round"] = objective.rounds
@@ -345,3 +349,36 @@ class OptunaTuner:
         with open(os.path.join(self.study_dir, "README.md"), "a") as fout:
             fout.write(md)
             fout.write("\n\n[<< Go back](../README.md)\n")
+
+    def _get_results_path(self, result_dir):
+        """Gets the current results_path"""
+        self._validate_results_path(result_dir)
+        for i in range(1, 10001):
+            name = f"optuna_{i}"
+            path = os.path.join(result_dir, name)
+            print(path)
+            if not os.path.exists(path):
+                self.create_dir(name)
+                return path
+            elif os.path.exists(path) and not len(os.listdir(path)):
+                return path
+            elif os.path.exists(path) and len(os.listdir(path)):
+                continue
+            else:
+                pass
+        raise AutoMLException("Cannot create directory for optuna tuna results")
+
+    def _validate_results_path(self, path):
+        """Validates path parameter"""
+        if path is None or isinstance(path, str):
+            return
+        raise ValueError(
+            f"Expected 'results_path' to be of type string, got '{type(self.path)}''"
+        )
+
+    def create_dir(self, model_path):
+        if not os.path.exists(model_path):
+            try:
+                os.mkdir(model_path)
+            except Exception as e:
+                raise AutoMLException(f"Cannot create directory {model_path}. {str(e)}")
