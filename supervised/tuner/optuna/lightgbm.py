@@ -1,27 +1,14 @@
-import numpy as np
-import pandas as pd
 import lightgbm as lgb
+import numpy as np
 import optuna
-
-from supervised.utils.metric import Metric
-from supervised.utils.metric import (
-    lightgbm_eval_metric_r2,
-    lightgbm_eval_metric_spearman,
-    lightgbm_eval_metric_pearson,
-    lightgbm_eval_metric_f1,
-    lightgbm_eval_metric_average_precision,
-    lightgbm_eval_metric_accuracy,
-    lightgbm_eval_metric_user_defined,
-)
-from supervised.algorithms.registry import BINARY_CLASSIFICATION
+import pandas as pd
+from supervised.algorithms.lightgbm import lightgbm_eval_metric, lightgbm_objective
 from supervised.algorithms.registry import MULTICLASS_CLASSIFICATION
-from supervised.algorithms.registry import REGRESSION
-
-from supervised.algorithms.lightgbm import (
-    lightgbm_objective,
-    lightgbm_eval_metric,
-)
-
+from supervised.utils.metric import (
+    Metric, lightgbm_eval_metric_accuracy,
+    lightgbm_eval_metric_average_precision, lightgbm_eval_metric_f1,
+    lightgbm_eval_metric_pearson, lightgbm_eval_metric_r2,
+    lightgbm_eval_metric_spearman, lightgbm_eval_metric_user_defined)
 
 EPS = 1e-8
 
@@ -50,15 +37,13 @@ class LightgbmObjective:
         self.sample_weight_validation = sample_weight_validation
         self.dtrain = lgb.Dataset(
             self.X_train.to_numpy()
-            if isinstance(self.X_train, pd.DataFrame)
-            else self.X_train,
+            if isinstance(self.X_train, pd.DataFrame) else self.X_train,
             label=self.y_train,
             weight=self.sample_weight,
         )
         self.dvalid = lgb.Dataset(
-            self.X_validation.to_numpy()
-            if isinstance(self.X_validation, pd.DataFrame)
-            else self.X_validation,
+            self.X_validation.to_numpy() if isinstance(
+                self.X_validation, pd.DataFrame) else self.X_validation,
             label=self.y_validation,
             weight=self.sample_weight_validation,
         )
@@ -74,81 +59,92 @@ class LightgbmObjective:
         if n_jobs == -1:
             self.n_jobs = 0
 
-        self.objective = ""
-        self.eval_metric_name = ""
+        self.objective = ''
+        self.eval_metric_name = ''
 
         self.eval_metric_name, self.custom_eval_metric_name = lightgbm_eval_metric(
-            ml_task, eval_metric.name
-        )
+            ml_task, eval_metric.name)
 
         self.custom_eval_metric = None
-        if self.eval_metric.name == "r2":
+        if self.eval_metric.name == 'r2':
             self.custom_eval_metric = lightgbm_eval_metric_r2
-        elif self.eval_metric.name == "spearman":
+        elif self.eval_metric.name == 'spearman':
             self.custom_eval_metric = lightgbm_eval_metric_spearman
-        elif self.eval_metric.name == "pearson":
+        elif self.eval_metric.name == 'pearson':
             self.custom_eval_metric = lightgbm_eval_metric_pearson
-        elif self.eval_metric.name == "f1":
+        elif self.eval_metric.name == 'f1':
             self.custom_eval_metric = lightgbm_eval_metric_f1
-        elif self.eval_metric.name == "average_precision":
+        elif self.eval_metric.name == 'average_precision':
             self.custom_eval_metric = lightgbm_eval_metric_average_precision
-        elif self.eval_metric.name == "accuracy":
+        elif self.eval_metric.name == 'accuracy':
             self.custom_eval_metric = lightgbm_eval_metric_accuracy
-        elif self.eval_metric.name == "user_defined_metric":
+        elif self.eval_metric.name == 'user_defined_metric':
             self.custom_eval_metric = lightgbm_eval_metric_user_defined
 
         self.num_class = (
-            len(np.unique(y_train)) if ml_task == MULTICLASS_CLASSIFICATION else None
-        )
+            len(np.unique(y_train))
+            if ml_task == MULTICLASS_CLASSIFICATION else None)
         self.objective = lightgbm_objective(ml_task, eval_metric.name)
 
     def __call__(self, trial):
         param = {
-            "objective": self.objective,
-            "metric": self.eval_metric_name,
-            "verbosity": -1,
-            "boosting_type": "gbdt",
-            "learning_rate": trial.suggest_float("learning_rate", 0.001, 0.3, log=True),
-            "n_estimators": trial.suggest_int("n_estimators", 100, 1000, step=100),
-            "num_leaves": trial.suggest_int("num_leaves", 2, 2048),
-            "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),
-            "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),
-            "feature_fraction": min(
-                trial.suggest_float("feature_fraction", 0.3, 1.0 + EPS), 1.0
-            ),
-            "bagging_fraction": min(
-                trial.suggest_float("bagging_fraction", 0.3, 1.0 + EPS), 1.0
-            ),
-            "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 1, 128),
-            "feature_pre_filter": False,
-            "seed": self.seed,
-            "num_threads": self.n_jobs,
-            "extra_trees": trial.suggest_categorical("extra_trees", [True, False]),
+            'objective':
+            self.objective,
+            'metric':
+            self.eval_metric_name,
+            'verbosity':
+            -1,
+            'boosting_type':
+            'gbdt',
+            'learning_rate':
+            trial.suggest_float('learning_rate', 0.001, 0.3, log=True),
+            'n_estimators':
+            trial.suggest_int('n_estimators', 100, 1000, step=100),
+            'num_leaves':
+            trial.suggest_int('num_leaves', 2, 1024),
+            'lambda_l1':
+            trial.suggest_float('lambda_l1', 1e-8, 10.0, log=True),
+            'lambda_l2':
+            trial.suggest_float('lambda_l2', 1e-8, 10.0, log=True),
+            'feature_fraction':
+            min(trial.suggest_float('feature_fraction', 0.3, 1.0 + EPS), 1.0),
+            'bagging_fraction':
+            min(trial.suggest_float('bagging_fraction', 0.3, 1.0 + EPS), 1.0),
+            'bagging_freq':
+            trial.suggest_int('bagging_freq', 1, 7),
+            'min_data_in_leaf':
+            trial.suggest_int('min_data_in_leaf', 1, 128),
+            'feature_pre_filter':
+            False,
+            'seed':
+            self.seed,
+            'num_threads':
+            self.n_jobs,
+            'extra_trees':
+            trial.suggest_categorical('extra_trees', [True, False]),
         }
 
         if self.cat_features_indices:
-            param["cat_feature"] = self.cat_features_indices
-            param["cat_l2"] = trial.suggest_float("cat_l2", EPS, 100.0)
-            param["cat_smooth"] = trial.suggest_float("cat_smooth", EPS, 100.0)
+            param['cat_feature'] = self.cat_features_indices
+            param['cat_l2'] = trial.suggest_float('cat_l2', EPS, 100.0)
+            param['cat_smooth'] = trial.suggest_float('cat_smooth', EPS, 100.0)
 
         if self.num_class is not None:
-            param["num_class"] = self.num_class
+            param['num_class'] = self.num_class
 
         try:
 
             metric_name = self.eval_metric_name
-            if metric_name == "custom":
+            if metric_name == 'custom':
                 metric_name = self.custom_eval_metric_name
             pruning_callback = optuna.integration.LightGBMPruningCallback(
-                trial, metric_name, "validation"
-            )
+                trial, metric_name, 'validation')
 
             gbm = lgb.train(
                 param,
                 self.dtrain,
                 valid_sets=[self.dvalid],
-                valid_names=["validation"],
+                valid_names=['validation'],
                 verbose_eval=False,
                 callbacks=[pruning_callback],
                 num_boost_round=self.rounds,
@@ -163,7 +159,7 @@ class LightgbmObjective:
         except optuna.exceptions.TrialPruned as e:
             raise e
         except Exception as e:
-            print("Exception in LightgbmObjective", str(e))
+            print('Exception in LightgbmObjective', str(e))
             return None
 
         return score
