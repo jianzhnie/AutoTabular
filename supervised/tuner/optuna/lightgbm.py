@@ -1,4 +1,3 @@
-from logging import log
 import numpy as np
 import pandas as pd
 import lightgbm as lgb
@@ -28,6 +27,7 @@ EPS = 1e-8
 
 
 class LightgbmObjective:
+
     def __init__(
         self,
         ml_task,
@@ -109,6 +109,7 @@ class LightgbmObjective:
             "verbosity": -1,
             "boosting_type": "gbdt",
             "learning_rate": trial.suggest_float("learning_rate", 0.001, 0.3, log=True),
+            "n_estimators": trial.suggest_int("n_estimators", 100, 1000, step=100),
             "num_leaves": trial.suggest_int("num_leaves", 2, 2048),
             "lambda_l1": trial.suggest_float("lambda_l1", 1e-8, 10.0, log=True),
             "lambda_l2": trial.suggest_float("lambda_l2", 1e-8, 10.0, log=True),
@@ -119,7 +120,7 @@ class LightgbmObjective:
                 trial.suggest_float("bagging_fraction", 0.3, 1.0 + EPS), 1.0
             ),
             "bagging_freq": trial.suggest_int("bagging_freq", 1, 7),
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 1, 100),
+            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 1, 128),
             "feature_pre_filter": False,
             "seed": self.seed,
             "num_threads": self.n_jobs,

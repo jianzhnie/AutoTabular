@@ -250,7 +250,6 @@ class OptunaTuner:
             best['custom_eval_metric_name'] = objective.custom_eval_metric_name
             best['num_boost_round'] = objective.rounds
             best['early_stopping_rounds'] = objective.early_stopping_rounds
-            # best["learning_rate"] = objective.learning_rate
             best['cat_feature'] = self.cat_features_indices
             best['feature_pre_filter'] = False
             best['seed'] = objective.seed
@@ -355,10 +354,10 @@ class OptunaTuner:
     def _get_results_path(self, result_dir):
         """Gets the current results_path."""
         self._validate_results_path(result_dir)
-        for i in range(1, 10001):
+        for i in range(1, 1001):
             path = f'{result_dir}/OptunaTuner/tuner_{i}'
             if not os.path.exists(path):
-                self.create_dir(path)
+                self._create_dir(path)
                 return path
             elif os.path.exists(path) and not len(os.listdir(path)):
                 return path
@@ -371,10 +370,10 @@ class OptunaTuner:
         if path is None or isinstance(path, str):
             return
         raise ValueError(
-            f"Expected 'results_path' to be of type string, got '{type(self.path)}''"
+            f"Expected 'results_path' to be of type string, got '{type(path)}''"
         )
 
-    def create_dir(self, model_path):
+    def _create_dir(self, model_path):
         if not os.path.exists(model_path):
             try:
                 os.makedirs(model_path)
