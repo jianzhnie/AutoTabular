@@ -1,7 +1,7 @@
 import numpy as np
 import optuna
 import pandas as pd
-from autofe.optuna_tuner.registry import BINARY_CLASSIFICATION, REGRESSION, default_optimizer_direction, default_task_metric, get_metric_fn, support_ml_task
+from autofe.optuna_tuner.registry import BINARY_CLASSIFICATION, MULTICLASS_CLASSIFICATION, REGRESSION, default_optimizer_direction, default_task_metric, get_metric_fn, support_ml_task
 from autofe.utils.logger import get_root_logger
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.model_selection import train_test_split
@@ -36,10 +36,11 @@ class RandomForestOptuna(object):
             y_val=None,
             split_ratio=0.2,
             max_evals: int = 100,
-            timeout=600):
+            timeout=3600):
 
-        X_train, X_val = self._validate_fit_data(
-            train_data=X_train, tuning_data=X_val)
+        if X_val is not None:
+            X_train, X_val = self._validate_fit_data(
+                train_data=X_train, tuning_data=X_val)
 
         if X_val is None:
             logger.info(
@@ -109,9 +110,9 @@ class RandomForestOptuna(object):
                 'criterion':
                 criterion,
                 'min_samples_leaf':
-                trial.suggest_int('min_samples_leaf', 1, 100),
+                trial.suggest_int('min_samples_leaf', 1, 128),
                 'min_samples_split':
-                trial.suggest_int('min_samples_split', 2, 100),
+                trial.suggest_int('min_samples_split', 2, 128),
                 'max_depth':
                 trial.suggest_int('max_depth', 2, 32),
                 'max_features':
@@ -135,7 +136,7 @@ class RandomForestOptuna(object):
                 f'train_data is required to be a pandas DataFrame, but was instead: {type(train_data)}'
             )
 
-        if len(set(train_data.columns)) < len(train_data.columns):
+        if len(set(tuning_data.columns)) < len(train_data.columns):
             raise ValueError(
                 "Column names are not unique, please change duplicated column names (in pandas: train_data.rename(columns={'current_name':'new_name'})"
             )
