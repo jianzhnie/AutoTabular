@@ -1,7 +1,12 @@
 import numpy as np
 import optuna
 import pandas as pd
-from autofe.optuna_tuner.registry import BINARY_CLASSIFICATION, MULTICLASS_CLASSIFICATION, REGRESSION, default_optimizer_direction, default_task_metric, get_metric_fn, support_ml_task
+from autofe.optuna_tuner.registry import (BINARY_CLASSIFICATION,
+                                          MULTICLASS_CLASSIFICATION,
+                                          REGRESSION,
+                                          default_optimizer_direction,
+                                          default_task_metric, get_metric_fn,
+                                          support_ml_task)
 from autofe.utils.logger import get_root_logger
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.model_selection import train_test_split
@@ -15,12 +20,15 @@ class RandomForestOptuna(object):
         self,
         task: str = BINARY_CLASSIFICATION,
         metric: str = 'accuracy',
-        random_state=None,
+        random_state=42,
     ):
 
         self.task = task
-        self.metric = metric
         self.seed = random_state
+        if metric is None:
+            self.metric = default_task_metric[task]
+        else:
+            self.metric = metric
 
         assert self.task in support_ml_task, 'Only Support ML Tasks: %s' % support_ml_task
 
@@ -54,8 +62,17 @@ class RandomForestOptuna(object):
         logger.info('Max Hpo trials:  %s' % max_evals)
         logger.info('Time Out: %s s ' % timeout)
 
+        optimizer_direction = self.get_optimizer_direction(
+            self.task, self.metric)
+        self.n_warmup_steps = 20
+
         try:
-            study = optuna.create_study(direction='maximize')
+            study = optuna.create_study(
+                direction=optimizer_direction,
+                sampler=optuna.samplers.TPESampler(seed=self.seed),
+                pruner=optuna.pruners.MedianPruner(
+                    n_warmup_steps=self.n_warmup_steps),
+            )
             study.optimize(objective, n_trials=max_evals, timeout=timeout)
             trial = study.best_trial
             best_param = trial.params
@@ -87,7 +104,7 @@ class RandomForestOptuna(object):
     def get_optimizer_direction(self, task, metric):
         if metric is not None:
             metric = default_task_metric[task]
-        direction = default_optimizer_direction[task]
+        direction = default_optimizer_direction[metric]
         return direction
 
     def get_objective(self,
@@ -114,9 +131,9 @@ class RandomForestOptuna(object):
                 'min_samples_split':
                 trial.suggest_int('min_samples_split', 2, 128),
                 'max_depth':
-                trial.suggest_int('max_depth', 2, 32),
+                trial.suggest_int('max_depth', 2, 10),
                 'max_features':
-                trial.suggest_float('max_features', 0.01, 1),
+                trial.suggest_float('max_features', 0.1, 1),
                 'n_estimators':
                 trial.suggest_int('n_estimators', 100, 1000, step=100),
             }
