@@ -16,6 +16,7 @@ from supervised.tuner.optuna.nn import NeuralNetworkObjective
 from supervised.tuner.optuna.random_forest import RandomForestObjective
 from supervised.tuner.optuna.xgboost import XgboostObjective
 from supervised.utils.metric import Metric
+from supervised.tuner.optuna.svm import SVMObjective
 
 
 class OptunaTuner:
@@ -208,6 +209,19 @@ class OptunaTuner:
                 self.random_state,
             )
         elif algorithm == 'Nearest Neighbors':
+            objective = KNNObjective(
+                self.ml_task,
+                X_train,
+                y_train,
+                sample_weight,
+                X_validation,
+                y_validation,
+                sample_weight_validation,
+                self.eval_metric,
+                self.n_jobs,
+                self.random_state,
+            )
+        elif algorithm == 'SVM':
             objective = KNNObjective(
                 self.ml_task,
                 X_train,

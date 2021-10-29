@@ -1,10 +1,12 @@
 import optuna
 from sklearn.svm import SVC, SVR
+from supervised.algorithms.registry import BINARY_CLASSIFICATION
+from supervised.algorithms.registry import MULTICLASS_CLASSIFICATION
 from supervised.algorithms.registry import REGRESSION
 from supervised.utils.metric import Metric
 
 
-class SVCObjective:
+class SVMObjective:
 
     def __init__(
         self,

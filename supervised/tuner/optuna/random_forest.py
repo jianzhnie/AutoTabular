@@ -52,10 +52,10 @@ class RandomForestObjective:
             params = {
                 "max_steps": self.max_steps,
                 "criterion": self.objective,
-                "max_depth": trial.suggest_int("max_depth", 2, 32),
+                "max_depth": trial.suggest_int("max_depth", 2, 10),
                 "min_samples_split": trial.suggest_int("min_samples_split", 2, 100),
                 "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 100),
-                "max_features": trial.suggest_float("max_features", 0.01, 1),
+                "max_features": trial.suggest_float("max_features", 0.1, 1),
                 "n_jobs": self.n_jobs,
                 "seed": self.seed,
                 "ml_task": self.ml_task,
