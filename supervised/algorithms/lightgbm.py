@@ -108,6 +108,7 @@ class LightgbmAlgorithm(BaseAlgorithm):
             "metric": self.params.get("metric", "binary_logloss"),
             "num_leaves": self.params.get("num_leaves", 31),
             "learning_rate": self.params.get("learning_rate", 0.1),
+            "n_estimators": self.params.get("n_estimators", 500),
             "feature_fraction": self.params.get("feature_fraction", 1.0),
             "bagging_fraction": self.params.get("bagging_fraction", 1.0),
             "min_data_in_leaf": self.params.get("min_data_in_leaf", 20),
