@@ -50,7 +50,7 @@ class RandomForestOptuna(object):
             X_train, X_val = self._validate_fit_data(
                 train_data=X_train, tuning_data=X_val)
 
-        if X_val is None:
+        else:
             logger.info(
                 'Tuning data is None, the original train_data will be split: train vs val =  %2s vs %2s'
                 % (1 - split_ratio, split_ratio))
