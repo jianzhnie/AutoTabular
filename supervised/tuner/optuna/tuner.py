@@ -65,7 +65,7 @@ class OptunaTuner:
             raise AutoMLException(
                 f'Metric {eval_metric.name} is not supported')
 
-        self.study_dir = self._get_results_path(results_path)
+        self.study_dir = self._get_study_path(results_path)
         if not os.path.exists(self.study_dir):
             print('%s is not exist' % self.study_dir)
             try:
@@ -222,7 +222,7 @@ class OptunaTuner:
                 self.random_state,
             )
         elif algorithm == 'SVM':
-            objective = KNNObjective(
+            objective = SVMObjective(
                 self.ml_task,
                 X_train,
                 y_train,
@@ -365,7 +365,7 @@ class OptunaTuner:
             fout.write(md)
             fout.write('\n\n[<< Go back](../README.md)\n')
 
-    def _get_results_path(self, result_dir):
+    def _get_study_path(self, result_dir):
         """Gets the current results_path."""
         self._validate_results_path(result_dir)
         for i in range(1, 1001):
