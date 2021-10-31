@@ -20,12 +20,15 @@ class XGBoostOptuna(object):
         self,
         task: str = BINARY_CLASSIFICATION,
         metric: str = 'accuracy',
-        random_state=None,
+        random_state=42,
     ):
 
         self.task = task
-        self.metric = metric
         self.seed = random_state
+        if metric is None:
+            self.metric = default_task_metric[task]
+        else:
+            self.metric = metric
 
         assert self.task in support_ml_task, 'Only Support ML Tasks: %s' % support_ml_task
 
@@ -41,12 +44,13 @@ class XGBoostOptuna(object):
             y_val=None,
             split_ratio=0.2,
             max_evals: int = 100,
-            timeout=600):
+            timeout=3600):
 
-        X_train, X_val = self._validate_fit_data(
-            train_data=X_train, tuning_data=X_val)
+        if X_val is not None:
+            X_train, X_val = self._validate_fit_data(
+                train_data=X_train, tuning_data=X_val)
 
-        if X_val is None:
+        else:
             logger.info(
                 'Tuning data is None, the original train_data will be split: train vs val =  %2s vs %2s'
                 % (1 - split_ratio, split_ratio))
@@ -58,9 +62,16 @@ class XGBoostOptuna(object):
         logger.info('Max Hpo trials:  %s' % max_evals)
         logger.info('Time Out: %s s ' % timeout)
 
+        optimizer_direction = self.get_optimizer_direction(
+            self.task, self.metric)
+        self.n_warmup_steps = 20
         try:
-            pruner = optuna.pruners.MedianPruner(n_warmup_steps=5)
-            study = optuna.create_study(pruner=pruner, direction='maximize')
+            study = optuna.create_study(
+                direction=optimizer_direction,
+                sampler=optuna.samplers.TPESampler(seed=self.seed),
+                pruner=optuna.pruners.MedianPruner(
+                    n_warmup_steps=self.n_warmup_steps),
+            )
             study.optimize(objective, n_trials=max_evals, timeout=timeout)
             trial = study.best_trial
             best_param = trial.params
@@ -92,7 +103,7 @@ class XGBoostOptuna(object):
     def get_optimizer_direction(self, task, metric):
         if metric is not None:
             metric = default_task_metric[task]
-        direction = default_optimizer_direction[task]
+        direction = default_optimizer_direction[metric]
         return direction
 
     def xgboost_objective(self, ml_task):
@@ -113,7 +124,13 @@ class XGBoostOptuna(object):
                       **kwargs):
 
         def objective(trial):
-            obj = self.xgboost_objective(self.task)
+            if self.task == REGRESSION:
+                criterion = trial.suggest_categorical(
+                    'criterion',
+                    ['squared_error', 'mse', 'absolute_error', 'poisson'])
+            else:
+                criterion = trial.suggest_categorical('criterion',
+                                                      ['gini', 'entropy'])
             param = {
                 'verbosity':
                 0,
