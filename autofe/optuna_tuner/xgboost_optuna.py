@@ -124,13 +124,7 @@ class XGBoostOptuna(object):
                       **kwargs):
 
         def objective(trial):
-            if self.task == REGRESSION:
-                criterion = trial.suggest_categorical(
-                    'criterion',
-                    ['squared_error', 'mse', 'absolute_error', 'poisson'])
-            else:
-                criterion = trial.suggest_categorical('criterion',
-                                                      ['gini', 'entropy'])
+            obj = self.xgboost_objective(self.task)
             param = {
                 'verbosity':
                 0,
