@@ -7,7 +7,6 @@ from supervised.utils.metric import Metric
 
 
 class SVMObjective:
-
     def __init__(
         self,
         ml_task,
@@ -16,9 +15,7 @@ class SVMObjective:
         sample_weight,
         X_validation,
         y_validation,
-        sample_weight_validation,
         eval_metric,
-        n_jobs,
         random_state,
     ):
         self.ml_task = ml_task
@@ -28,9 +25,6 @@ class SVMObjective:
         self.X_validation = X_validation
         self.y_validation = y_validation
         self.eval_metric = eval_metric
-        self.n_jobs = n_jobs
-        self.objective = 'mse' if ml_task == REGRESSION else 'gini'
-        self.max_steps = 10  # RF is trained in steps 100 trees each
         self.seed = random_state
 
     def __call__(self, trial):
@@ -38,23 +32,21 @@ class SVMObjective:
             Algorithm = (SVR if self.ml_task == REGRESSION else SVC)
             params = {
                 'C':
-                trial.suggest_float('C', 1e-3, 1024, log=True),
+                trial.suggest_float('C', 100, 20000, log=True),
                 'kernel':
                 trial.suggest_categorical(
                     'kernel',
-                    ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed']),
-                'gamma':
-                trial.suggest_float('gamma', 1e-4, 1e-1),
+                    ['poly', 'rbf']),
+                # 'gamma':
+                # trial.suggest_float('gamma', 1e-4, 1, log=True),
                 'degree':
-                trial.suggest_categorical('degree', [0, 1, 2, 3]),
-                'class_weight':
-                trial.suggest_categorical('class_weight', ['balanced', None]),
-                'n_jobs':
-                self.n_jobs,
-                'random_state':
-                self.seed
+                trial.suggest_categorical('degree', [1, 2, 3, 4]),
+                'class_weight': 'balanced',
+                'random_state': self.seed,
+                'probability': True,
+                'shrinking': True,
             }
-            model = Algorithm(params)
+            model = Algorithm(**params)
             model.fit(
                 self.X_train, self.y_train, sample_weight=self.sample_weight)
 
@@ -67,7 +59,7 @@ class SVMObjective:
         except optuna.exceptions.TrialPruned as e:
             raise e
         except Exception as e:
-            print('Exception in RandomForestObjective', str(e))
+            print('Exception in SVMObjective', str(e))
             return None
 
         return score

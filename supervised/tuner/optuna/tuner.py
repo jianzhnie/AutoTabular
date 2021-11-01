@@ -102,6 +102,7 @@ class OptunaTuner:
             'LightGBM',
             'Nearest Neighbors',
             'Neural Network',
+            'SVM'
         ]
 
     def optimize(
@@ -229,9 +230,7 @@ class OptunaTuner:
                 sample_weight,
                 X_validation,
                 y_validation,
-                sample_weight_validation,
                 self.eval_metric,
-                self.n_jobs,
                 self.random_state,
             )
         elif algorithm == 'Neural Network':
@@ -290,6 +289,8 @@ class OptunaTuner:
             # Random Forest is not using early stopping
             best['max_steps'] = objective.max_steps  # each step has 100 trees
             best['seed'] = objective.seed
+            best['eval_metric_name'] = self.eval_metric.name
+        elif algorithm == 'SVM':
             best['eval_metric_name'] = self.eval_metric.name
         elif algorithm == 'Nearest Neighbors':
             best['rows_limit'] = 100000
