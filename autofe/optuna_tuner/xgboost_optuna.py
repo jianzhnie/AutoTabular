@@ -186,7 +186,7 @@ class XGBoostOptuna(object):
                 f'train_data is required to be a pandas DataFrame, but was instead: {type(train_data)}'
             )
 
-        if len(set(train_data.columns)) < len(train_data.columns):
+        if len(set(tuning_data.columns)) < len(train_data.columns):
             raise ValueError(
                 "Column names are not unique, please change duplicated column names (in pandas: train_data.rename(columns={'current_name':'new_name'})"
             )
