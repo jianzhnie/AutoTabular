@@ -32,7 +32,7 @@ class SVMObjective:
             Algorithm = (SVR if self.ml_task == REGRESSION else SVC)
             params = {
                 'C':
-                trial.suggest_float('C', 100, 20000, log=True),
+                trial.suggest_float('C', 1e-10, 1e10, log=True),
                 'kernel':
                 trial.suggest_categorical(
                     'kernel',
@@ -46,7 +46,7 @@ class SVMObjective:
                 'probability': True,
                 'shrinking': True,
             }
-            model = Algorithm(**params)
+            model = Algorithm(**params).set_params(**params)
             model.fit(
                 self.X_train, self.y_train, sample_weight=self.sample_weight)
 

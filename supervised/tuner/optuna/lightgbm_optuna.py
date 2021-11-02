@@ -1,17 +1,14 @@
 import lightgbm as lgb
 import numpy as np
-import optuna
 import pandas as pd
+from optuna.integration.lightgbm import LightGBMTunerCV
 from supervised.algorithms.lightgbm import lightgbm_eval_metric, lightgbm_objective
 from supervised.algorithms.registry import MULTICLASS_CLASSIFICATION
 from supervised.utils.metric import (
-    Metric, lightgbm_eval_metric_accuracy,
-    lightgbm_eval_metric_average_precision, lightgbm_eval_metric_f1,
-    lightgbm_eval_metric_pearson, lightgbm_eval_metric_r2,
-    lightgbm_eval_metric_spearman, lightgbm_eval_metric_user_defined)
-from optuna.integration.lightgbm import LightGBMTunerCV
-from sklearn.model_selection import KFold
-
+    lightgbm_eval_metric_accuracy, lightgbm_eval_metric_average_precision,
+    lightgbm_eval_metric_f1, lightgbm_eval_metric_pearson,
+    lightgbm_eval_metric_r2, lightgbm_eval_metric_spearman,
+    lightgbm_eval_metric_user_defined)
 
 EPS = 1e-8
 
@@ -43,12 +40,14 @@ class LightgbmObjective:
             if isinstance(self.X_train, pd.DataFrame) else self.X_train,
             label=self.y_train,
             weight=self.sample_weight,
+            free_raw_data=False,
         )
         self.dvalid = lgb.Dataset(
             self.X_validation.to_numpy() if isinstance(
                 self.X_validation, pd.DataFrame) else self.X_validation,
             label=self.y_validation,
             weight=self.sample_weight_validation,
+            free_raw_data=False,
         )
 
         self.cat_features_indices = cat_features_indices
@@ -89,7 +88,7 @@ class LightgbmObjective:
             if ml_task == MULTICLASS_CLASSIFICATION else None)
         self.objective = lightgbm_objective(ml_task, eval_metric.name)
 
-    def __call__(self, trial):
+    def optimize(self):
         param = {
             'objective': self.objective,
             'metric': self.eval_metric_name,
@@ -98,41 +97,32 @@ class LightgbmObjective:
             'num_threads': self.n_jobs,
         }
 
-        if self.cat_features_indices:
-            param['cat_feature'] = self.cat_features_indices
-            param['cat_l2'] = trial.suggest_float('cat_l2', EPS, 100.0)
-            param['cat_smooth'] = trial.suggest_float('cat_smooth', EPS, 100.0)
-
         if self.num_class is not None:
             param['num_class'] = self.num_class
 
-        try:
+        # Reformat the data for LightGBM cross validation method
+        train_set = lgb.Dataset(
+            data=pd.concat([self.dtrain.data,
+                            self.dvalid.data]).reset_index(drop=True),
+            label=pd.concat([self.dtrain.label,
+                             self.dvalid.label]).reset_index(drop=True),
+            categorical_feature=self.dtrain.categorical_feature,
+            free_raw_data=False,
+        )
 
-            metric_name = self.eval_metric_name
-            if metric_name == 'custom':
-                metric_name = self.custom_eval_metric_name
-            
-            pruning_callback = optuna.integration.LightGBMPruningCallback(
-                trial, metric_name, 'validation')
+        train_index = range(len(self.dtrain.data))
+        valid_index = range(len(self.dtrain.data), len(train_set.data))
 
-            # Run the hyper-parameter tuning
-            self.tuner = LightGBMTunerCV(
-                params=param,
-                train_set=self.dtrain,
-                folds=KFold(n_splits=3),
-                verbose_eval=False,
-                num_boost_round=100,
-                early_stopping_rounds=50,
-            )
-            
-            preds = gbm.predict(self.X_validation)
-            score = self.eval_metric(self.y_validation, preds)
-            if Metric.optimize_negative(self.eval_metric.name):
-                score *= -1.0
-        except optuna.exceptions.TrialPruned as e:
-            raise e
-        except Exception as e:
-            print('Exception in LightgbmObjective', str(e))
-            return None
+        # Run the hyper-parameter tuning
+        self.tuner = LightGBMTunerCV(
+            params=param,
+            train_set=self.dtrain,
+            folds=[(train_index, valid_index)],
+            verbose_eval=False,
+            num_boost_round=100,
+            early_stopping_rounds=50,
+        )
 
-        return score
+        self.tuner.run()
+        self.best = self.tuner.best_params
+        return self.best
