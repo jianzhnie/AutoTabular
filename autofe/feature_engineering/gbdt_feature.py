@@ -224,7 +224,7 @@ class CatboostFeatureTransformer(BaseEstimator):
     def transform(self, X):
         return self.one_hot_encoder_.transform(self.model.calc_leaf_indexes(X))
 
-    def concate_transform(self, X, keep_original=True):
+    def dense_transform(self, X, keep_original=True):
         gbdt_leaf = self.model.calc_leaf_indexes(X)
         onehot_embedding = self.one_hot_encoder_.transform(gbdt_leaf).toarray()
         gbdt_feats_name = [
