@@ -259,22 +259,6 @@ for epoch in range(num_epochs):
     print('loss:', loss)
 ```
 
-## Citation
-If you use AutoTabular in a scientific publication, please cite the following paper:
-
-Robin, et al. ["AutoTabular: Robust and Accurate AutoML for Structured Data."](https://arxiv.org/abs/2003.06505) arXiv preprint arXiv:2003.06505 (2021).
-
-BibTeX entry:
-
-```bibtex
-@article{agtabular,
-  title={AutoTabular: Robust and Accurate AutoML for Structured Data},
-  author={JianZheng, WenQi},
-  journal={arXiv preprint arXiv:2003.06505},
-  year={2021}
-}
-```
-
 ## License
 
 This library is licensed under the Apache 2.0 License.
