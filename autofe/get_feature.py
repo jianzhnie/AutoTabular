@@ -66,7 +66,7 @@ def get_GBDT_total_data(df, target_name, task='classification'):
     X = total_data.drop(target_name, axis=1)
     y = total_data[target_name]
     clf.fit(X, y)
-    X_enc = clf.concate_transform(X, concate=False)
+    X_enc = clf.dense_transform(X, keep_original=False)
     total_data = pd.concat([X_enc, y], axis=1)
     return total_data
 
@@ -74,12 +74,12 @@ def get_GBDT_total_data(df, target_name, task='classification'):
 def get_groupby_GBDT_total_data(groupby_df,
                                 target_name,
                                 task='classification',
-                                contate=False):
+                                keep_original=False):
     cat_col_names = get_category_columns(groupby_df, target_name)
     label_encoder = LabelEncoder(cat_col_names)
     total_data = label_encoder.fit_transform(groupby_df)
     clf = LightGBMFeatureTransformer(
-        task='classification',
+        task=task,
         categorical_feature=cat_col_names,
         params={
             'n_estimators': 100,
@@ -88,7 +88,7 @@ def get_groupby_GBDT_total_data(groupby_df,
     X = total_data.drop(target_name, axis=1)
     y = total_data[target_name]
     clf.fit(X, y)
-    X_enc = clf.concate_transform(X, concate=contate)
+    X_enc = clf.dense_transform(X, keep_original=keep_original)
     total_data = pd.concat([X_enc, y], axis=1)
     return total_data
 
