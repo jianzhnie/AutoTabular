@@ -5,7 +5,20 @@ import zipfile
 from abc import abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-
+from typing import (
+    Any,
+    Dict,
+    List,
+    Match,
+    Tuple,
+    Union,
+    Callable,
+    Iterable,
+    Iterator,
+    Optional,
+    Generator,
+    Collection,
+)
 import numpy as np
 import torch
 from pytorch_tabnet.callbacks import CallbackContainer, EarlyStopping, History, LRSchedulerCallback
@@ -20,7 +33,6 @@ from torch.utils.data import DataLoader
 @dataclass
 class TabularModel(BaseEstimator):
     """Class for  Tabular Model."""
-
     def __post_init__(self):
         self.batch_size = 1024
         self.virtual_batch_size = 128
